@@ -131,7 +131,9 @@ class SettingsSurfaceDriftTest {
      * `clipboard_media_enabled` + `clipboard_max_media_size_mb` (Clipboard
      * section), `show_exact_typed_word` (Input Behavior), `scale_numpad_height`
      * (Appearance) — so every SETTINGS_DEFAULTS key except the one pinned
-     * below now has a writer. This pin is the ratchet in both directions: a
+     * below now has a writer. OpenJev aggressiveness is separately reserved until
+     * distinct policies pass evaluation (October 10 implementation). This pin
+     * is the ratchet in both directions: a
      * NEW writerless key is the F-8 class growing back, and a key listed here
      * gaining a writer means the pin (and the decision record) must move.
      */
@@ -145,6 +147,12 @@ class SettingsSurfaceDriftTest {
             // reading it (default false), and a backup that carries `true`
             // still enables collection on import, exactly as before.
             "privacy_collect_errors",
+            // Deliberately unavailable (OpenJev implementation, 2026-10-10): only
+            // Conservative has a supported policy. The requested preference remains
+            // import/export compatible, but its disabled selector must not imply that
+            // Balanced/Aggressive are evaluated. Remove this pin only when distinct
+            // validated policies and their actual runtime/UI writers are shipped.
+            "openjev_aggressiveness",
             // clipboard_pinned_rows left this set 2026-09-07: ClipboardPinView (its
             // only reader) was deleted by D-9, so the key moved to DEPRECATED_KEYS.
         )
@@ -177,6 +185,18 @@ class SettingsSurfaceDriftTest {
             "Writerless SETTINGS_DEFAULTS keys drifted from the documented set — a new key with " +
                 "a runtime reader but no control is the F-8 class; surface it or reclassify it"
         ).that(writerless).containsExactlyElementsIn(knownWriterless.toSortedSet())
+    }
+
+    @Test
+    fun openJevAggressiveness_isExplicitlyConservativeUntilDistinctPoliciesAreValidated() {
+        val section = read("ui/settings/sections/LocalIntelligenceSection.kt")
+        val start = section.indexOf("title = stringResource(R.string.openjev_aggressiveness_title)")
+        check(start >= 0) { "OpenJev policy control moved; update this intentional-unavailability guard." }
+        val control = section.substring(start, section.indexOf("SettingsSwitch(", start))
+        assertThat(Defaults.OPENJEV_AGGRESSIVENESS).isEqualTo("conservative")
+        assertThat(control).contains("selectedIndex = 0")
+        assertThat(control).contains("enabled = false")
+        assertThat(control).doesNotContain("saveSetting(")
     }
 
     // ── D-1: the password-manager exclusion may not promise what it cannot do ──
