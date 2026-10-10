@@ -42,7 +42,7 @@ class OpenJevDecisionPolicyTest {
         assertEquals(listOf("teh", "the"), OpenJevDecisionPolicy.candidates("teh", listOf("the", "exact_add:teh", "can't")))
         assertEquals(listOf("jsut", "just"), OpenJevDecisionPolicy.candidates("jsut", listOf("just")))
     }
-    @Test fun replacementNeedsBaselineAgreementSimpleTypoAndValidatedMargin() {
+    @Test fun replacementNeedsBaselineAgreementTerminalVowelRepeatAndValidatedMargin() {
         val binary = OpenJevTypingRequest(OpenJevRequestId(1, 1, 1, "en"), "a good ", "ideaa", listOf("ideaa", "idea"), "idea")
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = null).action)
         assertEquals(OpenJevAction.REPLACE, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = 1.5f).action)
@@ -50,6 +50,21 @@ class OpenJevDecisionPolicyTest {
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(-5f, -1f), allowReplace = true, validatedMargin = 1.5f).action)
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary.copy(baselineCandidate = "ideas"), floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = 1.5f).action)
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = false, validatedMargin = 1.5f).action)
+    }
+
+    @Test fun replacementEligibilityIsOnlyOneTerminalRepeatedVowel() {
+        for ((original, candidate) in listOf("ideaa" to "idea", "canoee" to "canoe", "potatoo" to "potato", "sushii" to "sushi", "tofuu" to "tofu"))
+            assertTrue(OpenJevDecisionPolicy.terminalRepeatedVowelTypo(original, candidate))
+        for ((original, candidate) in listOf("lette" to "lete", "boook" to "book", "bookk" to "book", "teh" to "the",
+            "jsut" to "just", "names" to "name", "ideaaa" to "idea", "Ideaa" to "Idea", "caféé" to "café", "aai" to "ai"))
+            assertFalse(OpenJevDecisionPolicy.terminalRepeatedVowelTypo(original, candidate))
+    }
+
+    @Test fun strongModelScoresCannotAuthorizeInternalDuplicateConsonantRemoval() {
+        val ambiguous = OpenJevTypingRequest(OpenJevRequestId(1, 1, 1, "en"), "a ", "lette", listOf("lette", "lete"), "lete")
+        val decision = OpenJevDecisionPolicy.decide(ambiguous, floatArrayOf(-10f, 10f), allowReplace = true, validatedMargin = 1.5f)
+        assertEquals(OpenJevAction.SUGGEST, decision.action)
+        assertTrue(decision.uncertain)
     }
 
 }

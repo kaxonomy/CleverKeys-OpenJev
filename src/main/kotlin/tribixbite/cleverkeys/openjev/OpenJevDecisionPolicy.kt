@@ -35,7 +35,7 @@ object OpenJevDecisionPolicy {
         val tied = scores.indices.any { it != best && scores[it] == scores[best] }
         val replace = allowReplace && validatedMargin != null && validatedMargin.isFinite() && validatedMargin > 0f &&
             scores[best] > 0f && request.candidates[best] == request.baselineCandidate &&
-            simpleTypo(request.original, request.candidates[best]) && scores[best] - scores[0] >= validatedMargin
+            terminalRepeatedVowelTypo(request.original, request.candidates[best]) && scores[best] - scores[0] >= validatedMargin
         val action = if (best == 0 || tied) OpenJevAction.KEEP else if (replace) OpenJevAction.REPLACE else OpenJevAction.SUGGEST
         return OpenJevDecision(action, if (action == OpenJevAction.KEEP) request.original else request.candidates[best],
             scores.toList(), uncertain = action != OpenJevAction.REPLACE)
@@ -45,6 +45,13 @@ object OpenJevDecisionPolicy {
         if (index == 0) "the final typed word should remain $word"
         else "the intended final typed word is $word"
     }
+
+    /** Narrow accidental key-repeat rescue; common internal double consonants are never removed. */
+    fun terminalRepeatedVowelTypo(original: String, candidate: String): Boolean =
+        original.length in 4..24 && candidate.length in 3..23 &&
+            original.all { it in 'a'..'z' } && candidate.all { it in 'a'..'z' } &&
+            original.length == candidate.length + 1 && original.dropLast(1) == candidate &&
+            original.last() in "aeiou" && original.last() == original[original.lastIndex - 1]
 
     fun simpleTypo(original: String, candidate: String): Boolean =
         original.length in 3..24 && candidate.length in 3..24 &&
