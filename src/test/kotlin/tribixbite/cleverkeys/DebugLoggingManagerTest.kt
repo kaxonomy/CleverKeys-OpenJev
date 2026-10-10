@@ -58,8 +58,7 @@ class DebugLoggingManagerTest {
     @Test
     fun `getLogFilePath returns correct path`() {
         val path = manager.getLogFilePath()
-        assertThat(path).contains("swipe_log.txt")
-        assertThat(path).startsWith("/data/")
+        assertThat(path).isEqualTo(java.io.File(mockContext.filesDir, "swipe_log.txt").absolutePath)
     }
 
     // =========================================================================
