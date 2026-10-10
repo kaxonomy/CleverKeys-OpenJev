@@ -104,7 +104,8 @@ class SuggestionBridge(
         // password and are never captured, regardless of collection consent.
         val inPasswordField = suggestionHandler?.isInPasswordMode() == true ||
             SuggestionBar.isPasswordField(keyboard2.currentInputEditorInfo)
-        if (isSwipeAutoInsert && currentSwipeData != null && !inPasswordField &&
+        if (suggestionHandler?.isLocalSnippetSuggestion(word) != true &&
+            isSwipeAutoInsert && currentSwipeData != null && !inPasswordField &&
             predictionCoordinator?.getMlDataStore() != null) {
             mlDataCollector.collectAndStoreSwipeData(
                 word,

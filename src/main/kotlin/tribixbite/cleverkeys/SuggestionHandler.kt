@@ -512,7 +512,7 @@ class SuggestionHandler(
         val original: String, val editor: EditorReadback, val modelGeneration: Long,
         val separatorCallbacks: OwnedSelectionLedger = OwnedSelectionLedger(1))
     private data class SnippetOffer(val ic: InputConnection, val info: EditorInfo,
-        val id: OpenJevRequestId, val editor: EditorReadback, val phrase: String)
+        val id: OpenJevRequestId, val editor: EditorReadback, val phrase: String, val modelGeneration: Long)
     private var snippetOffer: SnippetOffer? = null
     private var neuralKeep: NeuralKeep? = null
     private var neuralUndo: NeuralUndo? = null
@@ -522,6 +522,9 @@ class SuggestionHandler(
     fun setCurrentInputProvider(provider: () -> Pair<InputConnection?, EditorInfo?>) {
         currentInputProvider = provider
     }
+
+    fun isLocalSnippetSuggestion(word: String): Boolean =
+        suggestionBar?.getMetaForSuggestion(word)?.origin == SuggestionOrigin.LOCAL_SNIPPET
 
     fun openJevDiagnostics(): OpenJevDiagnostics = openJev?.diagnostics()
         ?: OpenJevDiagnostics(0, 0, 0, 0, 0)
@@ -3595,17 +3598,26 @@ class SuggestionHandler(
     private fun commitLocalSnippet(word: String, ic: InputConnection?, info: EditorInfo?, external: EditorCommitGuard?): String? {
         val offer = snippetOffer ?: return null
         if (ic !== offer.ic || info !== offer.info || word != offer.phrase ||
-            !config.openjev_context_suggestions || !ownsNeuralSession(offer.ic, offer.info, offer.id)) return null
+            !config.openjev_context_suggestions || offer.modelGeneration != OpenJevRuntime.currentModelGeneration ||
+            !ownsNeuralSession(offer.ic, offer.info, offer.id)) return null
+        val operation = NeuralOperation(offer.ic, offer.info, offer.id, offer.editor, offer.modelGeneration)
+        neuralOperation = operation
+        operation.callbacks.stamp(offer.editor.start, offer.editor.end, android.os.SystemClock.uptimeMillis())
         val guard = EditorCommitGuard(offer.editor) {
-            config.openjev_context_suggestions && ownsNeuralSession(offer.ic, offer.info, offer.id)
+            neuralOperation === operation && config.openjev_context_suggestions &&
+                offer.modelGeneration == OpenJevRuntime.currentModelGeneration && ownsNeuralSession(offer.ic, offer.info, offer.id)
         }
         val accepted = runCatching {
-            guard.prepare(offer.ic) && (external == null || external.prepare(offer.ic)) &&
-                offer.ic.commitText(word, 1) && guard.accepted(offer.ic, word) &&
-                (external == null || external.accepted(offer.ic, word))
+            if (!guard.prepare(offer.ic) || (external != null && !external.prepare(offer.ic))) return@runCatching false
+            val end = Math.addExact(offer.editor.start, word.length)
+            operation.expected = offer.editor.copy(start = end, end = end,
+                before = (offer.editor.before + word).takeLast(EditorReadback.GUARD_LENGTH))
+            if (!operation.callbacks.stamp(end, end, android.os.SystemClock.uptimeMillis())) return@runCatching false
+            runCatching { offer.ic.commitText(word, 1) }
+            guard.accepted(offer.ic, word) && (external == null || external.accepted(offer.ic, word))
         }.getOrDefault(false)
-        // Uncertain writes are never retried and are never learned.
-        invalidateOpenJev()
+        // Keep the bounded owned-callback ledger until the next input; no phrase learning.
+        if (!accepted) invalidateOpenJev() else { openJev?.invalidate(); snippetOffer = null }
         nextWordSuggestionsActive = false
         suggestionBar?.clearSuggestions()
         return if (accepted) word else null
@@ -3650,7 +3662,7 @@ class SuggestionHandler(
                 val existing = bar.getCurrentSuggestions().filter { it != phrase }
                 val metas = listOf(SuggestionMeta(SuggestionOrigin.LOCAL_SNIPPET)) +
                     existing.map { bar.getMetaForSuggestion(it) ?: SuggestionMeta(SuggestionOrigin.NEXT_WORD) }
-                snippetOffer = SnippetOffer(ic, info, id, receipt, phrase)
+                snippetOffer = SnippetOffer(ic, info, id, receipt, phrase, modelVersion)
                 bar.setSuggestionsWithScores(listOf(phrase) + existing, List(existing.size + 1) { 0 }, metas)
             }
         }
