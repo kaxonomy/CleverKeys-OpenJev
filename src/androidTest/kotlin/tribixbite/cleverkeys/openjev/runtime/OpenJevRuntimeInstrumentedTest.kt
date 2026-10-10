@@ -11,6 +11,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import org.junit.Assert.*
 import org.json.JSONObject
+import org.json.JSONArray
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -22,6 +23,19 @@ class OpenJevRuntimeInstrumentedTest {
         val tokenizer = OpenJevTokenizer(File(OpenJevModelStore(context).directory, "tokenizer.json"))
         assertArrayEquals(longArrayOf(50281,50368,1147,310,15120,12939,50368,1147,310,7473,4579,
             50369,8262,13,923,368,3517,2,50282), tokenizer.encode("Hey, see you soon!", listOf("casual chat", "formal email")))
+    }
+
+    @Test fun tokenizerMatchesPythonAcrossUnicodeAndAddedTokens() {
+        val tokenizer = OpenJevTokenizer(File(OpenJevModelStore(context).directory, "tokenizer.json"))
+        val testContext = InstrumentationRegistry.getInstrumentation().context
+        val rows = JSONArray(testContext.assets.open("openjev/runtime-tokenizer-golden.json").bufferedReader().use { it.readText() })
+        for (i in 0 until rows.length()) {
+            val row = rows.getJSONObject(i)
+            val labels = row.getJSONArray("labels")
+            val expected = row.getJSONArray("ids")
+            assertArrayEquals("Python token parity case $i", LongArray(expected.length()) { expected.getLong(it) },
+                tokenizer.encode(row.getString("text"), (0 until labels.length()).map { labels.getString(it) }))
+        }
     }
 
     @Test fun actualOnnxInferenceMatchesPublishedReference() {
