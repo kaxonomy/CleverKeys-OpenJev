@@ -16,6 +16,7 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
     private val app = context.applicationContext
     private var session: OrtSession? = null
     private var tokenizer: OpenJevTokenizer? = null
+    private var initializationFailed = false
     private val invocations = AtomicLong()
     val invocationCount: Long get() = invocations.get()
     @Volatile var lastInferenceMs: Double = 0.0
@@ -32,6 +33,7 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
         check(Looper.myLooper() != Looper.getMainLooper()) { "WORKER_REQUIRED" }
         try {
             if (session == null) {
+                check(!initializationFailed) { "MODEL_LOAD_FAILED" }
                 val loadStarted = System.nanoTime()
                 val directory = OpenJevModelStore(app).directory
                 OpenJevModelStore.verify(directory)
@@ -83,6 +85,7 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
             }
         } catch (failure: Exception) {
             ready = false
+            if (session == null) initializationFailed = true
             errorCode = if (session == null) "MODEL_LOAD_FAILED" else "INFERENCE_FAILED"
             throw IllegalStateException(errorCode, failure)
         }
@@ -92,6 +95,8 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
         session?.close()
         session = null
         tokenizer = null
+        initializationFailed = false
+        errorCode = null
         ready = false
     }
 

@@ -33,6 +33,7 @@ class OpenJevTokenizer(file: File) {
         for (i in 0 until tokens.length()) {
             val token = tokens.getJSONObject(i)
             added.add(token.getString("content") to token.getInt("id"))
+            vocab[token.getString("content")] = token.getInt("id")
         }
         added.sortByDescending { it.first.length }
         val native = ((33..126) + (161..172) + (174..255)).toMutableList()

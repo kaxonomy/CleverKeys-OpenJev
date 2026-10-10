@@ -10,6 +10,7 @@ import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import org.junit.Assert.*
+import org.json.JSONObject
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -57,14 +58,26 @@ class OpenJevRuntimeInstrumentedTest {
         val sentinel = File(store.directory, "sentinel")
         sentinel.writeText("existing-model")
         try {
+            val files = JSONObject()
+            for (name in listOf("model.onnx", "tokenizer.json", "calibrator.json", "LICENSE")) {
+                files.put(name, JSONObject().put("size", 1).put("sha256", "0".repeat(64)))
+            }
+            val manifest = JSONObject().put("format_version", 1).put("checkpoint", OpenJevRuntime.CHECKPOINT)
+                .put("revision", OpenJevRuntime.REVISION).put("files", files).toString().toByteArray()
             for (entries in listOf(listOf("../model.onnx" to byteArrayOf(1)),
                     listOf("model.onnx" to byteArrayOf(1)),
-                    listOf("manifest.json" to ByteArray(16385)))) {
+                    listOf("manifest.json" to ByteArray(16385)),
+                    listOf("manifest.json" to manifest, "model.onnx" to byteArrayOf(1),
+                        "tokenizer.json" to byteArrayOf(1), "calibrator.json" to byteArrayOf(1), "LICENSE" to byteArrayOf(1)),
+                    listOf("model.onnx" to byteArrayOf(1), "model.onny" to byteArrayOf(2)))) {
                 val bytes = ByteArrayOutputStream()
                 ZipOutputStream(bytes).use { zip ->
                     for ((name,data) in entries) { zip.putNextEntry(ZipEntry(name)); zip.write(data); zip.closeEntry() }
                 }
-                assertThrows(IllegalArgumentException::class.java) { store.importBundle(ByteArrayInputStream(bytes.toByteArray())) }
+                // Rewrite the same-length second name to construct a genuine duplicate ZIP entry.
+                val encoded = bytes.toByteArray().toString(Charsets.ISO_8859_1)
+                    .replace("model.onny", "model.onnx").toByteArray(Charsets.ISO_8859_1)
+                assertThrows(IllegalArgumentException::class.java) { store.importBundle(ByteArrayInputStream(encoded)) }
                 assertEquals("existing-model", sentinel.readText())
                 assertFalse(File(isolated, "openjev/staging").exists())
             }

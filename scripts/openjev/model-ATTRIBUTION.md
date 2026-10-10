@@ -6,8 +6,10 @@ The independent Android adapter follows the GLiClass uni-encoder formatting cont
 Model author: Heman10x. Upstream implementation:
 https://github.com/Heman10x-NGU/Verdict-open-jev
 (commit `30f15564821626ca5c1ad5b2638c4eb7078787dd`, Apache-2.0).
-Base model: `knowledgator/gliclass-modern-base-v2.0` (Apache-2.0), built on
-`answerdotai/ModernBERT-base` (Apache-2.0).
+Base model: `knowledgator/gliclass-modern-base-v2.0` (Apache-2.0, card revision
+`9320398ab6ca50946e2edcb9ec89649c0274c978`), built on `answerdotai/ModernBERT-base`
+(Apache-2.0, card revision `8949b909ec900327062f0ebf497f51aef5e6f0c8`).
+All three license declarations were checked against the live Hugging Face API.
 License: [model-LICENSE](model-LICENSE), included in each local bundle.
 
 The upstream banking/general decision calibrator is preserved as provenance. Its
