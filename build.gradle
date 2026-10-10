@@ -1157,8 +1157,12 @@ tasks.register('runPureTests', JavaExec) {
   // pointing it at those makes the real encoder run in `runPureTests`.
   //
   // Auto-resolved from the AAR in the Gradle cache; override with -PortNative=<dir> if needed.
-  def ortNativeDir = project.findProperty('ortNative') ?: "${buildDir}/ort-native/arm64-v8a"
-  systemProperty 'onnxruntime.native.path', ortNativeDir
+  def termuxHost = (System.getenv('PREFIX') ?: '').contains('com.termux')
+  if (project.hasProperty('ortNative') || termuxHost) {
+    def ortNativeDir = project.findProperty('ortNative') ?: "${buildDir}/ort-native/arm64-v8a"
+    systemProperty 'onnxruntime.native.path', ortNativeDir
+  }
+  // Debian uses the desktop JAR's own glibc natives. Android/bionic libraries cannot load there.
 
   // Allow single test via -PtestClass=ClassName
   if (project.hasProperty('testClass')) {

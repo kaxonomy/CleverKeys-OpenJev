@@ -30,6 +30,7 @@
 #         GRADLE_GUARD_RETRIES=0          environmental retries (max 3)
 #         GRADLE_GUARD_MIN_MEM_KB=1500000 MemAvailable floor
 #         GRADLE_GUARD_LOCK_WAIT=7200     seconds to wait for the lock
+#         GRADLE_GUARD_LOG=<path>        optional centralized diagnostic output
 # Exit:   75 = lock timeout, 76 = low memory, otherwise gradle's exit code.
 # Log:    every attempt's full output also lands in
 #         $HOME/.cache/cleverkeys-build-last.log
@@ -46,7 +47,8 @@ RETRIES="${GRADLE_GUARD_RETRIES:-0}"
 MIN_MEM_KB="${GRADLE_GUARD_MIN_MEM_KB:-1500000}"
 LOCK_WAIT="${GRADLE_GUARD_LOCK_WAIT:-7200}"
 LOCK="$HOME/.cache/cleverkeys-build.lock"
-LAST_LOG="$HOME/.cache/cleverkeys-build-last.log"
+LAST_LOG="${GRADLE_GUARD_LOG:-$HOME/.cache/cleverkeys-build-last.log}"
+mkdir -p "$(dirname "$LAST_LOG")"
 
 mem_available_kb() { awk '/^MemAvailable:/ {print $2}' /proc/meminfo; }
 

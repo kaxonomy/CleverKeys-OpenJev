@@ -1,7 +1,7 @@
 # OpenJev local intelligence
 
-**Status:** implementation and validation in progress. Automatic neural replacement is
-disabled until separate tuning and held-out evaluation establish a safe policy.
+**Status:** implementation and validation in progress. Optional delayed neural replacement
+requires separate tuning and held-out evaluation to establish a safe policy.
 
 ## Requirements and architecture
 
@@ -22,7 +22,9 @@ The shared enums represent CHAT, EMAIL, SEARCH, CODE_OR_TERMINAL, FORM,
 GENERAL_WRITING and UNKNOWN; FORMAL/CASUAL/UNKNOWN tone; and
 HELPFUL/NOT_HELPFUL/UNCERTAIN suggestion policy. Independent model logits are not
 calibrated probabilities. A deterministic policy returns KEEP, SUGGEST or REPLACE.
-REPLACE remains unavailable in every aggressiveness mode until validated.
+REPLACE requires validated policy parameters and explicit opt-in. It waits for at least
+one second of quiet typing, then checks exact editor ownership before replacing a word.
+Unvalidated aggressiveness modes remain unavailable.
 
 Model load/tokenization/inference run on a bounded serialized worker. Stale requests
 lose ownership on editor, selection, text, language or configuration changes. Main-thread
@@ -63,4 +65,5 @@ All task scratch data and delegated worktrees live under
 `~/.cache/cleverkeys-openjev/`; final APKs, model bundle, checksums and concise validation
 live under `~/.local/share/cleverkeys-openjev/output/`. Workstreams share a recorded
 baseline but have separate worktrees/branches and integrate reviewed commits centrally.
-Delivery is a committed, pushed feature branch; no pull request, merge, tag or release.
+Delivery is committed work pushed to the fork's `main` branch with a normal fast-forward.
+No pull request, force-push, tag or release is authorized.
