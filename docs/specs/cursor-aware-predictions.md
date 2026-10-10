@@ -25,6 +25,9 @@ The view still receives its selection state. Verified suffix/phrase ownership mu
 add range-aware lifecycle invalidation rather than relying on this prediction hook.
 
 `onCursorMoved` calls `onCursorPositionChanged` before scheduling the 100 ms debounce.
+Both callback admission and delayed synchronization verify the captured input connection
+and editor against the live pair. A replaced connection after `restartInput` cannot
+overwrite the active editor's word tracker or suggestions.
 Moving away from an automatic-space stamp invalidates its punctuation ownership.
 The coordinator removes any previous runnable, then reads at most 50 UTF-16 units
 before and after the captured cursor connection. Finish/shutdown cancel the runnable.
