@@ -61,6 +61,7 @@ import tribixbite.cleverkeys.ui.settings.sections.HelpSection
 import tribixbite.cleverkeys.ui.settings.sections.InputBehaviorSection
 import tribixbite.cleverkeys.ui.settings.sections.MultiLanguageSection
 import tribixbite.cleverkeys.ui.settings.sections.SwipeTypingSection
+import tribixbite.cleverkeys.ui.settings.sections.LocalIntelligenceSection
 import tribixbite.cleverkeys.ui.settings.sections.PrivacySection
 import tribixbite.cleverkeys.ui.settings.sections.SwipeTrailSection
 import tribixbite.cleverkeys.ui.settings.sections.TestKeyboardSection
@@ -266,6 +267,7 @@ internal fun SettingsActivity.SettingsScreen() {
 
             // Privacy Section (Collapsible)
             PrivacySection()
+            LocalIntelligenceSection()
 
             // Advanced Section (Collapsible)
             AdvancedSection()

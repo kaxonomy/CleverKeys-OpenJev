@@ -17,6 +17,15 @@ import tribixbite.cleverkeys.prefs.LayoutsPreference
  * Both Config.kt and SettingsActivity.kt should reference these constants.
  */
 object Defaults {
+    // Optional local intelligence; no automatic replacement until held-out evaluation passes.
+    const val OPENJEV_ENABLED = false
+    const val OPENJEV_CONTEXT_SUGGESTIONS = false
+    const val OPENJEV_NEURAL_AUTOCORRECT = false
+    const val OPENJEV_DIAGNOSTICS = false
+    const val OPENJEV_AGGRESSIVENESS = "conservative"
+    const val OPENJEV_EMAIL_SNIPPET = ""
+    const val OPENJEV_CHAT_SNIPPET = ""
+
     // Appearance
     const val THEME = "cleverkeysdark"
     // 2026-05-15: lowered from 30% to 27% — feels less cramped on most phones
@@ -669,6 +678,15 @@ class Config private constructor(
     @JvmField var word_prediction_enabled = false
     @JvmField var suggestion_bar_opacity = 0
 
+    // Local intelligence stays optional and falls back to ordinary CleverKeys.
+    @JvmField var openjev_enabled = Defaults.OPENJEV_ENABLED
+    @JvmField var openjev_context_suggestions = Defaults.OPENJEV_CONTEXT_SUGGESTIONS
+    @JvmField var openjev_neural_autocorrect = Defaults.OPENJEV_NEURAL_AUTOCORRECT
+    @JvmField var openjev_diagnostics = Defaults.OPENJEV_DIAGNOSTICS
+    @JvmField var openjev_aggressiveness = Defaults.OPENJEV_AGGRESSIVENESS
+    @JvmField var openjev_email_snippet = Defaults.OPENJEV_EMAIL_SNIPPET
+    @JvmField var openjev_chat_snippet = Defaults.OPENJEV_CHAT_SNIPPET
+
     // Word prediction scoring weights
     @JvmField var prediction_context_boost = 0f
     @JvmField var prediction_frequency_scale = 0f
@@ -1013,6 +1031,13 @@ class Config private constructor(
 
         prediction_context_boost = safeGetFloat(_prefs, "prediction_context_boost", Defaults.PREDICTION_CONTEXT_BOOST)
         prediction_frequency_scale = safeGetFloat(_prefs, "prediction_frequency_scale", Defaults.PREDICTION_FREQUENCY_SCALE)
+        openjev_enabled = safeGetBoolean(_prefs, "openjev_enabled", Defaults.OPENJEV_ENABLED)
+        openjev_context_suggestions = safeGetBoolean(_prefs, "openjev_context_suggestions", Defaults.OPENJEV_CONTEXT_SUGGESTIONS)
+        openjev_neural_autocorrect = safeGetBoolean(_prefs, "openjev_neural_autocorrect", Defaults.OPENJEV_NEURAL_AUTOCORRECT)
+        openjev_diagnostics = safeGetBoolean(_prefs, "openjev_diagnostics", Defaults.OPENJEV_DIAGNOSTICS)
+        openjev_aggressiveness = safeGetString(_prefs, "openjev_aggressiveness", Defaults.OPENJEV_AGGRESSIVENESS)
+        openjev_email_snippet = safeGetString(_prefs, "openjev_email_snippet", Defaults.OPENJEV_EMAIL_SNIPPET)
+        openjev_chat_snippet = safeGetString(_prefs, "openjev_chat_snippet", Defaults.OPENJEV_CHAT_SNIPPET)
         context_aware_predictions_enabled = _prefs.getBoolean("context_aware_predictions_enabled", Defaults.CONTEXT_AWARE_PREDICTIONS_ENABLED)
         personalized_learning_enabled = _prefs.getBoolean("personalized_learning_enabled", Defaults.PERSONALIZED_LEARNING_ENABLED)
         on_device_learning_enabled = _prefs.getBoolean("on_device_learning_enabled", Defaults.ON_DEVICE_LEARNING_ENABLED)

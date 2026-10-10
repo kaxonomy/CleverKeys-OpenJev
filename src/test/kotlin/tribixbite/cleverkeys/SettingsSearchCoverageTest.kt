@@ -42,7 +42,7 @@ class SettingsSearchCoverageTest {
     // name -> text map from res/values/strings.xml, mirroring the generator's resolution
     // (after the 2026-07-20 WP8 extraction, control titles are stringResource refs).
     private val stringResources: Map<String, String> by lazy {
-        val xml = File("res/values/strings.xml").readText()
+        val xml = File("res/values").listFiles()!!.filter { it.extension == "xml" }.joinToString("\n") { it.readText() }
         Regex("""<string name="([^"]+)"[^>]*>([^<]*)</string>""")
             .findAll(xml)
             .associate { it.groupValues[1] to it.groupValues[2].replace("\\'", "'").replace("&amp;", "&") }

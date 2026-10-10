@@ -425,6 +425,14 @@ class SettingsActivity : ComponentActivity(), SharedPreferences.OnSharedPreferen
     internal var swipeTrailWidth by mutableFloatStateOf(8.0f)
     internal var swipeTrailGlowRadius by mutableFloatStateOf(12.0f)
 
+    internal var openjevEnabled by mutableStateOf(Defaults.OPENJEV_ENABLED)
+    internal var openjevContextSuggestions by mutableStateOf(Defaults.OPENJEV_CONTEXT_SUGGESTIONS)
+    internal var openjevNeuralAutocorrect by mutableStateOf(Defaults.OPENJEV_NEURAL_AUTOCORRECT)
+    internal var openjevDiagnostics by mutableStateOf(Defaults.OPENJEV_DIAGNOSTICS)
+    internal var openjevAggressiveness by mutableStateOf(Defaults.OPENJEV_AGGRESSIVENESS)
+    internal var openjevEmailSnippet by mutableStateOf(Defaults.OPENJEV_EMAIL_SNIPPET)
+    internal var openjevChatSnippet by mutableStateOf(Defaults.OPENJEV_CHAT_SNIPPET)
+
     // Word Prediction Advanced settings
     internal var contextAwarePredictionsEnabled by mutableStateOf(true)
     internal var nextWordPredictionEnabled by mutableStateOf(Defaults.NEXT_WORD_PREDICTION_ENABLED) // default ON since 2026-09-26
@@ -510,6 +518,18 @@ class SettingsActivity : ComponentActivity(), SharedPreferences.OnSharedPreferen
     internal var multiLangSectionExpanded: Boolean
         get() = settingsViewModel.multiLangSectionExpanded
         set(value) { settingsViewModel.multiLangSectionExpanded = value }
+    internal var openjevModelStatus: String
+        get() = settingsViewModel.openjevModelStatus
+        set(value) { settingsViewModel.openjevModelStatus = value }
+    internal var openjevModelBusy: Boolean
+        get() = settingsViewModel.openjevModelBusy
+        set(value) { settingsViewModel.openjevModelBusy = value }
+    internal var openjevModelError: Int?
+        get() = settingsViewModel.openjevModelError
+        set(value) { settingsViewModel.openjevModelError = value }
+    internal var localIntelligenceSectionExpanded: Boolean
+        get() = settingsViewModel.localIntelligenceSectionExpanded
+        set(value) { settingsViewModel.localIntelligenceSectionExpanded = value }
     internal var privacySectionExpanded: Boolean
         get() = settingsViewModel.privacySectionExpanded
         set(value) { settingsViewModel.privacySectionExpanded = value }

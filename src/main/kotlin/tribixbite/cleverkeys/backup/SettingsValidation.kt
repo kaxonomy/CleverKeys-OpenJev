@@ -251,6 +251,8 @@ object SettingsValidation {
      * to the wrong validator for the JSON shape — this port is stricter.
      */
     fun validate(key: String, value: PrefValue): String? {
+        if (key in setOf("openjev_enabled", "openjev_context_suggestions", "openjev_neural_autocorrect", "openjev_diagnostics") && value !is PrefValue.Bool) return "expected Boolean"
+        if (key in setOf("openjev_aggressiveness", "openjev_email_snippet", "openjev_chat_snippet") && value !is PrefValue.Str) return "expected String"
         if (key == "custom_terminal_packages" && value !is PrefValue.Str) {
             return "expected String"
         }
@@ -433,6 +435,8 @@ object SettingsValidation {
         if (isIntKey(key)) return "expected Int, got String"
         if (isFloatPreference(key)) return "expected Float, got String"
 
+        if (key == "openjev_aggressiveness") return if (value in setOf("conservative", "balanced", "aggressive")) null else "invalid OpenJev policy"
+        if (key == "openjev_email_snippet" || key == "openjev_chat_snippet") return if (tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy.validSnippet(value)) null else "invalid saved snippet"
         if (key == "custom_terminal_packages") {
             return when (val result = TerminalUtils.parseCustomPackages(value)) {
                 is TerminalUtils.PackageListResult.Valid -> null

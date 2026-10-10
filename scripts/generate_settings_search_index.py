@@ -35,7 +35,7 @@ import sys
 
 ACTIVITY = "src/main/kotlin/tribixbite/cleverkeys/activities/SettingsActivity.kt"
 SECTIONS_DIR = "src/main/kotlin/tribixbite/cleverkeys/ui/settings/sections"
-STRINGS = "res/values/strings.xml"
+STRINGS = "res/values"
 DEFAULT_OUT = "build/generated/search/kotlin/tribixbite/cleverkeys/SettingsSearchIndex.kt"
 
 # Filler words that carry no search intent (mirrors SettingsSearchCoverageTest).
@@ -90,7 +90,7 @@ STRING_RE = re.compile(r'<string name="([^"]+)"[^>]*>(.*?)</string>', re.DOTALL)
 def load_strings(path):
     if not os.path.exists(path):
         return {}
-    text = open(path, encoding="utf-8").read()
+    text = "\n".join(open(os.path.join(path, name), encoding="utf-8").read() for name in sorted(os.listdir(path)) if name.endswith(".xml"))
     out = {}
     for name, val in STRING_RE.findall(text):
         # Unescape the handful of XML/Android escapes that appear in titles.

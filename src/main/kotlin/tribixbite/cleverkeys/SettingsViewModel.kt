@@ -45,6 +45,10 @@ class SettingsViewModel : ViewModel() {
     /** Activities section at top, expanded by default. */
     var activitiesSectionExpanded by mutableStateOf(true)
     var multiLangSectionExpanded by mutableStateOf(false)
+    var openjevModelStatus by mutableStateOf("MISSING")
+    var openjevModelBusy by mutableStateOf(false)
+    var openjevModelError by mutableStateOf<Int?>(null)
+    var localIntelligenceSectionExpanded by mutableStateOf(false)
     var privacySectionExpanded by mutableStateOf(false)
     /** Collapsed by default — Activities is primary entry point. */
     var swipeTypingSectionExpanded by mutableStateOf(false)

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Local intelligence</string>
+    <string name="openjev_enable_title">Enable OpenJev intelligence</string>
+    <string name="openjev_enable_desc">Optional local model scoring. Ordinary typing works when the model is missing or unavailable.</string>
+    <string name="openjev_privacy">Processing stays on your device. No internet connection or typed-text logs. Passwords, private fields, addresses, and unsupported languages bypass the model.</string>
+    <string name="openjev_context_title">Context-aware suggestions</string>
+    <string name="openjev_context_desc">Use field information and a short text window to select helpful local suggestions.</string>
+    <string name="openjev_autocorrect_title">Neural autocorrect</string>
+    <string name="openjev_autocorrect_desc">Unavailable until correction quality is validated. OpenJev currently offers suggestions only; it never automatically replaces text.</string>
+    <string name="openjev_aggressiveness_title">Correction aggressiveness</string>
+    <string name="openjev_aggressiveness_desc">Conservative is the only available policy. Other modes require separate correction-quality evaluation.</string>
+    <string name="openjev_conservative">Conservative</string>
+    <string name="openjev_balanced">Balanced</string>
+    <string name="openjev_aggressive">Aggressive</string>
+    <string name="openjev_diagnostics_title">Local performance diagnostics</string>
+    <string name="openjev_diagnostics_desc">Allow aggregate timing and inference counts without recording text.</string>
+    <string name="openjev_model_missing">Model missing. Import a verified local model bundle to enable inference.</string>
+    <string name="openjev_model_installed">Model installed. Inference has not run yet.</string>
+    <string name="openjev_model_ready">Model ready. Local inference has run successfully.</string>
+    <string name="openjev_model_error">Model unavailable. Remove it and import a verified compatible bundle.</string>
+    <string name="openjev_model_import">Import local model bundle</string>
+    <string name="openjev_model_remove">Remove local model</string>
+    <string name="openjev_model_working">Checking local model files…</string>
+    <string name="openjev_model_import_error">Could not import this bundle. Choose a verified OpenJev ZIP bundle and try again.</string>
+    <string name="openjev_model_remove_error">Could not remove the model. Close the keyboard and try again.</string>
+    <string name="openjev_snippets_desc">Optional saved phrases appear only in matching email or chat fields. Tap a phrase to insert it. Nothing is inserted automatically.</string>
+    <string name="openjev_email_snippet">Saved email phrase</string>
+    <string name="openjev_chat_snippet">Saved chat phrase</string>
+    <string name="openjev_snippet_limit">Use at most 256 characters. Leave empty to disable.</string>
+    <string name="openjev_save_phrases">Save phrases</string>
+    <string name="openjev_diagnostics_values">Completed inferences: %1$d. Last decision: %2$d ms. Model load: %3$d ms.</string>
+    <string name="openjev_autocorrect_ready_desc">Allow conservative corrections after a pause in typing. Uncertain results keep the original word. Backspace can undo an accepted correction.</string>
+</resources>

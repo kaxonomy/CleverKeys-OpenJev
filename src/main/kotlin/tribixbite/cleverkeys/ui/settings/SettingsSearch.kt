@@ -85,6 +85,7 @@ internal fun SettingsActivity.scrollToSetting(settingId: String) {
 internal fun SettingsActivity.collapseAllSections() {
     activitiesSectionExpanded = false
     multiLangSectionExpanded = false
+    localIntelligenceSectionExpanded = false
     privacySectionExpanded = false
     swipeTypingSectionExpanded = false
     appearanceSectionExpanded = false
@@ -155,6 +156,7 @@ internal fun sectionTitleRes(sectionKey: String): Int = when (sectionKey) {
     "clipboard" -> R.string.settings_section_clipboard
     "gif" -> R.string.settings_section_gif_panel
     "multiLang" -> R.string.settings_section_multilang
+    "localIntelligence" -> R.string.openjev_section_title
     "privacy" -> R.string.settings_section_privacy
     "advanced" -> R.string.settings_section_advanced
     "activities" -> R.string.activities_section_title
@@ -185,6 +187,7 @@ internal fun SettingsActivity.expanderFor(sectionKey: String): () -> Unit = {
         "clipboard" -> clipboardSectionExpanded = true
         "gif" -> gifSectionExpanded = true
         "multiLang" -> multiLangSectionExpanded = true
+        "localIntelligence" -> localIntelligenceSectionExpanded = true
         "privacy" -> privacySectionExpanded = true
         "advanced" -> advancedSectionExpanded = true
         "activities" -> activitiesSectionExpanded = true

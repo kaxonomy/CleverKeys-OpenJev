@@ -147,6 +147,13 @@ object SettingsResetPolicy {
         put("clipboard_pinned_enabled", true)
         put("clipboard_todo_enabled", true)
 
+        // Local intelligence returns to opt-in defaults. Saved literal snippets remain user data.
+        put("openjev_enabled", Defaults.OPENJEV_ENABLED)
+        put("openjev_context_suggestions", Defaults.OPENJEV_CONTEXT_SUGGESTIONS)
+        put("openjev_neural_autocorrect", Defaults.OPENJEV_NEURAL_AUTOCORRECT)
+        put("openjev_diagnostics", Defaults.OPENJEV_DIAGNOSTICS)
+        put("openjev_aggressiveness", Defaults.OPENJEV_AGGRESSIVENESS)
+
         // Debug (off by default)
         put("debug_enabled", Defaults.DEBUG_ENABLED)
         put("custom_terminal_packages", Defaults.CUSTOM_TERMINAL_PACKAGES)

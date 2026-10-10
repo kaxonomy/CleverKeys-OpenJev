@@ -226,6 +226,15 @@ internal val SETTINGS_DEFAULTS: Map<String, PrefValue> = mapOf(
     "gif_enabled" to PrefValue.Bool(Defaults.GIF_ENABLED),
     "gif_thumbnail_columns" to PrefValue.IntV(Defaults.GIF_THUMBNAIL_COLUMNS),
 
+    // Local intelligence preferences; model weights and runtime state are never backed up here.
+    "openjev_enabled" to PrefValue.Bool(Defaults.OPENJEV_ENABLED),
+    "openjev_context_suggestions" to PrefValue.Bool(Defaults.OPENJEV_CONTEXT_SUGGESTIONS),
+    "openjev_neural_autocorrect" to PrefValue.Bool(Defaults.OPENJEV_NEURAL_AUTOCORRECT),
+    "openjev_diagnostics" to PrefValue.Bool(Defaults.OPENJEV_DIAGNOSTICS),
+    "openjev_aggressiveness" to PrefValue.Str(Defaults.OPENJEV_AGGRESSIVENESS),
+    "openjev_email_snippet" to PrefValue.Str(Defaults.OPENJEV_EMAIL_SNIPPET),
+    "openjev_chat_snippet" to PrefValue.Str(Defaults.OPENJEV_CHAT_SNIPPET),
+
     // ── Privacy / debug / accessibility ──────────────────────────────
     "debug_enabled" to PrefValue.Bool(Defaults.DEBUG_ENABLED),
     // MASTER on-device learning gate (Task A 2026-08-06) — opt-OUT, default ON

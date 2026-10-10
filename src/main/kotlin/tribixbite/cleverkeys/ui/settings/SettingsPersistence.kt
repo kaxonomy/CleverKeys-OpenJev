@@ -27,6 +27,14 @@ import tribixbite.cleverkeys.ui.settings.io.refreshInstalledLanguagePacks
 internal fun SettingsActivity.handlePreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         // Handle preference changes for reactive updates
         when (key) {
+            "openjev_enabled" -> { openjevEnabled = prefs.getSafeBoolean(key, Defaults.OPENJEV_ENABLED) }
+            "openjev_context_suggestions" -> { openjevContextSuggestions = prefs.getSafeBoolean(key, Defaults.OPENJEV_CONTEXT_SUGGESTIONS) }
+            "openjev_neural_autocorrect" -> { openjevNeuralAutocorrect = prefs.getSafeBoolean(key, Defaults.OPENJEV_NEURAL_AUTOCORRECT) }
+            "openjev_diagnostics" -> { openjevDiagnostics = prefs.getSafeBoolean(key, Defaults.OPENJEV_DIAGNOSTICS) }
+            "openjev_aggressiveness" -> { openjevAggressiveness = prefs.getSafeString(key, Defaults.OPENJEV_AGGRESSIVENESS) }
+            "openjev_email_snippet" -> { openjevEmailSnippet = prefs.getSafeString(key, Defaults.OPENJEV_EMAIL_SNIPPET) }
+            "openjev_chat_snippet" -> { openjevChatSnippet = prefs.getSafeString(key, Defaults.OPENJEV_CHAT_SNIPPET) }
+
             "continuous_swipe_enabled" -> { continuousSwipeEnabled = prefs.getSafeBoolean(key, Defaults.CONTINUOUS_SWIPE_ENABLED) }
             "swipe_typing_enabled" -> {
                 swipeTypingEnabled = prefs.getBoolean(key, Defaults.SWIPE_TYPING_ENABLED)
@@ -408,6 +416,13 @@ internal fun SettingsActivity.loadCurrentSettings() {
 
         // Privacy settings - collection OFF by default (CleverKeys is fully offline);
         // the MASTER on-device learning gate defaults ON (it is the opt-OUT)
+        openjevEnabled = prefs.getSafeBoolean("openjev_enabled", Defaults.OPENJEV_ENABLED)
+        openjevContextSuggestions = prefs.getSafeBoolean("openjev_context_suggestions", Defaults.OPENJEV_CONTEXT_SUGGESTIONS)
+        openjevNeuralAutocorrect = prefs.getSafeBoolean("openjev_neural_autocorrect", Defaults.OPENJEV_NEURAL_AUTOCORRECT)
+        openjevDiagnostics = prefs.getSafeBoolean("openjev_diagnostics", Defaults.OPENJEV_DIAGNOSTICS)
+        openjevAggressiveness = prefs.getSafeString("openjev_aggressiveness", Defaults.OPENJEV_AGGRESSIVENESS)
+        openjevEmailSnippet = prefs.getSafeString("openjev_email_snippet", Defaults.OPENJEV_EMAIL_SNIPPET)
+        openjevChatSnippet = prefs.getSafeString("openjev_chat_snippet", Defaults.OPENJEV_CHAT_SNIPPET)
         onDeviceLearningEnabled = prefs.getSafeBoolean("on_device_learning_enabled", Defaults.ON_DEVICE_LEARNING_ENABLED)
         privacyCollectSwipe = prefs.getSafeBoolean("privacy_collect_swipe", Defaults.PRIVACY_COLLECT_SWIPE)
         privacyCollectPerformance = prefs.getSafeBoolean("privacy_collect_performance", Defaults.PRIVACY_COLLECT_PERFORMANCE)
@@ -454,10 +469,10 @@ internal fun SettingsActivity.saveSetting(key: String, value: Any) {
                         .sendBroadcast(Intent("tribixbite.cleverkeys.LANGUAGE_CHANGED"))
                 }
 
-                android.util.Log.d(SettingsActivity.TAG, "Setting saved: $key = $value")
+                android.util.Log.d(SettingsActivity.TAG, if (key.startsWith("openjev_")) "Local intelligence setting saved: $key" else "Setting saved: $key = $value")
 
             } catch (e: Exception) {
-                android.util.Log.e(SettingsActivity.TAG, "Error saving setting: $key = $value", e)
+                android.util.Log.e(SettingsActivity.TAG, if (key.startsWith("openjev_")) "Local intelligence setting failed: $key" else "Error saving setting: $key = $value", e)
                 Toast.makeText(_self,
                     _self.getString(R.string.settings_toast_error_saving, e.message ?: ""),
                     Toast.LENGTH_SHORT).show()
