@@ -11,6 +11,9 @@ import hashlib
 import json
 import pathlib
 import time
+import resource
+import platform
+import shutil
 import urllib.request
 import zipfile
 
@@ -71,7 +74,9 @@ def infer(path, tokenizer, text, descriptions, runs=8):
         raise ValueError("Non-finite inference result")
     return dict(token_ids=ids[0].tolist(), logits=logits.tolist(), load_ms=load_ms,
                 cold_ms=samples[0], warm_p50_ms=float(np.percentile(samples[1:], 50)),
-                warm_p95_ms=float(np.percentile(samples[1:], 95)))
+                warm_p95_ms=float(np.percentile(samples[1:], 95)),
+                peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                hardware=platform.machine(), os=platform.platform(), cpu_threads=2)
 
 
 def main():
@@ -108,10 +113,15 @@ def main():
     manifest = dict(format_version=1, checkpoint=CHECKPOINT, revision=REVISION, quantization=args.variant,
                     license="Apache-2.0", files={name: dict(size=p.stat().st_size, sha256=digest(p)) for name,p in files.items()})
     output = args.output / ("openjev-" + args.variant + ".zip")
-    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_STORED) as bundle:
-        bundle.writestr("manifest.json", json.dumps(manifest, sort_keys=True))
+    staging = output.with_suffix(".zip.partial")
+    with zipfile.ZipFile(staging, "w", compression=zipfile.ZIP_STORED) as bundle:
+        # Fixed timestamps make checksums reproducible without buffering model bytes in RAM.
+        bundle.writestr(zipfile.ZipInfo("manifest.json", (1980,1,1,0,0,0)), json.dumps(manifest, sort_keys=True))
         for name,p in files.items():
-            bundle.write(p, name)
+            info = zipfile.ZipInfo(name, (1980,1,1,0,0,0))
+            with bundle.open(info, "w", force_zip64=True) as destination, p.open("rb") as source:
+                shutil.copyfileobj(source, destination, 65536)
+    staging.replace(output)
     (args.output / (output.name + ".sha256")).write_text(digest(output) + "  " + output.name + "\n")
     print(str(output))
     print(json.dumps({k:v for k,v in proof.items() if k not in ("token_ids", "text", "descriptions")}))
