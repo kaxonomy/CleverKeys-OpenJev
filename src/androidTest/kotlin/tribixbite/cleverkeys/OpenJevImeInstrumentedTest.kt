@@ -353,6 +353,9 @@ class OpenJevImeInstrumentedTest {
         }
         type("teh ")
         waitFor { primaryText().trim().lowercase() == "the" }
+        assertNotEquals("autocorrect undo prompt keeps priority over saved phrases", SuggestionOrigin.LOCAL_SNIPPET,
+            suggestionBar()?.getMetaForSuggestion(phrase)?.origin)
+        type("hello ")
         waitFor { suggestionBar()?.getMetaForSuggestion(phrase)?.origin == SuggestionOrigin.LOCAL_SNIPPET }
         val prefix = primaryText()
         clickSnippet(phrase)
