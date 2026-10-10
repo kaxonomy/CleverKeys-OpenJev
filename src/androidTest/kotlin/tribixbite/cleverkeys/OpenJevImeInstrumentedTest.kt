@@ -450,6 +450,47 @@ class OpenJevImeInstrumentedTest {
     private fun waitFor(predicate: () -> Boolean) {
         val deadline = SystemClock.uptimeMillis() + 20_000
         while (!predicate() && SystemClock.uptimeMillis() < deadline) SystemClock.sleep(50)
-        assertTrue("live IME condition timed out", predicate())
+        val accepted = predicate()
+        if (!accepted) recordFailureState()
+        assertTrue("live IME condition timed out", accepted)
+    }
+
+    private fun recordFailureState() = runCatching {
+        val state = org.json.JSONObject()
+        instrumentation.runOnMainSync {
+            val service = CleverKeysService.getInstance() ?: return@runOnMainSync
+            val info = service.currentInputEditorInfo
+            val config = Config.globalConfig()
+            val diagnostic = service.getOpenJevDiagnostics()
+            val handlerField = CleverKeysService::class.java.getDeclaredField("_suggestionHandler").apply { isAccessible = true }
+            val handler = handlerField.get(service)
+            fun handlerValue(name: String): Any? = SuggestionHandler::class.java.getDeclaredField(name).apply { isAccessible = true }.get(handler)
+            val trackerField = CleverKeysService::class.java.getDeclaredField("_contextTracker").apply { isAccessible = true }
+            val tracker = trackerField.get(service) as PredictionContextTracker
+            val permitted = tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy.permits(info, config.primary_language, config)
+            state.put("input_type", info?.inputType).put("ime_options", info?.imeOptions)
+                .put("enabled", config.openjev_enabled).put("snippets_enabled", config.openjev_context_suggestions)
+                .put("neural_autocorrect", config.openjev_neural_autocorrect).put("config_version", config.snapshot.version)
+                .put("english", config.primary_language == "en").put("secondary_language_active", config.active_secondary_language != null)
+                .put("privacy_permits", permitted).put("tracker_word_length", tracker.getCurrentWordLength())
+                .put("session", handlerValue("wordEditSession")).put("revision", handlerValue("openJevRevision"))
+                .put("snippet_offer_present", handlerValue("snippetOffer") != null)
+                .put("password_mode", handlerValue("isPasswordMode")).put("learning_allowed", handlerValue("fieldAllowsPersonalizedLearning"))
+                .put("completed", diagnostic.completedInferenceCount).put("accepted", diagnostic.acceptedResultCount)
+                .put("stale", diagnostic.staleDiscardCount).put("failures", diagnostic.failureCount)
+                .put("model_invocations", tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context).invocationCount)
+            if (permitted) {
+                val ic = service.currentInputConnection
+                val receipt = ic?.let(EditorReadback::capture)
+                state.put("readback_present", receipt != null).put("selection_start", receipt?.start).put("selection_end", receipt?.end)
+                state.put("surrounding_before_length", receipt?.before?.length).put("surrounding_after_length", receipt?.after?.length)
+                val keyhandler = handlerValue("keyeventhandler") as KeyEventHandler
+                state.put("editor_owned", ic != null && info != null && keyhandler.isCurrentEditor(ic, info))
+            }
+        }
+        val file = java.io.File(context.cacheDir, "openjev-ime-failure-metrics.json")
+        val root = if (file.exists()) org.json.JSONArray(file.readText()) else org.json.JSONArray()
+        root.put(state)
+        file.writeText(root.toString())
     }
 }
