@@ -117,6 +117,76 @@ class OpenJevImeInstrumentedTest {
         assertEquals(beforeMove.length + 1, primaryText().length)
     }
 
+    @Test
+    fun manifestRequestsNoInternetPermission() {
+        val requested = context.packageManager.getPackageInfo(context.packageName,
+            android.content.pm.PackageManager.GET_PERMISSIONS).requestedPermissions.orEmpty()
+        assertFalse("offline keyboard must not request internet access", "android.permission.INTERNET" in requested)
+    }
+
+    /** Requires a verified model bundle installed by the host-side test workflow. */
+    @Test
+    fun genuineOnnxIdleReplacementAndUndo() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        // Worker-thread reference warm-up; the subsequent count must come from IME key touches.
+        runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
+        enableNeural()
+        val before = runtime.invocationCount
+        type("this is a good ideaa")
+        waitFor { primaryText().lowercase() == "this is a good idea" && runtime.invocationCount > before }
+        val diagnostics = CleverKeysService.getInstance()!!.getOpenJevDiagnostics()
+        assertTrue("live keyboard must have accepted a real neural result", diagnostics.acceptedResultCount > 0)
+        tap(context.getString(R.string.key_descr_backspace))
+        waitFor { primaryText().lowercase() == "this is a good ideaa" }
+    }
+
+    @Test
+    fun enabledModelPasswordAndPrivateFieldsNeverInfer() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
+        enableNeural()
+        scenario.onActivity {
+            it.primary.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            (it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).restartInput(it.primary)
+        }
+        waitFor { (CleverKeysService.getInstance()?.currentInputEditorInfo?.inputType ?: 0) and InputType.TYPE_MASK_VARIATION == InputType.TYPE_TEXT_VARIATION_PASSWORD }
+        val before = runtime.invocationCount
+        type("ideaa")
+        SystemClock.sleep(2_000)
+        assertEquals("sensitive field must bypass ONNX entirely", before, runtime.invocationCount)
+        assertEquals("ideaa", primaryText())
+        scenario.onActivity {
+            it.secondary.imeOptions = android.view.inputmethod.EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+            it.focus(it.secondary)
+        }
+        waitFor { CleverKeysService.getInstance()?.currentInputEditorInfo?.fieldId == android.R.id.edit + 1 }
+        type("ideaa")
+        SystemClock.sleep(2_000)
+        assertEquals("private field must bypass ONNX entirely", before, runtime.invocationCount)
+        assertEquals("ideaa", secondaryText().lowercase())
+    }
+
+    @Test
+    fun enabledModelFieldSwitchInvalidatesPendingCorrection() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
+        enableNeural()
+        type("this is a good ideaa")
+        scenario.onActivity { it.focus(it.secondary) }
+        waitFor { CleverKeysService.getInstance()?.currentInputEditorInfo?.fieldId == android.R.id.edit + 1 }
+        type("hello")
+        SystemClock.sleep(2_000)
+        assertEquals("pending correction must not write into old editor", "this is a good ideaa", primaryText().lowercase())
+        assertEquals("pending correction must not write into new editor", "hello", secondaryText().lowercase())
+    }
+
+    private fun enableNeural() {
+        assertTrue(prefs.edit().putBoolean("openjev_enabled", true)
+            .putBoolean("openjev_neural_autocorrect", true)
+            .putBoolean("openjev_context_suggestions", false).commit())
+        instrumentation.runOnMainSync { Config.globalConfig().refresh() }
+    }
+
     private fun keyboard(): Keyboard2View? {
         val service = CleverKeysService.getInstance() ?: return null
         val field = CleverKeysService::class.java.getDeclaredField("_keyboardView")
