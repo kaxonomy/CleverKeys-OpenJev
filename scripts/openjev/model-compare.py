@@ -12,8 +12,9 @@ p.add_argument('--binary',action='store_true',help='Observe each alternative sep
 p.add_argument('--baseline-export',type=pathlib.Path,help='Use actual Android WordPredictor baseline candidates instead of predeclared alternatives')
 p.add_argument('--split',choices=['tune','test'],help='Restrict actual scoring to one split, e.g tune before freezing thresholds')
 p.add_argument('--cache',type=pathlib.Path,default=pathlib.Path.home()/'.cache/cleverkeys-openjev/model-source')
-p.add_argument('--output',type=pathlib.Path,default=pathlib.Path.home()/'.local/share/cleverkeys-openjev/output/model-parity.json')
+p.add_argument('--output',type=pathlib.Path,help='Observed output JSON; default in the central final output directory')
 a=p.parse_args()
+if a.output is None: a.output=pathlib.Path.home()/'.local/share/cleverkeys-openjev/output'/('model-binary-observations.json' if a.binary else 'model-parity.json')
 fixtures=[json.loads(x) for x in a.fixtures.read_text().splitlines() if x]
 if a.split: fixtures=[x for x in fixtures if x['split']==a.split]
 baselines={x['id']:x for x in map(json.loads,a.baseline_export.read_text().splitlines())} if a.baseline_export else None
@@ -37,7 +38,6 @@ if a.binary:
  artifact=dict(model_identity=CHECKPOINT+'@'+REVISION,model_sha256=digest(a.cache/'model_fp16.onnx'),fixture_sha256=digest(a.fixtures),tokenizer_sha256=digest(a.cache/'tokenizer.json'),prompt_schema='KEEP: the final typed word should remain {original}; REPLACE: the intended final typed word is {candidate}; runtime It is prefix',rows=rows)
  if a.baseline_export: artifact['baseline_export_sha256']=digest(a.baseline_export)
  if a.split: artifact['scored_split']=a.split
- a.output=a.output.with_name('model-binary-observations.json')
  a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(artifact,indent=2)+'\n')
  print(str(a.output),len(rows),'actual binary inferences')
  raise SystemExit(0)
