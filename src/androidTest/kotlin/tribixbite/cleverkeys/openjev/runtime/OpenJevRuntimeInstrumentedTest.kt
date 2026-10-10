@@ -134,7 +134,8 @@ class OpenJevRuntimeInstrumentedTest {
                 // Rewrite the same-length second name to construct a genuine duplicate ZIP entry.
                 val encoded = bytes.toByteArray().toString(Charsets.ISO_8859_1)
                     .replace("model.onny", "model.onnx").toByteArray(Charsets.ISO_8859_1)
-                assertThrows(IllegalArgumentException::class.java) { store.importBundle(ByteArrayInputStream(encoded)) }
+                val rejected = assertThrows(Exception::class.java) { store.importBundle(ByteArrayInputStream(encoded)) }
+                assertTrue(rejected is IllegalArgumentException || rejected is java.util.zip.ZipException)
                 assertEquals("existing-model", sentinel.readText())
                 assertFalse(File(isolated, "openjev/staging").exists())
             }

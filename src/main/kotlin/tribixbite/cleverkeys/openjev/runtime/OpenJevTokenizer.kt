@@ -11,7 +11,10 @@ class OpenJevTokenizer(file: File) {
     private val ranks = HashMap<String, Int>()
     private val added = ArrayList<Pair<String, Int>>()
     private val bytes = HashMap<Int, String>()
-    private val pattern = Pattern.compile("'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N}+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+", Pattern.UNICODE_CHARACTER_CLASS)
+    // Unicode White_Space = separator categories + ASCII whitespace controls + NEL.
+    // Android rejects UNICODE_CHARACTER_CLASS; spell out the same GPT-2 semantics.
+    private val whitespace = "\\p{Z}\\t\\n\\x0B\\f\\r\\u0085"
+    private val pattern = Pattern.compile("'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N}+| ?[^${whitespace}\\p{L}\\p{N}]+|[$whitespace]+(?![^$whitespace])|[$whitespace]+")
 
     init {
         require(file.length() in 1..8_000_000) { "INVALID_TOKENIZER" }
