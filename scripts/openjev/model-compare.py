@@ -4,15 +4,31 @@ import argparse,json,pathlib,time,gc
 import numpy as np
 import onnxruntime as ort
 from tokenizers import Tokenizer
-from model import prompt,digest
+from model import prompt,digest,CHECKPOINT,REVISION,HASHES
 
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('fixtures',type=pathlib.Path)
+p.add_argument('--binary',action='store_true',help='Observe each alternative separately versus literal KEEP using FP16')
 p.add_argument('--cache',type=pathlib.Path,default=pathlib.Path.home()/'.cache/cleverkeys-openjev/model-source')
 p.add_argument('--output',type=pathlib.Path,default=pathlib.Path.home()/'.local/share/cleverkeys-openjev/output/model-parity.json')
 a=p.parse_args()
 fixtures=[json.loads(x) for x in a.fixtures.read_text().splitlines() if x]
 tokenizer=Tokenizer.from_file(str(a.cache/'tokenizer.json'))
+if a.binary:
+ options=ort.SessionOptions();options.intra_op_num_threads=2;options.inter_op_num_threads=1
+ session=ort.InferenceSession(str(a.cache/'model_fp16.onnx'),options,providers=['CPUExecutionProvider'])
+ rows=[]
+ for x in fixtures:
+  for candidate in x['candidates'][1:]:
+   labels=['the final typed word should remain '+x['original'],'the intended final typed word is '+candidate]
+   ids=np.array([tokenizer.encode(prompt(x['prefix']+x['original'],labels)).ids],dtype=np.int64)
+   started=time.perf_counter();scores=session.run(None,{'input_ids':ids,'attention_mask':np.ones_like(ids)})[0][0,:2]
+   rows.append(dict(id=x['id'],split=x['split'],original=x['original'],candidate=candidate,logits=scores.tolist(),replace_minus_keep=float(scores[1]-scores[0]),latency_ms=(time.perf_counter()-started)*1000))
+ artifact=dict(model_identity=CHECKPOINT+'@'+REVISION,model_sha256=digest(a.cache/'model_fp16.onnx'),fixture_sha256=digest(a.fixtures),tokenizer_sha256=digest(a.cache/'tokenizer.json'),prompt_schema='KEEP: the final typed word should remain {original}; REPLACE: the intended final typed word is {candidate}; runtime It is prefix',rows=rows)
+ a.output=a.output.with_name('model-binary-observations.json')
+ a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(artifact,indent=2)+'\n')
+ print(str(a.output),len(rows),'actual binary inferences')
+ raise SystemExit(0)
 inputs=[]
 for x in fixtures:
  labels=['the final typed word should remain '+x['candidates'][0]]+['the intended final typed word is '+v for v in x['candidates'][1:]]

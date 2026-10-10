@@ -32,3 +32,15 @@ maximum 512 tokens. The model returns float32 `[1,25]`; only the first N logits
 corresponding to the N complete labels are consumed. Text is limited to 256 UTF-16
 characters and 2–8 descriptions, with no silent truncation. Reserved class markers
 are rejected in user input.
+
+Host parity is reproducible using the same synthetic fixture file:
+
+```sh
+~/.cache/cleverkeys-openjev/venv/bin/python scripts/openjev/model-compare.py src/androidTest/assets/openjev/fixtures.jsonl
+~/.cache/cleverkeys-openjev/venv/bin/python scripts/openjev/model-compare.py --binary src/androidTest/assets/openjev/fixtures.jsonl
+```
+
+The second command emits genuine binary KEEP-versus-candidate logits. Join those
+with the actual Android WordPredictor baseline export before tuning a margin.
+Neither predeclared fixture alternatives nor raw model rankings establish the
+keyboard's correction precision by themselves. Both exports pin fixture checksums.
