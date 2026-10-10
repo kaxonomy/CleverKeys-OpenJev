@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import android.os.Debug
+import android.os.Process
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.ByteArrayInputStream
@@ -53,7 +54,8 @@ class OpenJevRuntimeInstrumentedTest {
     @Test fun recordColdAndWarmRuntimeMeasurements() {
         val runtime = OpenJevRuntime.get(context)
         runtime.close()
-        val rssBefore = currentRssKiB()
+        val rssBefore = processMemoryKiB("VmRSS:")
+        val cpuBefore = Process.getElapsedCpuTime()
         val started = System.nanoTime()
         runtime.score("Hey, see you soon!", listOf("casual chat", "formal email"))
         val coldMs = (System.nanoTime() - started) / 1_000_000.0
@@ -68,14 +70,16 @@ class OpenJevRuntimeInstrumentedTest {
             .put("model", Build.MODEL).put("android_api", Build.VERSION.SDK_INT).put("load_ms", runtime.loadMs)
             .put("cold_end_to_end_ms", coldMs).put("warm_p50_ms", (samples[5] + samples[6]) / 2)
             .put("warm_p95_ms", samples[11]).put("warm_samples", samples.size)
-            .put("rss_before_kib", rssBefore).put("rss_loaded_kib", currentRssKiB()).put("pss_loaded_kib", Debug.getPss())
+            .put("rss_before_kib", rssBefore).put("rss_loaded_kib", processMemoryKiB("VmRSS:"))
+            .put("peak_rss_kib", processMemoryKiB("VmHWM:")).put("pss_loaded_kib", Debug.getPss())
+            .put("process_cpu_ms", Process.getElapsedCpuTime() - cpuBefore)
             .put("invocation_count", runtime.invocationCount).put("synthetic_reference_only", true)
         File(context.cacheDir, "openjev-runtime-metrics.json").writeText(metrics.toString())
         assertTrue(runtime.invocationCount >= 13)
     }
 
-    private fun currentRssKiB(): Long = File("/proc/self/status").useLines { lines ->
-        lines.first { it.startsWith("VmRSS:") }.split(Regex("\\s+")).filter { it.isNotBlank() }[1].toLong()
+    private fun processMemoryKiB(key: String): Long = File("/proc/self/status").useLines { lines ->
+        lines.first { it.startsWith(key) }.split(Regex("\\s+")).filter { it.isNotBlank() }[1].toLong()
     }
 
     @Test fun closingSessionInvalidatesOutstandingModelOwnership() {
