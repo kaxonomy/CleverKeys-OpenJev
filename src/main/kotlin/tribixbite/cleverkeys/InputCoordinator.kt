@@ -321,7 +321,7 @@ class InputCoordinator(
         language: String = "en",
         editorInfo: EditorInfo? = null
     ) {
-        if (closed) return
+        if (!isReplayInputStillCurrent(ic, editorInfo)) return
         // SAS-1: cursor movement invalidates the pending auto-space swallow unless
         // it reports exactly the stamped position (the auto-space commit's own
         // onUpdateSelection callback). Synchronous — must run before any debounce.
@@ -332,7 +332,9 @@ class InputCoordinator(
 
         // Schedule new sync with debounce delay
         pendingSyncRunnable = Runnable {
-            if (closed) return@Runnable
+            // restartInput can replace the connection without finishing the input view.
+            // A delayed read from its predecessor must not overwrite the active word tracker.
+            if (!isReplayInputStillCurrent(ic, editorInfo)) return@Runnable
             contextTracker.synchronizeWithCursor(ic, language, editorInfo)
 
             // Trigger predictions for the synced word
