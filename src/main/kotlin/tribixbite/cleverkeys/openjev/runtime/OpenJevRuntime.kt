@@ -83,7 +83,14 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
                     }
                 }
             }
-        } catch (failure: Exception) {
+        } catch (failure: Throwable) {
+            // Native loading failures and Java allocation failures must not disable ordinary typing.
+            if (failure !is Exception && failure !is LinkageError && failure !is OutOfMemoryError) throw failure
+            if (failure is LinkageError || failure is OutOfMemoryError) {
+                session?.close()
+                session = null
+                tokenizer = null
+            }
             ready = false
             if (session == null) initializationFailed = true
             errorCode = if (session == null) "MODEL_LOAD_FAILED" else "INFERENCE_FAILED"
