@@ -6,6 +6,7 @@ Tune on --split tune; freeze --margin before evaluating --split test. This evalu
 synthetic dictionary-stage decisions, not complete editor transaction correctness.
 """
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from evaluate import evaluate, read_jsonl
@@ -64,6 +65,7 @@ def observe(generated, model_rows, split, margin, identity):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--fixtures", type=Path, default=Path(__file__).resolve().parents[2] / "src/androidTest/assets/openjev/fixtures.jsonl")
     parser.add_argument("--generated", type=Path, required=True)
     parser.add_argument("--model-observations", type=Path, required=True)
     parser.add_argument("--split", choices=("tune", "test"), required=True)
@@ -75,6 +77,12 @@ def main():
     generated = read_jsonl(args.generated)
     model = json.loads(args.model_observations.read_text())
     try:
+        if model.get("fixture_sha256") != hashlib.sha256(args.fixtures.read_bytes()).hexdigest():
+            raise ValueError("model observations must pin exact fixture content checksum")
+        source = {row["id"]: row for row in read_jsonl(args.fixtures)}
+        for fixture in generated:
+            if fixture["id"] not in source or any(fixture.get(key) != value for key, value in source[fixture["id"]].items()):
+                raise ValueError("Android fixture inputs differ from model reference inputs")
         observations = observe(generated, model["rows"], args.split, args.margin, model["model_identity"])
         report = evaluate(generated, observations, args.split)
     except (ValueError, KeyError, TypeError) as error:

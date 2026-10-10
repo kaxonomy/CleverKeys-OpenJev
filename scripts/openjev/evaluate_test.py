@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Tests the evaluator's accounting and rejection paths; observations here are test doubles."""
 import unittest
+from evaluate_binary import observe, simple_typo
 from evaluate import evaluate
 
 
@@ -12,6 +13,27 @@ class EvaluatorTest(unittest.TestCase):
                                   ranked_candidates=case["candidates"], action="KEEP", candidate=None,
                                   latency_ms=1., inference_executed=False)
                              for system in ("baseline", "openjev") for case in self.fixtures]
+
+    def test_simple_typo_requires_bounded_letters_and_one_edit(self):
+        for original, candidate in (("teh", "the"), ("ideaa", "idea"), ("tge", "the")):
+            self.assertTrue(simple_typo(original, candidate))
+        for original, candidate in (("jsut", "jutting"), ("O’Neil", "oneil"), ("Zevran", "zebra"), ("url_id", "url")):
+            self.assertFalse(simple_typo(original, candidate))
+
+    def test_binary_join_requires_real_model_observation(self):
+        generated = [dict(self.fixtures[0], baseline_candidate="the", generated_candidates=["teh", "the"],
+                          baseline_ranking=["the", "teh"], baseline_latency_ms=1., context="GENERAL_WRITING",
+                          input_kind="text", language="en", original_known=False, original_user=False)]
+        with self.assertRaises(ValueError):
+            observe(generated, [], "test", 1.5, "real-model")
+
+    def test_protected_binary_join_never_infers(self):
+        generated = [dict(self.fixtures[0], baseline_candidate="the", generated_candidates=["teh", "the"],
+                          baseline_ranking=["the", "teh"], baseline_latency_ms=1., context="GENERAL_WRITING",
+                          input_kind="password", language="en", original_known=False, original_user=False)]
+        rows = observe(generated, [], "test", 1.5, "real-model")
+        self.assertEqual("KEEP", rows[1]["action"])
+        self.assertFalse(rows[1]["inference_executed"])
 
     def test_false_replacements_count_and_zero_precision(self):
         self.observations[3].update(action="REPLACE", candidate="zebra")
