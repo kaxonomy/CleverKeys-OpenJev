@@ -478,6 +478,7 @@ class OpenJevImeInstrumentedTest {
                 .put("privacy_permits", permitted).put("tracker_word_length", tracker.getCurrentWordLength())
                 .put("session", handlerValue("wordEditSession")).put("revision", handlerValue("openJevRevision"))
                 .put("snippet_offer_present", handlerValue("snippetOffer") != null)
+                .put("special_prompt", handlerValue("specialPromptActive"))
                 .put("password_mode", handlerValue("isPasswordMode")).put("learning_allowed", handlerValue("fieldAllowsPersonalizedLearning"))
                 .put("completed", diagnostic.completedInferenceCount).put("accepted", diagnostic.acceptedResultCount)
                 .put("stale", diagnostic.staleDiscardCount).put("failures", diagnostic.failureCount)
@@ -489,6 +490,16 @@ class OpenJevImeInstrumentedTest {
                 state.put("surrounding_before_length", receipt?.before?.length).put("surrounding_after_length", receipt?.after?.length)
                 val keyhandler = handlerValue("keyeventhandler") as KeyEventHandler
                 state.put("editor_owned", ic != null && info != null && keyhandler.isCurrentEditor(ic, info))
+                handlerValue("snippetOffer")?.let { offer ->
+                    fun offerValue(name: String): Any? = offer.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(offer)
+                    val id = offerValue("id") as tribixbite.cleverkeys.openjev.OpenJevRequestId
+                    state.put("offer_revision", id.revision).put("offer_configuration", id.configuration)
+                        .put("offer_input_identity_matches", ic === offerValue("ic"))
+                        .put("offer_info_identity_matches", info === offerValue("info"))
+                        .put("offer_model_matches", offerValue("modelGeneration") == tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.currentModelGeneration)
+                        .put("offer_receipt_matches", ic != null && (offerValue("editor") as EditorReadback).matches(ic))
+                        .put("offer_context_matches", ic?.getTextBeforeCursor(192, 0)?.toString() == offerValue("contextText"))
+                }
             }
         }
         val file = java.io.File(context.cacheDir, "openjev-ime-failure-metrics.json")
