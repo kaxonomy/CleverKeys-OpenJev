@@ -15,54 +15,58 @@ class OpenJevModelStore(context: Context) {
     fun status(): String = if (!File(directory, "manifest.json").isFile) "MISSING"
         else OpenJevRuntime.status() ?: "INSTALLED"
 
-    fun importBundle(input: InputStream) = synchronized(OpenJevRuntime.lock) {
+    fun importBundle(input: InputStream) {
         check(Looper.myLooper() != Looper.getMainLooper()) { "WORKER_REQUIRED" }
-        check(root.mkdirs() || root.isDirectory)
-        val staging = File(root, "staging")
-        staging.deleteRecursively()
-        check(staging.mkdir())
-        try {
-            val seen = HashSet<String>()
-            var total = 0L
-            ZipInputStream(input).use { zip ->
-                while (true) {
-                    val entry = zip.nextEntry ?: break
-                    require(!entry.isDirectory && entry.name in limits && seen.add(entry.name)) { "INVALID_BUNDLE" }
-                    val limit = limits.getValue(entry.name)
-                    require(entry.size <= limit)
-                    var written = 0L
-                    File(staging, entry.name).outputStream().use { target ->
-                        val buffer = ByteArray(65536)
-                        while (true) {
-                            val count = zip.read(buffer)
-                            if (count < 0) break
-                            written += count
-                            total += count
-                            require(written <= limit && total <= 920_000_000L) { "BUNDLE_TOO_LARGE" }
-                            target.write(buffer, 0, count)
+        synchronized(OpenJevRuntime.lock) {
+            check(root.mkdirs() || root.isDirectory)
+            val staging = File(root, "staging")
+            staging.deleteRecursively()
+            check(staging.mkdir())
+            try {
+                val seen = HashSet<String>()
+                var total = 0L
+                ZipInputStream(input).use { zip ->
+                    while (true) {
+                        val entry = zip.nextEntry ?: break
+                        require(!entry.isDirectory && entry.name in limits && seen.add(entry.name)) { "INVALID_BUNDLE" }
+                        val limit = limits.getValue(entry.name)
+                        require(entry.size <= limit)
+                        var written = 0L
+                        File(staging, entry.name).outputStream().use { target ->
+                            val buffer = ByteArray(65536)
+                            while (true) {
+                                val count = zip.read(buffer)
+                                if (count < 0) break
+                                written += count
+                                total += count
+                                require(written <= limit && total <= 920_000_000L) { "BUNDLE_TOO_LARGE" }
+                                target.write(buffer, 0, count)
+                            }
                         }
+                        zip.closeEntry()
                     }
-                    zip.closeEntry()
                 }
-            }
-            require(seen == limits.keys) { "INCOMPLETE_BUNDLE" }
-            verify(staging)
-            OpenJevRuntime.invalidate()
-            val backup = File(root, "previous")
-            backup.deleteRecursively()
-            if (directory.exists()) check(directory.renameTo(backup)) { "MODEL_SWAP_FAILED" }
-            if (!staging.renameTo(directory)) {
-                if (backup.exists()) check(backup.renameTo(directory)) { "MODEL_ROLLBACK_FAILED" }
-                error("MODEL_SWAP_FAILED")
-            }
-            backup.deleteRecursively()
-        } finally { staging.deleteRecursively() }
+                require(seen == limits.keys) { "INCOMPLETE_BUNDLE" }
+                verify(staging)
+                OpenJevRuntime.invalidate()
+                val backup = File(root, "previous")
+                backup.deleteRecursively()
+                if (directory.exists()) check(directory.renameTo(backup)) { "MODEL_SWAP_FAILED" }
+                if (!staging.renameTo(directory)) {
+                    if (backup.exists()) check(backup.renameTo(directory)) { "MODEL_ROLLBACK_FAILED" }
+                    error("MODEL_SWAP_FAILED")
+                }
+                backup.deleteRecursively()
+            } finally { staging.deleteRecursively() }
+        }
     }
 
-    fun remove() = synchronized(OpenJevRuntime.lock) {
+    fun remove() {
         check(Looper.myLooper() != Looper.getMainLooper()) { "WORKER_REQUIRED" }
-        OpenJevRuntime.invalidate()
-        check(!directory.exists() || directory.deleteRecursively()) { "MODEL_REMOVE_FAILED" }
+        synchronized(OpenJevRuntime.lock) {
+            OpenJevRuntime.invalidate()
+            check(!directory.exists() || directory.deleteRecursively()) { "MODEL_REMOVE_FAILED" }
+        }
     }
 
     companion object {
