@@ -493,6 +493,12 @@ class OpenJevImeInstrumentedTest {
                 .put("dictionary_friend_preserved", predictor?.autoCorrect("friend") == "friend")
                 .put("dictionary_prompt", bar?.getCurrentSuggestions()?.any { it.startsWith("dict_add:") } == true)
                 .put("autocorrect_prompt", bar?.getCurrentSuggestions()?.any { bar.getMetaForSuggestion(it)?.origin == SuggestionOrigin.AUTOCORRECT } == true)
+            (bar?.getCurrentSuggestions()?.map(Suggestion::parse)?.firstOrNull { it is Suggestion.AddToDictionary } as? Suggestion.AddToDictionary)?.let { prompt ->
+                state.put("prompt_token_length", prompt.word.length)
+                    .put("prompt_matches_hello", prompt.word.equals("hello", true))
+                    .put("prompt_matches_friend", prompt.word.equals("friend", true))
+                    .put("prompt_token_known", predictor?.isInDictionary(prompt.word))
+            }
             val permitted = tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy.permits(info, config.primary_language, config)
             state.put("input_type", info?.inputType).put("ime_options", info?.imeOptions)
                 .put("enabled", config.openjev_enabled).put("snippets_enabled", config.openjev_context_suggestions)
