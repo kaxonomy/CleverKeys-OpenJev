@@ -691,6 +691,8 @@ class CleverKeysService : InputMethodService(),
 
     override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
         _keyboardView.cancelContinuousSwipe()
+        // restartInput can begin a new session without an intervening onFinishInputView.
+        _inputCoordinator.cancelPendingCursorSync()
         _suggestionHandler.onEditorSessionChanged()
         // Record a copy the clipboard listener could not see (Saga 2026-10-07): one bounded
         // read of the current clip, recorded only if this service has not observed it.
