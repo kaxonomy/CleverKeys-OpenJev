@@ -34,7 +34,7 @@ object OpenJevDecisionPolicy {
         // Ties, including a tied KEEP, abstain. Independent logits carry no calibrated confidence.
         val tied = scores.indices.any { it != best && scores[it] == scores[best] }
         val replace = allowReplace && validatedMargin != null && validatedMargin.isFinite() && validatedMargin > 0f &&
-            request.candidates[best] == request.baselineCandidate &&
+            scores[best] > 0f && request.candidates[best] == request.baselineCandidate &&
             simpleTypo(request.original, request.candidates[best]) && scores[best] - scores[0] >= validatedMargin
         val action = if (best == 0 || tied) OpenJevAction.KEEP else if (replace) OpenJevAction.REPLACE else OpenJevAction.SUGGEST
         return OpenJevDecision(action, if (action == OpenJevAction.KEEP) request.original else request.candidates[best],

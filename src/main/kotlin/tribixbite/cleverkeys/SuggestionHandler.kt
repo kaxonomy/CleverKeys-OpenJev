@@ -3654,9 +3654,9 @@ class SuggestionHandler(
                     else coordinator.resultDiscarded()
                     return@post
                 }
-                // An exact KEEP receipt may veto the baseline replacement at the next accepted space.
-                if (decision.action == OpenJevAction.KEEP)
-                    neuralKeep = NeuralKeep(ic, info, id, partial, receipt, modelGeneration).also { keep ->
+                // Both KEEP and SUGGEST preserve text until an explicit tap. A delayed accepted
+                // non-destructive decision must not become a baseline automatic edit on space.
+                neuralKeep = NeuralKeep(ic, info, id, partial, receipt, modelGeneration).also { keep ->
                         keep.separatorCallbacks.stamp(receipt.start + 1, receipt.end + 1, android.os.SystemClock.uptimeMillis())
                     }
                 // KEEP is a real selectable candidate, even with ExactAdd disabled.

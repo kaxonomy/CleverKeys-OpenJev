@@ -47,6 +47,7 @@ class OpenJevDecisionPolicyTest {
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = null).action)
         assertEquals(OpenJevAction.REPLACE, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = 1.5f).action)
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 1f), allowReplace = true, validatedMargin = 1.5f).action)
+        assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(-5f, -1f), allowReplace = true, validatedMargin = 1.5f).action)
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary.copy(baselineCandidate = "ideas"), floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = 1.5f).action)
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = false, validatedMargin = 1.5f).action)
     }
