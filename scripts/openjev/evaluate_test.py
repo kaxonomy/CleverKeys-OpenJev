@@ -48,6 +48,16 @@ class EvaluatorTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             evaluate(self.fixtures, self.observations, "test")
 
+    def test_different_generated_slates_fail(self):
+        self.observations[0]["generated_candidates"] = ["teh", "the", "ten"]
+        with self.assertRaises(ValueError):
+            evaluate(self.fixtures, self.observations, "test")
+
+    def test_actual_generator_candidates_allowed(self):
+        for i in (0, 2):
+            self.observations[i].update(generated_candidates=["teh", "the", "ten"], ranked_candidates=["ten", "teh", "the"])
+        self.assertEqual(2, evaluate(self.fixtures, self.observations, "test")["metrics"]["openjev"]["count"])
+
     def test_model_identity_required(self):
         self.observations[2]["inference_executed"] = True
         with self.assertRaises(ValueError):

@@ -54,8 +54,11 @@ def validate(fixtures, observations, split):
         ranked = row["ranked_candidates"]
         if not ranked or len(ranked) != len(set(ranked)):
             raise ValueError("empty or duplicate candidate ranking")
-        if any(candidate not in cases[case_id]["candidates"] for candidate in ranked):
-            raise ValueError("candidate outside declared slate")
+        slate = row.get("generated_candidates", cases[case_id]["candidates"])
+        if not isinstance(slate, list) or not slate or len(slate) > 32 or any(not isinstance(c, str) or len(c) > 256 for c in slate):
+            raise ValueError("invalid generated candidate slate")
+        if any(candidate not in slate for candidate in ranked):
+            raise ValueError("candidate outside declared/generated slate")
         if cases[case_id]["original"] not in ranked:
             raise ValueError("ranking must include explicit original KEEP candidate")
         if row["action"] != "KEEP" and row.get("candidate") not in ranked:
@@ -73,6 +76,11 @@ def validate(fixtures, observations, split):
     for system, records in rows.items():
         if set(records) != set(cases):
             raise ValueError(f"{system} requires one observation per selected fixture: {len(records)}/{len(cases)}")
+    for case_id in cases:
+        a = rows["baseline"][case_id].get("generated_candidates", cases[case_id]["candidates"])
+        b = rows["openjev"][case_id].get("generated_candidates", cases[case_id]["candidates"])
+        if a != b:
+            raise ValueError("baseline and OpenJev must evaluate the same generated slate")
     return cases, rows
 
 
@@ -122,8 +130,8 @@ def evaluate(fixtures, observations, split):
     return {"split": split, "metrics": result,
             "model_identities": sorted({r["model_identity"] for r in records["openjev"].values() if r["inference_executed"]}),
             "synthetic_safety_gate_passed": safe and has_neural,
-            "automatic_replacement_approved": False,
-            "limitation": "Synthetic gate alone does not calibrate probabilities or authorize automatic replacement."}
+            "replacement_quality_gate_passed": split == "test" and safe and has_neural and result["openjev"]["correct_automatic_corrections"] > 0,
+            "limitation": "Synthetic gate provides limited held-out evidence; raw logits remain uncalibrated and broader production quality is unmeasured."}
 
 
 def main():
