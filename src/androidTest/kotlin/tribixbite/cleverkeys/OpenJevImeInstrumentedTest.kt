@@ -486,6 +486,7 @@ class OpenJevImeInstrumentedTest {
                 .put("completed", diagnostic.completedInferenceCount).put("accepted", diagnostic.acceptedResultCount)
                 .put("stale", diagnostic.staleDiscardCount).put("failures", diagnostic.failureCount)
                 .put("model_invocations", tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context).invocationCount)
+                .put("runtime_error", tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context).errorCode ?: "NONE")
             if (permitted) {
                 val ic = service.currentInputConnection
                 val receipt = ic?.let(EditorReadback::capture)
@@ -507,6 +508,7 @@ class OpenJevImeInstrumentedTest {
         }
         val file = java.io.File(context.cacheDir, "openjev-ime-failure-metrics.json")
         val root = if (file.exists()) org.json.JSONArray(file.readText()) else org.json.JSONArray()
+        while (root.length() >= 8) root.remove(0)
         root.put(state)
         file.writeText(root.toString())
     }
