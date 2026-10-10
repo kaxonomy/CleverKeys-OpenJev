@@ -3556,7 +3556,7 @@ class SuggestionHandler(
         }) { decision ->
             mainHandler.post {
                 val current = currentInputProvider?.invoke()
-                val owns = current?.first === ic && current.second === info &&
+                val owns = current?.first === ic && current?.second === info &&
                     id.session == wordEditSession && id.revision == openJevRevision &&
                     id.configuration == config.snapshot.version && id.language == config.primary_language &&
                     OpenJevContextPolicy.permits(info, config.primary_language, config) &&
