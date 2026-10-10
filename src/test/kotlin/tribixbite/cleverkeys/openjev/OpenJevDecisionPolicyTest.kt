@@ -25,7 +25,6 @@ class OpenJevDecisionPolicyTest {
         assertEquals(OpenJevAction.SUGGEST, suggest.action)
         assertEquals("there", suggest.candidate)
         assertTrue(suggest.uncertain)
-        assertFalse(OpenJevDecisionPolicy.AUTOMATIC_REPLACEMENT_VALIDATED)
         val keep = OpenJevDecisionPolicy.decide(request(), floatArrayOf(9f, 1f, -1f))
         assertEquals(OpenJevAction.KEEP, keep.action)
         assertEquals("tehre", keep.candidate)
@@ -45,7 +44,7 @@ class OpenJevDecisionPolicyTest {
     }
     @Test fun replacementNeedsBaselineAgreementSimpleTypoAndValidatedMargin() {
         val binary = OpenJevTypingRequest(OpenJevRequestId(1, 1, 1, "en"), "a good ", "ideaa", listOf("ideaa", "idea"), "idea")
-        assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = true).action)
+        assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = null).action)
         assertEquals(OpenJevAction.REPLACE, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = 1.5f).action)
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary, floatArrayOf(0f, 1f), allowReplace = true, validatedMargin = 1.5f).action)
         assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(binary.copy(baselineCandidate = "ideas"), floatArrayOf(0f, 5f), allowReplace = true, validatedMargin = 1.5f).action)

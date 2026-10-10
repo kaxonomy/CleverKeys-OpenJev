@@ -15,7 +15,6 @@ object OpenJevDecisionPolicy {
     // Set only after disjoint tuning and held-out evaluation of the shipped checkpoint.
     private val replacementMargin: Float? = null
     val automaticReplacementValidated: Boolean get() = replacementMargin != null
-    val AUTOMATIC_REPLACEMENT_VALIDATED: Boolean get() = automaticReplacementValidated
 
     fun candidates(original: String, generated: List<String>): List<String> {
         if (original.length !in 3..24 || original.any { it !in 'a'..'z' }) return emptyList()
