@@ -59,7 +59,7 @@ def observe(generated, model_rows, split, margin, identity, replacement_family="
             if row["original"] != original:
                 raise ValueError("model input original differs from Android export")
             keep, correction = row["logits"]
-            family_allows = replacement_family == "simple" or terminal_vowel_typo(original, proposed)
+            family_allows = (replacement_family == "simple" or terminal_vowel_typo(original, proposed)) and fixture.get("baseline_known", replacement_family == "simple")
             action = "REPLACE" if family_allows and correction > 0 and correction - keep >= margin else "SUGGEST" if correction > 0 and correction > keep else "KEEP"
             chosen = proposed if action != "KEEP" else None
             ranking = ([proposed, original] if correction > keep else [original, proposed]) + [c for c in slate if c not in {original, proposed}]

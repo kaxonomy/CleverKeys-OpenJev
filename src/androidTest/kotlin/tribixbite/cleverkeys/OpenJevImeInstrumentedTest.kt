@@ -205,11 +205,48 @@ class OpenJevImeInstrumentedTest {
         assertEquals("pending correction must not write into new editor", "hello", secondaryText().lowercase())
     }
 
+    @Test
+    fun localChatSnippetRequiresExplicitTouchAndCommitsLiteralText() {
+        val phrase = "Thanks for the update."
+        assertTrue(prefs.edit().putBoolean("openjev_enabled", true)
+            .putBoolean("openjev_context_suggestions", true)
+            .putBoolean("openjev_neural_autocorrect", false)
+            .putString("openjev_chat_snippet", phrase).commit())
+        instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
+        scenario.onActivity {
+            it.primary.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE
+            (it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).restartInput(it.primary)
+        }
+        waitFor {
+            val bar = suggestionBar()
+            bar?.getCurrentSuggestions()?.contains(phrase) == true &&
+                bar.getMetaForSuggestion(phrase)?.origin == SuggestionOrigin.LOCAL_SNIPPET
+        }
+        assertEquals("snippet must not insert automatically", "", primaryText())
+        val bounds = Rect()
+        instrumentation.runOnMainSync {
+            val bar = suggestionBar() ?: error("suggestion bar missing")
+            val field = SuggestionBar::class.java.getDeclaredField("suggestionViews").apply { isAccessible = true }
+            @Suppress("UNCHECKED_CAST")
+            val views = field.get(bar) as List<android.widget.TextView>
+            val view = views.first { it.text.toString().contains(phrase) }
+            assertTrue(view.getGlobalVisibleRect(bounds))
+        }
+        tapBounds(bounds)
+        waitFor { primaryText() == phrase }
+    }
+
+    private fun suggestionBar(): SuggestionBar? {
+        val service = CleverKeysService.getInstance() ?: return null
+        val field = CleverKeysService::class.java.getDeclaredField("_suggestionBar").apply { isAccessible = true }
+        return field.get(service) as? SuggestionBar
+    }
+
     private fun enableNeural() {
         assertTrue(prefs.edit().putBoolean("openjev_enabled", true)
             .putBoolean("openjev_neural_autocorrect", true)
             .putBoolean("openjev_context_suggestions", false).commit())
-        instrumentation.runOnMainSync { Config.globalConfig().refresh() }
+        instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
     }
 
     private fun keyboard(): Keyboard2View? {
@@ -236,6 +273,10 @@ class OpenJevImeInstrumentedTest {
             }
         }
         assertTrue("keyboard key must be present", found && !bounds.isEmpty)
+        tapBounds(bounds)
+    }
+
+    private fun tapBounds(bounds: Rect) {
         val time = SystemClock.uptimeMillis()
         for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
             val event = MotionEvent.obtain(time, SystemClock.uptimeMillis(), action,

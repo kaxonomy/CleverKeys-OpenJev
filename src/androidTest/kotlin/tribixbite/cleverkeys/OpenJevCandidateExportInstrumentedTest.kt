@@ -44,6 +44,7 @@ class OpenJevCandidateExportInstrumentedTest {
                     fixture.put("original_known", predictor.isInDictionary(original))
                     fixture.put("original_user", predictor.isInUserVocabulary(original))
                     fixture.put("baseline_candidate", correction)
+                    fixture.put("baseline_known", predictor.isInDictionary(correction))
                     fixture.put("baseline_latency_ms", (SystemClock.elapsedRealtimeNanos() - start) / 1e6)
                     writer.appendLine(fixture.toString())
                 }

@@ -75,8 +75,8 @@ class OpenJevEvaluationInstrumentedTest {
                         val before = runtime.invocationCount
                         val logits = runtime.score((prefix + original).takeLast(192), OpenJevDecisionPolicy.descriptions(request))
                         assertEquals("actual ONNX invocation required", before + 1, runtime.invocationCount)
-                        val decision = if (margin == null) OpenJevDecisionPolicy.decide(request, logits, allowReplace = true)
-                            else OpenJevDecisionPolicy.decide(request, logits, allowReplace = true, validatedMargin = margin)
+                        val decision = if (margin == null) OpenJevDecisionPolicy.decide(request, logits, allowReplace = predictor.isInDictionary(corrected))
+                            else OpenJevDecisionPolicy.decide(request, logits, allowReplace = predictor.isInDictionary(corrected), validatedMargin = margin)
                         action = decision.action
                         candidate = decision.candidate
                         ranking = (logits.indices.sortedByDescending { logits[it] }.map { neuralCandidates[it] } + slate).distinct()
