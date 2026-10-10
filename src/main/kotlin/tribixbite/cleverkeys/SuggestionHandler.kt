@@ -512,7 +512,7 @@ class SuggestionHandler(
         val original: String, val editor: EditorReadback, val modelGeneration: Long,
         val separatorCallbacks: OwnedSelectionLedger = OwnedSelectionLedger(1))
     private data class SnippetOffer(val ic: InputConnection, val info: EditorInfo,
-        val id: OpenJevRequestId, val editor: EditorReadback, val phrase: String, val modelGeneration: Long)
+        val id: OpenJevRequestId, val editor: EditorReadback, val phrase: String, val modelGeneration: Long, val contextText: String)
     private var snippetOffer: SnippetOffer? = null
     private var neuralKeep: NeuralKeep? = null
     private var neuralUndo: NeuralUndo? = null
@@ -3599,7 +3599,8 @@ class SuggestionHandler(
         val offer = snippetOffer ?: return null
         if (ic !== offer.ic || info !== offer.info || word != offer.phrase ||
             !config.openjev_context_suggestions || offer.modelGeneration != OpenJevRuntime.currentModelGeneration ||
-            !ownsNeuralSession(offer.ic, offer.info, offer.id)) return null
+            !ownsNeuralSession(offer.ic, offer.info, offer.id) ||
+            !runCatching { offer.ic.getTextBeforeCursor(OpenJevContextPolicy.MAX_CONTEXT_CHARS, 0)?.toString() == offer.contextText }.getOrDefault(false)) return null
         val operation = NeuralOperation(offer.ic, offer.info, offer.id, offer.editor, offer.modelGeneration)
         neuralOperation = operation
         operation.callbacks.stamp(offer.editor.start, offer.editor.end, android.os.SystemClock.uptimeMillis())
@@ -3617,7 +3618,19 @@ class SuggestionHandler(
             guard.accepted(offer.ic, word) && (external == null || external.accepted(offer.ic, word))
         }.getOrDefault(false)
         // Keep the bounded owned-callback ledger until the next input; no phrase learning.
-        if (!accepted) invalidateOpenJev() else { openJev?.invalidate(); snippetOffer = null }
+        if (!accepted) invalidateOpenJev() else {
+            openJev?.invalidate()
+            snippetOffer = null
+            contextTracker.clearAutocorrectTracking()
+            contextTracker.clearLastAutoInsertedWord()
+            contextTracker.clearTrailingSpaceWatch()
+            contextTracker.setWasLastInputSwipe(false)
+            contextTracker.clearCurrentWord()
+            contextTracker.clearCurrentWordSuffix()
+            wordEditReceipt = null
+            suffixOperation = null
+            pendingTypedWord = null
+        }
         nextWordSuggestionsActive = false
         suggestionBar?.clearSuggestions()
         return if (accepted) word else null
@@ -3656,13 +3669,14 @@ class SuggestionHandler(
             mainHandler.post {
                 if (!coordinator.isCurrent(id) || !ownsNeuralSession(ic, info, id) ||
                     !config.openjev_context_suggestions || specialPromptActive || isPasswordMode ||
-                    contextTracker.getCurrentWordLength() != 0 || !receipt.matches(ic)) return@post
+                    contextTracker.getCurrentWordLength() != 0 || !receipt.matches(ic) ||
+                    !runCatching { ic.getTextBeforeCursor(OpenJevContextPolicy.MAX_CONTEXT_CHARS, 0)?.toString() == text }.getOrDefault(false)) return@post
                 val phrase = OpenJevContextPolicy.snippets(cache.get(id, text) ?: metadata, email, chat).firstOrNull() ?: return@post
                 val bar = suggestionBar ?: return@post
                 val existing = bar.getCurrentSuggestions().filter { it != phrase }
                 val metas = listOf(SuggestionMeta(SuggestionOrigin.LOCAL_SNIPPET)) +
                     existing.map { bar.getMetaForSuggestion(it) ?: SuggestionMeta(SuggestionOrigin.NEXT_WORD) }
-                snippetOffer = SnippetOffer(ic, info, id, receipt, phrase, modelVersion)
+                snippetOffer = SnippetOffer(ic, info, id, receipt, phrase, modelVersion, text)
                 bar.setSuggestionsWithScores(listOf(phrase) + existing, List(existing.size + 1) { 0 }, metas)
             }
         }
