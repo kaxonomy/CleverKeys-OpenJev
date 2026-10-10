@@ -160,6 +160,19 @@ class OpenJevImeInstrumentedTest {
     }
 
     @Test
+    fun genuineOnnxReplacementRespectsDisabledBackspaceUndo() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
+        enableNeural()
+        assertTrue(prefs.edit().putBoolean("backspace_undo_autocorrect", false).commit())
+        instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
+        type("this is a good ideaa")
+        waitFor { primaryText().lowercase() == "this is a good idea" }
+        tap(context.getString(R.string.key_descr_backspace))
+        waitFor { primaryText().lowercase() == "this is a good ide" }
+    }
+
+    @Test
     fun genuineOnnxKeepPreventsBaselineSpaceCorrection() {
         val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
         runtime.score("Please pass teh", listOf("the final typed word should remain teh", "the intended final typed word is the"))
@@ -245,6 +258,24 @@ class OpenJevImeInstrumentedTest {
         SystemClock.sleep(2_000)
         assertEquals("pending correction must not write into old editor", "this is a good ideaa", primaryText().lowercase())
         assertEquals("pending correction must not write into new editor", "hello", secondaryText().lowercase())
+    }
+
+    @Test
+    fun enabledModelRapidEditingAndCursorMoveInvalidatesPendingCorrection() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
+        enableNeural()
+        type("this is a good ideaa")
+        // Move before the delayed word decision starts, then edit through actual IME touches.
+        scenario.onActivity { it.primary.setSelection(0) }
+        SystemClock.sleep(100)
+        tap("x")
+        waitFor { primaryText().lowercase() == "xthis is a good ideaa" }
+        tap(context.getString(R.string.key_descr_backspace))
+        waitFor { primaryText().lowercase() == "this is a good ideaa" }
+        SystemClock.sleep(2_000)
+        assertEquals("obsolete neural result must not edit the old suffix", "this is a good ideaa", primaryText().lowercase())
+        scenario.onActivity { assertEquals("selection must remain at the manually edited position", 0, it.primary.selectionStart) }
     }
 
     @Test
