@@ -33,6 +33,7 @@ class OpenJevImeInstrumentedTest {
         prefs = DirectBootAwarePreferences.get_shared_preferences(context)
         savedPreferences = prefs.all.toMap()
         assertTrue(prefs.edit().putBoolean("openjev_enabled", false)
+            .putBoolean("on_device_learning_enabled", false)
             .putBoolean("autocorrect_enabled", true)
             .putBoolean("backspace_undo_autocorrect", true)
             .putBoolean("haptic_enabled", false).commit())
@@ -41,8 +42,15 @@ class OpenJevImeInstrumentedTest {
         }
         priorIme = shell("settings get secure default_input_method").trim().takeUnless { it == "null" }
         priorEnabledImes = shell("settings get secure enabled_input_methods").trim().takeUnless { it == "null" }
-        shell("ime enable ${context.packageName}/tribixbite.cleverkeys.CleverKeysService")
-        shell("ime set ${context.packageName}/tribixbite.cleverkeys.CleverKeysService")
+        val component = "${context.packageName}/tribixbite.cleverkeys.CleverKeysService"
+        shell("ime enable $component")
+        if (priorIme == component) {
+            // A terminated instrumentation process can leave the same selected component unbound.
+            priorEnabledImes?.split(':')?.map { it.substringBefore(';') }?.firstOrNull {
+                it != component && it.matches(Regex("[A-Za-z0-9._/]+"))
+            }?.let { shell("ime set $it") }
+        }
+        shell("ime set $component")
         scenario = ActivityScenario.launch(OpenJevTestEditorActivity::class.java)
         waitFor { keyboard()?.isShown == true }
         instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
