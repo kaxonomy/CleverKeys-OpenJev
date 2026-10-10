@@ -19,6 +19,7 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
     private var initializationFailed = false
     private val invocations = AtomicLong()
     val invocationCount: Long get() = invocations.get()
+    val modelGeneration: Long get() = generation.get()
     @Volatile var lastInferenceMs: Double = 0.0
         private set
     @Volatile var loadMs: Double = 0.0
@@ -98,13 +99,17 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
         }
     }
 
-    override fun close() = synchronized(lock) {
+    override fun close() {
+        check(Looper.myLooper() != Looper.getMainLooper()) { "WORKER_REQUIRED" }
+        synchronized(lock) {
+        generation.incrementAndGet()
         session?.close()
         session = null
         tokenizer = null
         initializationFailed = false
         errorCode = null
         ready = false
+        }
     }
 
     companion object {
@@ -112,11 +117,16 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
         const val REVISION = "8af2496eb63c7fa66d7d234e1f62629380030eb4"
         internal val lock = Any()
         private val creationLock = Any()
+        private val generation = AtomicLong()
+        val currentModelGeneration: Long get() = generation.get()
         @Volatile private var singleton: OpenJevRuntime? = null
         fun get(context: Context): OpenJevRuntime = singleton ?: synchronized(creationLock) {
             singleton ?: OpenJevRuntime(context).also { singleton = it }
         }
-        internal fun invalidate() { singleton?.close() }
+        internal fun invalidate() {
+            val active = singleton
+            if (active != null) active.close() else generation.incrementAndGet()
+        }
         internal fun status(): String? = singleton?.let { if (it.ready) "READY" else if (it.errorCode != null) "ERROR" else null }
     }
 }
