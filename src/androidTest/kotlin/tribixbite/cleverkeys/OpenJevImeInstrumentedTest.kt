@@ -473,6 +473,15 @@ class OpenJevImeInstrumentedTest {
             fun handlerValue(name: String): Any? = SuggestionHandler::class.java.getDeclaredField(name).apply { isAccessible = true }.get(handler)
             val trackerField = CleverKeysService::class.java.getDeclaredField("_contextTracker").apply { isAccessible = true }
             val tracker = trackerField.get(service) as PredictionContextTracker
+            val predictor = (handlerValue("predictionCoordinator") as PredictionCoordinator).getWordPredictor()
+            val bar = suggestionBar()
+            state.put("dictionary_predictor_present", predictor != null)
+                .put("dictionary_hello_known", predictor?.isInDictionary("hello"))
+                .put("dictionary_friend_known", predictor?.isInDictionary("friend"))
+                .put("dictionary_hello_preserved", predictor?.autoCorrect("hello") == "hello")
+                .put("dictionary_friend_preserved", predictor?.autoCorrect("friend") == "friend")
+                .put("dictionary_prompt", bar?.getCurrentSuggestions()?.any { it.startsWith("dict_add:") } == true)
+                .put("autocorrect_prompt", bar?.getCurrentSuggestions()?.any { bar.getMetaForSuggestion(it)?.origin == SuggestionOrigin.AUTOCORRECT } == true)
             val permitted = tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy.permits(info, config.primary_language, config)
             state.put("input_type", info?.inputType).put("ime_options", info?.imeOptions)
                 .put("enabled", config.openjev_enabled).put("snippets_enabled", config.openjev_context_suggestions)
