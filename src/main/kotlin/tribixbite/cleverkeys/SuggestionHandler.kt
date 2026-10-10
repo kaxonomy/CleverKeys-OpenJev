@@ -3547,7 +3547,7 @@ class SuggestionHandler(
     private fun applyNeuralCorrection(ic: InputConnection, info: EditorInfo, id: OpenJevRequestId,
         expected: EditorReadback, original: String, replacement: String, modelGeneration: Long): Boolean {
         if (!config.openjev_neural_autocorrect || !OpenJevDecisionPolicy.automaticReplacementValidated ||
-            !OpenJevDecisionPolicy.simpleTypo(original, replacement) || !ownsNeuralSession(ic, info, id)) return false
+            !OpenJevDecisionPolicy.terminalRepeatedVowelTypo(original, replacement) || !ownsNeuralSession(ic, info, id)) return false
         val accepted = replaceNeuralWord(ic, info, id, expected, original, replacement, modelGeneration) ?: run {
             neuralOperation = null
             return false
