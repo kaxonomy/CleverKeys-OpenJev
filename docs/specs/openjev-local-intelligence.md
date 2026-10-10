@@ -67,3 +67,37 @@ live under `~/.local/share/cleverkeys-openjev/output/`. Workstreams share a reco
 baseline but have separate worktrees/branches and integrate reviewed commits centrally.
 Delivery is committed work pushed to the fork's `main` branch with a normal fast-forward.
 No pull request, force-push, tag or release is authorized.
+
+## Reproduce on Debian
+
+Use JDK 17 and the existing Android SDK; the Termux AAPT2 override is not suitable
+for a Debian host. Set `JAVA_HOME`, `ANDROID_HOME` and `ANDROID_SDK_ROOT` to local
+installations, then run `bash scripts/gradle-guard.sh assembleDebug assembleDebugAndroidTest runAllTests`.
+The guard serializes Gradle and bounds memory. Set `GRADLE_GUARD_LOG` to the central
+scratch directory if retaining diagnostics. ABI APKs are in `build/outputs/apk/debug/`.
+The debug application ID is `tribixbite.cleverkeys.debug`.
+
+Acquire the model on the host:
+
+```sh
+python3 -m venv ~/.cache/cleverkeys-openjev/venv
+~/.cache/cleverkeys-openjev/venv/bin/pip install onnxruntime==1.21.1 onnx==1.17.0 tokenizers==0.21.4 numpy==2.4.6
+~/.cache/cleverkeys-openjev/venv/bin/python scripts/openjev/model.py --variant fp16
+```
+
+Copy `~/.local/share/cleverkeys-openjev/output/openjev-fp16.zip` to the phone using
+USB or local file transfer. In Settings → Local intelligence, select Import local
+model bundle and choose the ZIP. The verified bundle is copied into app-private
+storage. Enable intelligence and the desired controls explicitly. Installed means
+the bundle exists; Ready means real finite inference has succeeded. A missing model
+leaves normal typing available. Remove local model releases the session and weights.
+No network access from the keyboard is needed for any step.
+
+For instrumentation, install the matching x86_64 app APK and debug AndroidTest APK,
+then run the AndroidJUnitRunner with a specific `-e class` selection. The local model
+installation test consumes `cache/openjev-bundle.zip` staged through `adb shell run-as
+tribixbite.cleverkeys.debug`; this invokes the same verified importer as settings.
+Run `OpenJevRuntimeInstrumentedTest` for token/inference parity and memory/latency;
+`OpenJevImeInstrumentedTest` uses real screen touches on accessible IME key bounds.
+The native candidate exporter accepts `-e openjevFixtures openjev/repeated-fixtures.jsonl`.
+Synthetic exports are test data and must never be enabled for ordinary editor text.

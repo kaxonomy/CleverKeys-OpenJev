@@ -91,6 +91,21 @@ Fields used by view construction/reset must precede the Kotlin `init` block.
 -   **Models:** Models (encoder/decoder) are loaded from assets or external storage.
 -   **Privacy:** All inference happens strictly on-device.
 
+### Optional OpenJev intelligence
+
+- `docs/specs/openjev-local-intelligence.md` is the internal inference/editor contract
+  and reproducible Debian build/model-import guide. Host artifacts and worktrees stay
+  under `~/.cache/cleverkeys-openjev/`; deliverables use one output directory.
+- Reuse the process-wide ORT session and single bounded worker. OS privacy metadata is
+  gated before text reads; model generation joins editor/config/language ownership.
+- Independent logits are not spelling correctness probabilities. Ship automatic policy
+  only after disjoint observed evaluation; retain explicit KEEP and opt-in defaults.
+- Local saved phrases are explicit literal edits with exact readback and a bounded owned
+  callback ledger. They bypass word correction and swipe ML capture, clear stale undo,
+  and explicitly synchronize cursor tracking after acceptance.
+- On Debian use `bash scripts/gradle-guard.sh` with SDK/JDK environment variables;
+  reserve `build-on-termux.sh` and its AAPT2 override for Termux.
+
 ### Verified Editor Actions
 
 - `EditorReadback` guards editor identity, exact selection and bounded surrounding

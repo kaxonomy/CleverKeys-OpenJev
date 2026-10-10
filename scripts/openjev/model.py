@@ -2,7 +2,7 @@
 """Pinned host-only OpenJev acquisition, optional INT8 experiment, parity and local bundle creation.
 
 python3 -m venv ~/.cache/cleverkeys-openjev/venv
-~/.cache/cleverkeys-openjev/venv/bin/pip install onnxruntime==1.21.1 onnx==1.17.0 tokenizers==0.21.4 numpy
+~/.cache/cleverkeys-openjev/venv/bin/pip install onnxruntime==1.21.1 onnx==1.17.0 tokenizers==0.21.4 numpy==2.4.6
 ~/.cache/cleverkeys-openjev/venv/bin/python scripts/openjev/model.py --variant fp16
 No Android network permission or runtime download is needed.
 """
@@ -46,7 +46,7 @@ def acquire(directory, name):
 
 
 def prompt(text, descriptions):
-    if len(text) > 256 or not 2 <= len(descriptions) <= 8 or any(not 1 <= len(x) <= 160 for x in descriptions):
+    if len(text.encode("utf-16-le")) // 2 > 256 or not 2 <= len(descriptions) <= 8 or any(not 1 <= len(x.encode("utf-16-le")) // 2 <= 160 for x in descriptions):
         raise ValueError("Input outside bounded Android contract")
     if any("<<LABEL>>" in x or "<<SEP>>" in x for x in [text] + descriptions):
         raise ValueError("Reserved token in input")
