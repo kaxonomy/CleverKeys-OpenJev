@@ -230,6 +230,9 @@ its queued task and main-handler callbacks. Token checks also reject callbacks
 already dequeued before cancellation. Secondary disable invalidates its slot
 without cancelling primary loading. A synchronous primary reload invalidates the
 pending asynchronous primary request before replacing its maps.
+While the primary dictionary loads, missing membership cannot establish that a word
+is unknown. SuggestionHandler suppresses add-to-dictionary prompts during that interval;
+after publication, known words remain unprompted and unknown words retain the add action.
 
 Primary dictionary, prefix index, casing, custom-word, shadowed-frequency and
 contraction metadata build privately. The current request publishes them on main;

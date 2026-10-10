@@ -399,6 +399,41 @@ class LearningFunnelBookkeepingTest {
         unmockkAll()
     }
 
+    @Test
+    fun loadingDictionaryCannotOfferKnownWordAsUnknown() {
+        every { predictor.isLoading() } returns true
+        // The serving lexicon has not been published yet: absence cannot prove unknown.
+        every { predictor.isInDictionary("friend", any()) } returns false
+        type("friend ")
+        assertWithMessage("loading must not raise an add-to-dictionary prompt")
+            .that(barWords).doesNotContain(Suggestion.AddToDictionary("friend").wire)
+        assertWithMessage("loading must not reserve the bar for a special prompt")
+            .that(tracker.getLastAutocorrectOriginalWord()).isNull()
+        assertWithMessage("ordinary typing is preserved").that(editor.toString()).isEqualTo("friend ")
+    }
+
+    @Test
+    fun readyDictionaryStillOffersGenuinelyUnknownWord() {
+        every { predictor.isLoading() } returns false
+        every { predictor.isInDictionary("qzxword", any()) } returns false
+        type("qzxword ")
+        assertWithMessage("ready unknown word retains its explicit add action")
+            .that(barWords).containsExactly(Suggestion.AddToDictionary("qzxword").wire)
+        assertWithMessage("unknown prompt cannot insert anything")
+            .that(editor.toString()).isEqualTo("qzxword ")
+    }
+
+    @Test
+    fun readyDictionaryDoesNotOfferKnownWord() {
+        every { predictor.isLoading() } returns false
+        every { predictor.isInDictionary("friend", any()) } returns true
+        type("friend ")
+        assertWithMessage("loaded known word has no add action")
+            .that(barWords).doesNotContain(Suggestion.AddToDictionary("friend").wire)
+        assertWithMessage("known word has no special prompt")
+            .that(tracker.getLastAutocorrectOriginalWord()).isNull()
+    }
+
     // ------------------------------------------------------------------ fixtures
 
     private fun textField(): EditorInfo = objenesis.newInstance(EditorInfo::class.java).apply {
