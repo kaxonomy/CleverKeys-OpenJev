@@ -25,9 +25,11 @@ class OpenJevImeInstrumentedTest {
     private var savedPreferences: Map<String, *> = emptyMap<String, Any>()
     private var priorIme: String? = null
     private var priorEnabledImes: String? = null
+    private val touchDurationsMs = ArrayList<Double>()
 
     @Before
     fun setUp() {
+        touchDurationsMs.clear()
         prefs = DirectBootAwarePreferences.get_shared_preferences(context)
         savedPreferences = prefs.all.toMap()
         assertTrue(prefs.edit().putBoolean("openjev_enabled", false)
@@ -121,6 +123,7 @@ class OpenJevImeInstrumentedTest {
         type("x")
         waitFor { primaryText().lowercase().startsWith("x") }
         assertEquals(beforeMove.length + 1, primaryText().length)
+        recordMetrics("rapid_keyboard_touch", touchDurationsMs)
     }
 
     @Test
@@ -138,10 +141,13 @@ class OpenJevImeInstrumentedTest {
         runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
         enableNeural()
         val before = runtime.invocationCount
-        type("this is a good ideaa")
+        type("this is a good idea")
+        val finalKeyStarted = SystemClock.elapsedRealtimeNanos()
+        tap("a")
         waitFor { primaryText().lowercase() == "this is a good idea" && runtime.invocationCount > before }
         val diagnostics = CleverKeysService.getInstance()!!.getOpenJevDiagnostics()
         assertTrue("live keyboard must have accepted a real neural result", diagnostics.acceptedResultCount > 0)
+        recordMetrics("last_key_to_verified_replacement", listOf((SystemClock.elapsedRealtimeNanos() - finalKeyStarted) / 1e6))
         tap(context.getString(R.string.key_descr_backspace))
         waitFor { primaryText().lowercase() == "this is a good ideaa" }
     }
@@ -408,6 +414,7 @@ class OpenJevImeInstrumentedTest {
     }
 
     private fun tapBounds(bounds: Rect) {
+        val started = SystemClock.elapsedRealtimeNanos()
         val time = SystemClock.uptimeMillis()
         for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
             val event = MotionEvent.obtain(time, SystemClock.uptimeMillis(), action,
@@ -416,6 +423,21 @@ class OpenJevImeInstrumentedTest {
             finally { event.recycle() }
         }
         instrumentation.waitForIdleSync()
+        touchDurationsMs.add((SystemClock.elapsedRealtimeNanos() - started) / 1e6)
+    }
+
+    /** Timing aggregates only: no editor content, candidate text, package name, or inference inputs. */
+    private fun recordMetrics(name: String, samples: List<Double>) {
+        val file = java.io.File(context.cacheDir, "openjev-ime-metrics.json")
+        val root = if (file.exists()) org.json.JSONObject(file.readText()) else org.json.JSONObject()
+        val sorted = samples.sorted()
+        require(sorted.isNotEmpty())
+        val median = (sorted[(sorted.size - 1) / 2] + sorted[sorted.size / 2]) / 2
+        root.put("android_api", android.os.Build.VERSION.SDK_INT).put("hardware", android.os.Build.HARDWARE)
+            .put("measurement_scope", "actual IME touchscreen injection; includes instrumentation scheduling")
+            .put(name, org.json.JSONObject().put("samples", sorted.size).put("p50_ms", median)
+                .put("p95_ms", sorted[kotlin.math.ceil(sorted.size * 0.95).toInt() - 1]).put("max_ms", sorted.last()))
+        file.writeText(root.toString())
     }
 
     private fun type(text: String) = text.forEach { tap(if (it == ' ') context.getString(R.string.key_descr_space) else it.toString()) }
