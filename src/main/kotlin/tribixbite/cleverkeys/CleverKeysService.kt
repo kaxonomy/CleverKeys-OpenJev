@@ -804,6 +804,7 @@ class CleverKeysService : InputMethodService(),
         // The manual post() call here was causing redundant "key positions set" logs and layout updates
 
         _config?.let { Logs.debug_startup_input_view(info, it) }
+        _suggestionHandler.offerLocalSuggestionsAtIdle(info)
     }
 
     override fun setInputView(v: View) {

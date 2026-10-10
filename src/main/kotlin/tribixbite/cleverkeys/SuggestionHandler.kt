@@ -2090,6 +2090,9 @@ class SuggestionHandler(
         }
         invalidateOpenJev()
         if (!validateWordReceiptSelection(start, end)) onUnownedSelection()
+        if (start == end && config.openjev_context_suggestions) {
+            mainHandler.post { currentInputProvider?.invoke()?.second?.let(::offerLocalSuggestionsAtIdle) }
+        }
     }
 
     private fun startSuffixOperation(receipt: WordEditReceipt): SuffixOperation =
@@ -3054,6 +3057,10 @@ class SuggestionHandler(
             return
         }
 
+        if (text == " " && config.openjev_context_suggestions) {
+            // Run after all ordinary completion/undo bookkeeping, including early-return branches.
+            mainHandler.post { offerLocalSuggestionsAtIdle(editorInfo) }
+        }
         if (!config.word_prediction_enabled || predictionCoordinator.getWordPredictor() == null || suggestionBar == null) {
             return
         }
@@ -3635,6 +3642,8 @@ class SuggestionHandler(
         return if (accepted) word else null
     }
 
+    fun offerLocalSuggestionsAtIdle(info: EditorInfo?) = maybeOfferLocalSnippet(info)
+
     private fun maybeOfferLocalSnippet(info: EditorInfo?) {
         if (info == null || !config.openjev_context_suggestions || isPasswordMode || specialPromptActive ||
             contextTracker.getCurrentWordLength() != 0 ||
@@ -3643,7 +3652,9 @@ class SuggestionHandler(
         if (ic == null || currentInfo !== info || !keyeventhandler.isCurrentEditor(ic, info)) return
         val receipt = EditorReadback.capture(ic)?.takeIf { it.collapsed } ?: return
         val text = runCatching { ic.getTextBeforeCursor(OpenJevContextPolicy.MAX_CONTEXT_CHARS, 0)?.toString() }.getOrNull() ?: return
-        if (text.length > OpenJevContextPolicy.MAX_CONTEXT_CHARS || AutocorrectContextGuard.isNonProseContext(text) ||
+        if (text.lastOrNull()?.let { it.isLetterOrDigit() || it in "'’_-" } == true ||
+            receipt.after.firstOrNull()?.let { it.isLetterOrDigit() || it in "'’_-" } == true ||
+            text.length > OpenJevContextPolicy.MAX_CONTEXT_CHARS || AutocorrectContextGuard.isNonProseContext(text) ||
             text.any { it.isLetter() && it !in 'a'..'z' && it !in 'A'..'Z' }) return
         val id = OpenJevRequestId(wordEditSession, openJevRevision, config.snapshot.version, config.primary_language)
         val modelVersion = OpenJevRuntime.currentModelGeneration
