@@ -39,7 +39,7 @@ class OpenJevContextPolicyTest {
     }
 
     @Test fun reliableMetadataUsesNoNeuralRediscovery() {
-        val email = prose.copy(inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_BODY)
+        val email = prose.copy(inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_SUBJECT)
         val chat = prose.copy(inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)
         assertEquals(WritingContext.EMAIL, OpenJevContextPolicy.metadata(email).context)
         assertEquals(WritingContext.CHAT, OpenJevContextPolicy.metadata(chat).context)

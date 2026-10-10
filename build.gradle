@@ -471,8 +471,8 @@ android {
       // pseudolocales for visual long-text/RTL checks. DEBUG ONLY — release stays false.
       pseudoLocalesEnabled true
       resValue "string", "app_name", "CleverKeys (Debug)"
-      resValue "bool", "debug_logs", "true"
-      buildConfigField "boolean", "ENABLE_VERBOSE_LOGGING", "true"
+      resValue "bool", "debug_logs", isLocalBuild ? "true" : "false"
+      buildConfigField "boolean", "ENABLE_VERBOSE_LOGGING", isLocalBuild ? "true" : "false"
       signingConfig signingConfigs.debug
     }
   }
@@ -597,6 +597,9 @@ tasks.register('runPureTests', JavaExec) {
   description = 'Run pure JVM tests via JUnitCore (works on ARM64)'
 
   def pureTestClasses = [
+    'tribixbite.cleverkeys.openjev.OpenJevDecisionPolicyTest',
+    'tribixbite.cleverkeys.openjev.OpenJevCoordinatorTest',
+    'tribixbite.cleverkeys.openjev.context.OpenJevContextPolicyTest',
     'tribixbite.cleverkeys.DictionaryLoadRequestsTest',
     'tribixbite.cleverkeys.AccentNormalizerTest',
     'tribixbite.cleverkeys.DictionaryWordTest',

@@ -15,7 +15,7 @@ interface OpenJevScorer : AutoCloseable {
 data class OpenJevRequestId(
     val session: Long,
     val revision: Long,
-    val configuration: Long,
+    val configuration: Int,
     val language: String,
 )
 

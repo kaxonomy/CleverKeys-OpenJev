@@ -87,13 +87,13 @@ object OpenJevContextPolicy {
         if (!permits(field)) return ContextAssessment(helpfulness = SuggestionHelpfulness.NOT_HELPFUL)
         val variation = field.inputType and InputType.TYPE_MASK_VARIATION
         return when {
-            variation == InputType.TYPE_TEXT_VARIATION_EMAIL_BODY ->
-                ContextAssessment(WritingContext.EMAIL, helpfulness = SuggestionHelpfulness.HELPFUL)
+            variation == InputType.TYPE_TEXT_VARIATION_EMAIL_SUBJECT ->
+                ContextAssessment(WritingContext.EMAIL, helpfulness = SuggestionHelpfulness.NOT_HELPFUL)
             field.imeOptions and EditorInfo.IME_MASK_ACTION == EditorInfo.IME_ACTION_SEARCH ->
                 ContextAssessment(WritingContext.SEARCH, helpfulness = SuggestionHelpfulness.NOT_HELPFUL)
             variation == InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE ->
                 ContextAssessment(WritingContext.CHAT, helpfulness = SuggestionHelpfulness.HELPFUL)
-            variation == InputType.TYPE_TEXT_VARIATION_EMAIL_SUBJECT || variation == InputType.TYPE_TEXT_VARIATION_FILTER || field.inputType and InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE != 0 ->
+            variation == InputType.TYPE_TEXT_VARIATION_FILTER || field.inputType and InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE != 0 ->
                 ContextAssessment(WritingContext.FORM, helpfulness = SuggestionHelpfulness.NOT_HELPFUL)
             else -> ContextAssessment()
         }
