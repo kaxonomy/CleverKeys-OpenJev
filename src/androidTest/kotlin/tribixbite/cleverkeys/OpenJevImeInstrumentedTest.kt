@@ -512,8 +512,18 @@ class OpenJevImeInstrumentedTest {
 
     private fun recordFailureState() = runCatching {
         val state = org.json.JSONObject()
+        state.put("expected_ime_selected", shell("settings get secure default_input_method").trim() ==
+            "${context.packageName}/tribixbite.cleverkeys.CleverKeysService")
+        scenario.onActivity {
+            val manager = it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            state.put("editor_window_focus", it.primary.hasWindowFocus()).put("editor_focus", it.primary.hasFocus())
+                .put("ime_has_active_editor", manager.isActive(it.primary)).put("ime_accepting_text", manager.isAcceptingText)
+                .put("window_soft_input_mode", it.window.attributes.softInputMode)
+        }
         instrumentation.runOnMainSync {
-            val service = CleverKeysService.getInstance() ?: return@runOnMainSync
+            val service = CleverKeysService.getInstance()
+            state.put("service_present", service != null)
+            if (service == null) return@runOnMainSync
             val info = service.currentInputEditorInfo
             val config = Config.globalConfig()
             val diagnostic = service.getOpenJevDiagnostics()

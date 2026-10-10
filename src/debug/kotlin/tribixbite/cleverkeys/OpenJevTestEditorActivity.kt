@@ -17,7 +17,8 @@ class OpenJevTestEditorActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Dark)
         super.onCreate(savedInstanceState)
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
+            WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         val layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         primary = EditText(this).apply {
             id = android.R.id.edit
