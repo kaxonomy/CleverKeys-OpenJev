@@ -3621,15 +3621,9 @@ class SuggestionHandler(
         if (!accepted) invalidateOpenJev() else {
             openJev?.invalidate()
             snippetOffer = null
-            contextTracker.clearAutocorrectTracking()
-            contextTracker.clearLastAutoInsertedWord()
-            contextTracker.clearTrailingSpaceWatch()
-            contextTracker.setWasLastInputSwipe(false)
-            contextTracker.clearCurrentWord()
-            contextTracker.clearCurrentWordSuffix()
-            wordEditReceipt = null
-            suffixOperation = null
-            pendingTypedWord = null
+            clearRejectedCommitState()
+            // Owned callbacks bypass caret consumers; explicitly synchronize literal insertion.
+            runCatching { contextTracker.synchronizeWithCursor(offer.ic, config.primary_language, offer.info) }
         }
         nextWordSuggestionsActive = false
         suggestionBar?.clearSuggestions()
