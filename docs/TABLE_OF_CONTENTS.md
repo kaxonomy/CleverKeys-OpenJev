@@ -1,6 +1,6 @@
 # CleverKeys Documentation - Table of Contents
 
-**Last Updated**: 2026-10-06
+**Last Updated**: 2026-10-10
 Current feature guides and paired specs are maintained in `docs/wiki/`. Historical
 review counts are not a current full-tree audit.
 

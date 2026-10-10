@@ -1,7 +1,8 @@
 # OpenJev local intelligence
 
-**Status:** implementation and validation in progress. Optional delayed neural replacement
-requires separate tuning and held-out evaluation to establish a safe policy.
+**Status:** implementation integrated; final Android validation is in progress. The opt-in
+terminal-vowel replacement policy passed a separate held-out synthetic evaluation.
+Broader neural automatic correction remains unsupported.
 
 ## Requirements and architecture
 
@@ -24,7 +25,14 @@ HELPFUL/NOT_HELPFUL/UNCERTAIN suggestion policy. Independent model logits are no
 calibrated probabilities. A deterministic policy returns KEEP, SUGGEST or REPLACE.
 REPLACE requires validated policy parameters and explicit opt-in. It waits for at least
 one second of quiet typing, then checks exact editor ownership before replacing a word.
-Unvalidated aggressiveness modes remain unavailable.
+The supported policy removes one accidental terminal vowel only when the original has
+exactly two matching terminal vowels. Longer emphasis, internal duplicates, transpositions
+and other edits remain suggestion-only. The original must be unknown to all enabled
+vocabulary stores, the baseline must propose a known candidate, and the neural candidate
+must win with a positive raw logit and at least 1.5 separation from KEEP. All gates apply
+before a verified editor write. Backspace undo respects the existing user preference;
+tapping the original remains an explicit undo action. Unvalidated aggressiveness modes
+remain unavailable.
 
 Model load/tokenization/inference run on a bounded serialized worker. Stale requests
 lose ownership on editor, selection, text, language or configuration changes. Main-thread
@@ -101,3 +109,37 @@ Run `OpenJevRuntimeInstrumentedTest` for token/inference parity and memory/laten
 `OpenJevImeInstrumentedTest` uses real screen touches on accessible IME key bounds.
 The native candidate exporter accepts `-e openjevFixtures openjev/repeated-fixtures.jsonl`.
 Synthetic exports are test data and must never be enabled for ordinary editor text.
+
+## Observed correction evidence
+
+The general one-edit policy failed its original 30-case held-out set: zero correct neural
+replacements and one false replacement. It is disabled. Its internal-consonant failure
+(`lette` → `lete`) is a permanent regression control. A new terminal-vowel cohort was
+frozen before observing model outputs. Tuning revealed intentional triple-vowel emphasis;
+the structural rule was refined on tuning data to exactly two terminal vowels, then frozen
+before inspecting the new held-out set. The raw margin stayed 1.5 throughout.
+
+On 29 fresh held-out synthetic dictionary-stage cases, using actual Android-generated
+candidate slates and observed pinned FP16 ONNX scores:
+
+| Metric | CleverKeys baseline | Restricted OpenJev policy |
+|---|---:|---:|
+| Correct automatic replacements | 12 | 7 |
+| False automatic replacements | 3 | 0 |
+| Correctly preserved preservation cases | 14/17 | 17/17 |
+| Correction precision | 80% | 100% |
+| Correction recall | 100% | 58.3% |
+| Candidate top-1 accuracy | 11/29 | 21/29 |
+| KEEP frequency | 14/29 | 17/29 |
+| Useful suggestion proxy | not measured | 5/5 |
+
+These small synthetic results support a narrow opt-in capability. They do not establish
+broad spelling quality, calibrated correctness probabilities, real user acceptance, or
+complete live-IME false-correction rates. Missing/late model results retain ordinary
+CleverKeys fallback. Exact editor transaction behavior requires the separate live tests.
+
+Published FP16 versus FP32 parity: 46/46 fixture top-1 agreements, maximum raw-logit
+difference 0.01263. Experimental dynamic INT8 agreed on 43/46 with maximum difference
+1.5267 and is rejected by the importer. FP16 is the shipped optional bundle; it reduces
+file size but may expand to a large CPU session in memory. No OnePlus 15 performance
+measurement is available from the current x86_64 emulator.
