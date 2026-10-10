@@ -73,4 +73,12 @@ class VerifiedNeuralEditInstrumentedTest {
         assertEquals("this is idea", editor.buffer.toString())
         assertEquals(1, editor.writes)
     }
+    @Test fun ownedCorrectionUndoPreservesOneVerifiedTrailingSeparator() {
+        val editor = Editor("this is a good idea ")
+        val before = EditorReadback.capture(editor)!!
+        assertNotNull(VerifiedNeuralEdit.replace(editor, before, "idea ", "ideaa ", { true }, { true }))
+        assertEquals("this is a good ideaa ", editor.buffer.toString())
+        assertEquals(1, editor.writes)
+    }
+
 }

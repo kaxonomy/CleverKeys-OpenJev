@@ -19,11 +19,13 @@ class OpenJevCoordinator(
     private val scorerFactory: () -> OpenJevScorer,
     private val settleMillis: Long = 250,
     private val maxResultAgeMillis: Long = 5000,
+    private val modelGeneration: () -> Long = { 0L },
 ) : AutoCloseable {
     private val executor = ScheduledThreadPoolExecutor(1) { runnable ->
         Thread(runnable, "OpenJev-local").apply { isDaemon = true; priority = Thread.MIN_PRIORITY }
     }.apply { removeOnCancelPolicy = true; setExecuteExistingDelayedTasksAfterShutdownPolicy(false) }
     @Volatile private var activeRequest: OpenJevRequestId? = null
+    @Volatile private var activeModelGeneration = 0L
     private val generation = AtomicLong()
     private val completed = AtomicLong()
     private val accepted = AtomicLong()
@@ -44,23 +46,24 @@ class OpenJevCoordinator(
     ) {
         if (executor.isShutdown) return
         activeRequest = request.id
+        val modelVersion = modelGeneration().also { activeModelGeneration = it }
         val version = generation.incrementAndGet()
         pending?.cancel(false) // ORT calls cannot be interrupted safely; their result becomes obsolete.
         val submittedAt = System.nanoTime()
         pending = executor.schedule({
-            if (version != generation.get()) return@schedule
+            if (version != generation.get() || modelVersion != modelGeneration()) return@schedule
             val start = System.nanoTime()
             try {
                 val runtime = scorer ?: scorerFactory().also { scorer = it }
                 classify(runtime)
-                if (version != generation.get()) { discarded.incrementAndGet(); return@schedule }
+                if (version != generation.get() || modelVersion != modelGeneration()) { discarded.incrementAndGet(); return@schedule }
                 val prepared = prepareRequest(request)
-                if (version != generation.get()) { discarded.incrementAndGet(); return@schedule }
+                if (version != generation.get() || modelVersion != modelGeneration()) { discarded.incrementAndGet(); return@schedule }
                 val decision = OpenJevDecisionPolicy.decide(prepared,
                     runtime.score(prepared.precedingText + prepared.original, OpenJevDecisionPolicy.descriptions(prepared)), allowReplace)
                 lastNanos.set(System.nanoTime() - start)
                 completed.incrementAndGet()
-                if (version != generation.get() ||
+                if (version != generation.get() || modelVersion != modelGeneration() ||
                     System.nanoTime() - submittedAt > TimeUnit.MILLISECONDS.toNanos(maxResultAgeMillis)) {
                     discarded.incrementAndGet()
                 } else {
@@ -81,7 +84,7 @@ class OpenJevCoordinator(
         pending = null
     }
 
-    fun isCurrent(id: OpenJevRequestId): Boolean = activeRequest == id && !executor.isShutdown
+    fun isCurrent(id: OpenJevRequestId): Boolean = activeRequest == id && activeModelGeneration == modelGeneration() && !executor.isShutdown
 
     fun resultAccepted() { accepted.incrementAndGet() }
     fun resultDiscarded() { discarded.incrementAndGet() }

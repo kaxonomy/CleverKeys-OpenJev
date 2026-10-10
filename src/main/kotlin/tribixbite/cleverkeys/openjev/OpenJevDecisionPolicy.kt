@@ -38,7 +38,7 @@ object OpenJevDecisionPolicy {
             simpleTypo(request.original, request.candidates[best]) && scores[best] - scores[0] >= validatedMargin
         val action = if (best == 0 || tied) OpenJevAction.KEEP else if (replace) OpenJevAction.REPLACE else OpenJevAction.SUGGEST
         return OpenJevDecision(action, if (action == OpenJevAction.KEEP) request.original else request.candidates[best],
-            scores.toList(), uncertain = true)
+            scores.toList(), uncertain = action != OpenJevAction.REPLACE)
     }
 
     fun descriptions(request: OpenJevTypingRequest): List<String> = request.candidates.mapIndexed { index, word ->

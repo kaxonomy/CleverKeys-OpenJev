@@ -71,4 +71,25 @@ class OpenJevCoordinatorTest {
         assertEquals(0, delivered.get())
         assertEquals(1, coordinator.diagnostics().staleDiscardCount)
     }
+    @Test fun modelSwapInvalidatesAnAlreadyRunningScore() {
+        val entered = CountDownLatch(1)
+        val finish = CountDownLatch(1)
+        val done = CountDownLatch(1)
+        val version = java.util.concurrent.atomic.AtomicLong(1)
+        val coordinator = OpenJevCoordinator({ object : OpenJevScorer {
+            override fun score(text: String, descriptions: List<String>): FloatArray { entered.countDown(); finish.await(2, TimeUnit.SECONDS); return floatArrayOf(0f, 1f) }
+            override fun close() { done.countDown() }
+        } }, settleMillis = 0, modelGeneration = { version.get() })
+        val delivered = AtomicInteger()
+        coordinator.submit(request(1)) { delivered.incrementAndGet() }
+        assertTrue(entered.await(2, TimeUnit.SECONDS))
+        version.incrementAndGet()
+        assertFalse(coordinator.isCurrent(request(1).id))
+        finish.countDown()
+        coordinator.close()
+        assertTrue(done.await(2, TimeUnit.SECONDS))
+        assertEquals(0, delivered.get())
+        assertEquals(1, coordinator.diagnostics().staleDiscardCount)
+    }
+
 }

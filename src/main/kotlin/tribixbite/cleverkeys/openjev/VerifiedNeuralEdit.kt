@@ -7,7 +7,7 @@ import tribixbite.cleverkeys.EditorReadback
 object VerifiedNeuralEdit {
     fun replace(ic: InputConnection, expected: EditorReadback, original: String, replacement: String,
         ownsSession: () -> Boolean, prepare: (EditorReadback) -> Boolean): EditorReadback? = runCatching {
-        if (!expected.collapsed || original.length !in 3..24 || replacement.length !in 3..24 ||
+        if (!expected.collapsed || original.length !in 3..25 || replacement.length !in 3..25 ||
             !expected.before.endsWith(original) || expected.start < original.length ||
             !ownsSession() || !expected.matches(ic) || !prepare(expected) ||
             !ic.finishComposingText() || !ownsSession() || !expected.matches(ic)) return null

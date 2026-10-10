@@ -500,11 +500,18 @@ class SuggestionHandler(
     // Lazily created only for an enabled, permitted prose field. No model I/O on construction.
     private var openJev: OpenJevCoordinator? = null
     private var openJevContextCache: OpenJevContextCache? = null
+    private var openJevContextModelGeneration = Long.MIN_VALUE
     private var openJevRevision = 0L
     private data class NeuralUndo(val ic: InputConnection, val info: EditorInfo, val id: OpenJevRequestId,
-        val original: String, val corrected: String, val editor: EditorReadback)
+        val original: String, val corrected: String, val editor: EditorReadback,
+        val space: String = "", val learning: LearningCommit? = null,
+        val separatorCallbacks: OwnedSelectionLedger = OwnedSelectionLedger(1))
     private class NeuralOperation(val ic: InputConnection, val info: EditorInfo, val id: OpenJevRequestId,
-        var expected: EditorReadback, val callbacks: OwnedSelectionLedger = OwnedSelectionLedger(3))
+        var expected: EditorReadback, val modelGeneration: Long? = null, val callbacks: OwnedSelectionLedger = OwnedSelectionLedger(3))
+    private data class NeuralKeep(val ic: InputConnection, val info: EditorInfo, val id: OpenJevRequestId,
+        val original: String, val editor: EditorReadback, val modelGeneration: Long,
+        val separatorCallbacks: OwnedSelectionLedger = OwnedSelectionLedger(1))
+    private var neuralKeep: NeuralKeep? = null
     private var neuralUndo: NeuralUndo? = null
     private var neuralOperation: NeuralOperation? = null
     private var currentInputProvider: (() -> Pair<InputConnection?, EditorInfo?>)? = null
@@ -519,6 +526,7 @@ class SuggestionHandler(
     private fun invalidateOpenJev() {
         openJevRevision++
         neuralUndo = null
+        neuralKeep = null
         neuralOperation = null
         openJev?.invalidate()
     }
@@ -2045,8 +2053,24 @@ class SuggestionHandler(
         val now = android.os.SystemClock.uptimeMillis()
         if (operation != null && operation.callbacks.contains(start, end, now) &&
             ownsNeuralSession(operation.ic, operation.info, operation.id) &&
+            (operation.modelGeneration == null || operation.modelGeneration == OpenJevRuntime.currentModelGeneration) &&
             runCatching { operation.expected.matches(operation.ic) }.getOrDefault(false)) {
             operation.callbacks.consume(start, end, now)
+            return
+        }
+        // A few editors acknowledge the separator synchronously, before handleRegularTyping.
+        // Its one bounded callback requires exact append readback, just like every owned write.
+        val keep = neuralKeep
+        if (keep != null && keep.modelGeneration == OpenJevRuntime.currentModelGeneration &&
+            keep.separatorCallbacks.contains(start, end, now) &&
+            acceptedNeuralSeparator(keep.ic, keep.info, keep.ic, keep.info, keep.id, keep.editor) != null) {
+            keep.separatorCallbacks.consume(start, end, now)
+            return
+        }
+        val undo = neuralUndo
+        if (undo != null && undo.space.isEmpty() && undo.separatorCallbacks.contains(start, end, now) &&
+            acceptedNeuralSeparator(undo.ic, undo.info, undo.ic, undo.info, undo.id, undo.editor) != null) {
+            undo.separatorCallbacks.consume(start, end, now)
             return
         }
         invalidateOpenJev()
@@ -2992,7 +3016,17 @@ class SuggestionHandler(
      * @param editorInfo Editor info for app detection
      */
     fun handleRegularTyping(text: String, ic: InputConnection?, editorInfo: EditorInfo?) {
+        val keep = neuralKeep
+        val keepVeto = text == " " && keep != null && keep.original == contextTracker.getCurrentWord() &&
+            keep.modelGeneration == OpenJevRuntime.currentModelGeneration &&
+            acceptedNeuralSeparator(ic, editorInfo, keep.ic, keep.info, keep.id, keep.editor) != null
+        val undo = neuralUndo
+        val separatorReceipt = if (text == " " && undo != null && undo.space.isEmpty() &&
+            undo.corrected == contextTracker.getCurrentWord())
+            acceptedNeuralSeparator(ic, editorInfo, undo.ic, undo.info, undo.id, undo.editor) else null
         invalidateOpenJev()
+        val completedNeuralUndo = if (undo != null && separatorReceipt != null)
+            undo.copy(id = undo.id.copy(revision = openJevRevision), editor = separatorReceipt, space = " ") else null
         wordEditReceipt = null
         // Any typing dismisses an undoable "Added …" confirmation — BEFORE the prediction update
         // below, which a showing bar message would otherwise swallow.
@@ -3124,7 +3158,7 @@ class SuggestionHandler(
                     )
 
                     if (config.autocorrect_enabled && predictionCoordinator.getWordPredictor() != null &&
-                        text == " " && !inTermuxApp && !inNonProseToken && !stemUnmerged) {
+                        text == " " && !inTermuxApp && !inNonProseToken && !stemUnmerged && !keepVeto) {
                         var correctedWord = predictionCoordinator.getWordPredictor()?.autoCorrect(completedWord)
 
                         // If correction was made, replace the typed word
@@ -3201,6 +3235,16 @@ class SuggestionHandler(
                     ) {
                         updateContext(learnWord)
                         rememberVerifiedWord(ic, editorInfo, learnWord, ownsSpace = text == " ")
+                        if (completedNeuralUndo != null && learnWord == completedNeuralUndo.corrected &&
+                            ownsNeuralSession(completedNeuralUndo.ic, completedNeuralUndo.info, completedNeuralUndo.id) &&
+                            runCatching { completedNeuralUndo.editor.matches(completedNeuralUndo.ic) }.getOrDefault(false)) {
+                            neuralUndo = completedNeuralUndo.copy(learning = lastLearningCommit)
+                            neuralOperation = NeuralOperation(completedNeuralUndo.ic, completedNeuralUndo.info,
+                                completedNeuralUndo.id, completedNeuralUndo.editor).also { operation ->
+                                operation.callbacks.stamp(completedNeuralUndo.editor.start, completedNeuralUndo.editor.end,
+                                    android.os.SystemClock.uptimeMillis())
+                            }
+                        }
                     }
 
                     // Swipe corrections: a word typed this session may answer a swipe undo; one
@@ -3458,17 +3502,26 @@ class SuggestionHandler(
      * term below is a no-op for the typing path (typed partials are letters-only) and restores the
      * legacy IC cursor-sync's dual-search so contraction bases hidden behind an apostrophe still hit.
      */
+    private fun acceptedNeuralSeparator(ic: InputConnection?, info: EditorInfo?, ownedIc: InputConnection,
+        ownedInfo: EditorInfo, id: OpenJevRequestId, old: EditorReadback): EditorReadback? {
+        if (ic !== ownedIc || info !== ownedInfo || !ownsNeuralSession(ownedIc, ownedInfo, id)) return null
+        val now = runCatching { EditorReadback.capture(ownedIc) }.getOrNull() ?: return null
+        return now.takeIf { EditorReadback.isReplacement(it, old, " ", old.start + 1) }
+    }
+
     private fun ownsNeuralSession(ic: InputConnection, info: EditorInfo, id: OpenJevRequestId): Boolean =
         id.session == wordEditSession && id.revision == openJevRevision && id.configuration == config.snapshot.version &&
             id.language == config.primary_language && !isPasswordMode && fieldAllowsPersonalizedLearning &&
             OpenJevContextPolicy.permits(info, config.primary_language, config) && keyeventhandler.isCurrentEditor(ic, info)
 
     private fun replaceNeuralWord(ic: InputConnection, info: EditorInfo, id: OpenJevRequestId,
-        expected: EditorReadback, original: String, replacement: String): EditorReadback? {
-        val operation = NeuralOperation(ic, info, id, expected).also { neuralOperation = it }
+        expected: EditorReadback, original: String, replacement: String, modelGeneration: Long? = null): EditorReadback? {
+        val operation = NeuralOperation(ic, info, id, expected, modelGeneration).also { neuralOperation = it }
         return VerifiedNeuralEdit.replace(ic, expected, original, replacement,
-            ownsSession = { neuralOperation === operation && ownsNeuralSession(ic, info, id) }, prepare = { state ->
-                if (neuralOperation !== operation || !ownsNeuralSession(ic, info, id)) false
+            ownsSession = { neuralOperation === operation && ownsNeuralSession(ic, info, id) &&
+                (modelGeneration == null || modelGeneration == OpenJevRuntime.currentModelGeneration) }, prepare = { state ->
+                if (neuralOperation !== operation || !ownsNeuralSession(ic, info, id) ||
+                    (modelGeneration != null && modelGeneration != OpenJevRuntime.currentModelGeneration)) false
                 else operation.callbacks.stamp(state.start, state.end, android.os.SystemClock.uptimeMillis()).also { stamped ->
                     if (stamped) operation.expected = state
                 }
@@ -3476,15 +3529,17 @@ class SuggestionHandler(
     }
 
     private fun applyNeuralCorrection(ic: InputConnection, info: EditorInfo, id: OpenJevRequestId,
-        expected: EditorReadback, original: String, replacement: String): Boolean {
+        expected: EditorReadback, original: String, replacement: String, modelGeneration: Long): Boolean {
         if (!config.openjev_neural_autocorrect || !OpenJevDecisionPolicy.automaticReplacementValidated ||
             !OpenJevDecisionPolicy.simpleTypo(original, replacement) || !ownsNeuralSession(ic, info, id)) return false
-        val accepted = replaceNeuralWord(ic, info, id, expected, original, replacement) ?: run {
+        val accepted = replaceNeuralWord(ic, info, id, expected, original, replacement, modelGeneration) ?: run {
             neuralOperation = null
             return false
         }
         openJev?.invalidate()
-        neuralUndo = NeuralUndo(ic, info, id, original, replacement, accepted)
+        neuralUndo = NeuralUndo(ic, info, id, original, replacement, accepted).also { undo ->
+            undo.separatorCallbacks.stamp(accepted.start + 1, accepted.end + 1, android.os.SystemClock.uptimeMillis())
+        }
         contextTracker.clearCurrentWord()
         contextTracker.appendToCurrentWord(replacement)
         pendingTypedWord = replacement // Learned only when ordinary completion later accepts the word.
@@ -3499,11 +3554,28 @@ class SuggestionHandler(
         val undo = neuralUndo ?: return false
         // Once requested, failure consumes Backspace: do not follow an uncertain write with deletion.
         neuralUndo = null
-        val restored = replaceNeuralWord(undo.ic, undo.info, undo.id, undo.editor, undo.corrected, undo.original)
+        val predictor = predictionCoordinator.getWordPredictor()
+        if (undo.learning != null && predictor?.canReplaceLearningCommit(undo.learning, fieldAllowsPersonalizedLearning) != true) {
+            neuralOperation = null
+            suggestionBar?.clearSuggestions()
+            return true
+        }
+        val restored = replaceNeuralWord(undo.ic, undo.info, undo.id, undo.editor, undo.corrected + undo.space, undo.original + undo.space)
         if (restored != null) {
             contextTracker.clearCurrentWord()
-            contextTracker.appendToCurrentWord(undo.original)
-            pendingTypedWord = undo.original
+            if (undo.space.isEmpty()) {
+                contextTracker.appendToCurrentWord(undo.original)
+                pendingTypedWord = undo.original
+            } else {
+                val replacement = undo.learning?.let { predictor?.replaceLearningCommit(it, undo.original, fieldAllowsPersonalizedLearning) }
+                val fresh = (replacement as? LearningCommitReplacement.Applied)?.commit
+                if (undo.learning != null && fresh == null) predictor?.clearContext()
+                lastLearningCommit = fresh
+                contextTracker.rollbackLastWord(undo.corrected)
+                contextTracker.commitWord(undo.original, PredictionSource.USER_TYPED_TAP, false)
+                pendingTypedWord = null
+                wordEditReceipt = null
+            }
         } else neuralOperation = null
         openJev?.invalidate()
         contextTracker.clearAutocorrectTracking()
@@ -3537,7 +3609,14 @@ class SuggestionHandler(
         val request = OpenJevTypingRequest(id, before.dropLast(partial.length), partial, candidates)
         val predictor = predictionCoordinator.getWordPredictor()
         val generation = bar.contentGeneration()
-        val coordinator = openJev ?: OpenJevCoordinator({ OpenJevRuntime.get(context.applicationContext) }).also { openJev = it }
+        val modelGeneration = OpenJevRuntime.currentModelGeneration
+        if (openJevContextModelGeneration != modelGeneration) {
+            openJevContextCache?.clear()
+            openJevContextCache = null
+            openJevContextModelGeneration = modelGeneration
+        }
+        val coordinator = openJev ?: OpenJevCoordinator({ OpenJevRuntime.get(context.applicationContext) },
+            modelGeneration = { OpenJevRuntime.currentModelGeneration }).also { openJev = it }
         val cache = openJevContextCache ?: OpenJevContextCache().also { openJevContextCache = it }
         val metadata = OpenJevContextPolicy.metadata(info)
         val contextSuggestions = config.openjev_context_suggestions
@@ -3557,6 +3636,7 @@ class SuggestionHandler(
             mainHandler.post {
                 val current = currentInputProvider?.invoke()
                 val owns = current?.first === ic && current?.second === info &&
+                    modelGeneration == OpenJevRuntime.currentModelGeneration &&
                     id.session == wordEditSession && id.revision == openJevRevision &&
                     id.configuration == config.snapshot.version && id.language == config.primary_language &&
                     OpenJevContextPolicy.permits(info, config.primary_language, config) &&
@@ -3570,10 +3650,15 @@ class SuggestionHandler(
                     return@post
                 }
                 if (decision.action == OpenJevAction.REPLACE) {
-                    if (applyNeuralCorrection(ic, info, id, receipt, partial, decision.candidate)) coordinator.resultAccepted()
+                    if (modelGeneration == OpenJevRuntime.currentModelGeneration && applyNeuralCorrection(ic, info, id, receipt, partial, decision.candidate, modelGeneration)) coordinator.resultAccepted()
                     else coordinator.resultDiscarded()
                     return@post
                 }
+                // An exact KEEP receipt may veto the baseline replacement at the next accepted space.
+                if (decision.action == OpenJevAction.KEEP)
+                    neuralKeep = NeuralKeep(ic, info, id, partial, receipt, modelGeneration).also { keep ->
+                        keep.separatorCallbacks.stamp(receipt.start + 1, receipt.end + 1, android.os.SystemClock.uptimeMillis())
+                    }
                 // KEEP is a real selectable candidate, even with ExactAdd disabled.
                 val selected = decision.candidate
                 val ordered = (listOf(selected, partial) + words).distinct()
