@@ -1188,6 +1188,7 @@ tasks.register('runMockTests', JavaExec) {
   jvmArgs '-XX:+EnableDynamicAgentLoading'
 
   def mockTestClasses = [
+    'tribixbite.cleverkeys.InputCoordinatorCursorOwnershipTest',
     // B-1 (2026-09-06 audit, P1): the recognizer/detector letter gate was hard-coded a-z,
     // so swipe typing could never trigger on any non-Latin board. Drives the REAL
     // ImprovedSwipeGestureRecognizer touch-stream path (startSwipe/addPoint/endSwipe) with
