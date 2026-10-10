@@ -27,6 +27,17 @@ class OpenJevContextPolicyTest {
         assertTrue(OpenJevContextPolicy.permits(prose))
     }
 
+    @Test fun explicitPrivateAndFinancialMetadataBypassesTextClassFields() {
+        for (option in listOf("incognito", "private=true", "vendor.noPersonalizedLearning", "sensitive=1"))
+            assertFalse(OpenJevContextPolicy.permits(prose.copy(privateImeOptions = option)))
+        assertTrue(OpenJevContextPolicy.permits(prose.copy(privateImeOptions = "private=false")))
+        for (hint in listOf("Enter card number", "CVV", "IBAN", "Your bank account number", "PIN code"))
+            assertFalse(OpenJevContextPolicy.permits(prose.copy(hint = hint)))
+        assertFalse(OpenJevContextPolicy.permits(prose.copy(fieldName = "payment:id/credit_card_number_input")))
+        assertTrue(OpenJevContextPolicy.permits(prose.copy(hint = "Write a message about your bank account")))
+        assertEquals(SuggestionHelpfulness.NOT_HELPFUL, OpenJevContextPolicy.metadata(prose.copy(hint = "CVV")).helpfulness)
+    }
+
     @Test fun reliableMetadataUsesNoNeuralRediscovery() {
         val email = prose.copy(inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_BODY)
         val chat = prose.copy(inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE)

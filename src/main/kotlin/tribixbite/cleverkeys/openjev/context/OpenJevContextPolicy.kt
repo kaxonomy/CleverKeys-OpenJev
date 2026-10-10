@@ -20,22 +20,53 @@ data class OpenJevFieldMetadata(
     val terminal: Boolean = false,
     val privateMode: Boolean = false,
     val sensitive: Boolean = false,
+    val privateImeOptions: String? = null,
+    val fieldName: String? = null,
+    val hint: String? = null,
 )
 
 object OpenJevContextPolicy {
     const val MAX_CONTEXT_CHARS = 192
     const val MAX_SNIPPET_CHARS = 256
+    private const val MAX_METADATA_CHARS = 192
+    private val restrictedLabels = setOf("password", "passcode", "pin", "pincode", "otp",
+        "onetimepassword", "verificationcode", "securitycode", "cvv", "cvc", "cvv2", "cvc2",
+        "creditcard", "creditcardnumber", "debitcardnumber", "cardnumber", "cardholdername",
+        "cardexpiry", "cardexpiration", "iban", "swiftcode", "bankaccount", "bankaccountnumber",
+        "accountnumber", "routingnumber", "sortcode")
+
+    private fun field(info: EditorInfo, terminal: Boolean = false) = OpenJevFieldMetadata(
+        info.inputType, info.imeOptions, terminal,
+        privateImeOptions = info.privateImeOptions?.take(MAX_METADATA_CHARS),
+        fieldName = info.fieldName?.take(MAX_METADATA_CHARS),
+        hint = info.hintText?.take(MAX_METADATA_CHARS)?.toString(),
+    )
+
+    private fun restrictedMetadata(field: OpenJevFieldMetadata): Boolean {
+        val privateTokens = field.privateImeOptions.orEmpty().take(MAX_METADATA_CHARS).split(',', ';')
+        if (privateTokens.any { token ->
+            val parts = token.trim().split('=', limit = 2)
+            val name = parts[0].substringAfterLast('.').lowercase(java.util.Locale.ROOT).replace("_", "").replace("-", "")
+            name in setOf("incognito", "private", "sensitive", "nopersonalizedlearning", "nolearning") &&
+                (parts.size == 1 || parts[1].trim().lowercase(java.util.Locale.ROOT) in setOf("true", "1"))
+        }) return true
+        return listOf(field.fieldName, field.hint).any { label ->
+            var normalized = label.orEmpty().take(MAX_METADATA_CHARS).substringAfterLast('/').substringAfterLast(':')
+                .lowercase(java.util.Locale.ROOT).filter { it.isLetterOrDigit() }
+            if (normalized.startsWith("enter")) normalized = normalized.removePrefix("enter")
+            if (normalized.startsWith("your")) normalized = normalized.removePrefix("your")
+            normalized = normalized.removeSuffix("required").removeSuffix("optional").removeSuffix("input").removeSuffix("field")
+            normalized in restrictedLabels
+        }
+    }
 
     /** Call before EditorReadback or any surrounding-text read. */
     fun permits(info: EditorInfo?, language: String, config: Config): Boolean =
         info != null && config.openjev_enabled && language.equals("en", ignoreCase = true) &&
-            config.active_secondary_language == null && permits(OpenJevFieldMetadata(
-                info.inputType, info.imeOptions,
-                terminal = TerminalUtils.isTerminalApp(info, config.custom_terminal_packages),
-            ))
+            config.active_secondary_language == null && permits(field(info, terminal = TerminalUtils.isTerminalApp(info, config.custom_terminal_packages)))
 
     fun permits(field: OpenJevFieldMetadata): Boolean {
-        if (field.privateMode || field.sensitive || field.terminal) return false
+        if (field.privateMode || field.sensitive || field.terminal || restrictedMetadata(field)) return false
         if (field.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING != 0) return false
         if (field.inputType and InputType.TYPE_MASK_CLASS != InputType.TYPE_CLASS_TEXT) return false
         if (field.inputType and InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS != 0) return false
@@ -48,7 +79,7 @@ object OpenJevContextPolicy {
     }
 
     fun metadata(info: EditorInfo?, terminal: Boolean = false): ContextAssessment =
-        if (info == null) ContextAssessment() else metadata(OpenJevFieldMetadata(info.inputType, info.imeOptions, terminal))
+        if (info == null) ContextAssessment() else metadata(field(info, terminal))
 
     fun metadata(field: OpenJevFieldMetadata): ContextAssessment {
         // Terminal detection is used only to suppress model/snippet work; no package enters inference.
