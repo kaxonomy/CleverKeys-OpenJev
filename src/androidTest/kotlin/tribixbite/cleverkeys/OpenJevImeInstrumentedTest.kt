@@ -44,7 +44,7 @@ class OpenJevImeInstrumentedTest {
         priorEnabledImes = shell("settings get secure enabled_input_methods").trim().takeUnless { it == "null" }
         val component = "${context.packageName}/tribixbite.cleverkeys.CleverKeysService"
         shell("ime enable $component")
-        if (priorIme == component) {
+        if (priorIme == component && CleverKeysService.getInstance() == null) {
             // A terminated instrumentation process can leave the same selected component unbound.
             priorEnabledImes?.split(':')?.map { it.substringBefore(';') }?.firstOrNull {
                 it != component && it.matches(Regex("[A-Za-z0-9._/]+"))
@@ -52,6 +52,8 @@ class OpenJevImeInstrumentedTest {
         }
         shell("ime set $component")
         scenario = ActivityScenario.launch(OpenJevTestEditorActivity::class.java)
+        waitFor { var focused = false; scenario.onActivity { focused = it.primary.hasWindowFocus() }; focused }
+        scenario.onActivity { it.focus(it.primary) }
         waitFor { keyboard()?.isShown == true }
         instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
     }
@@ -96,6 +98,7 @@ class OpenJevImeInstrumentedTest {
 
     @Test
     fun baselineAutocorrectAndBackspaceUndoUseActualKeyboard() {
+        waitForPredictorReady()
         type("teh ")
         waitFor { primaryText().trim().lowercase() == "the" }
         tap(context.getString(R.string.key_descr_backspace))
@@ -203,7 +206,7 @@ class OpenJevImeInstrumentedTest {
     fun enabledModelPasswordAndPrivateFieldsNeverInfer() {
         val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
         runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
-        enableNeural()
+        enableNeural(awaitDictionary = false)
         scenario.onActivity {
             it.primary.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             (it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).restartInput(it.primary)
@@ -246,7 +249,7 @@ class OpenJevImeInstrumentedTest {
         runtime.close()
         assertTrue("park weights atomically without duplicate copies", model.renameTo(parked))
         try {
-            enableNeural()
+            enableNeural(awaitDictionary = false)
             val before = runtime.invocationCount
             type("this is a good ideaa")
             SystemClock.sleep(2_000)
@@ -338,6 +341,10 @@ class OpenJevImeInstrumentedTest {
             (it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).restartInput(it.primary)
         }
         waitFor { CleverKeysService.getInstance()?.currentInputEditorInfo?.inputType == InputType.TYPE_CLASS_TEXT }
+        waitForPredictorReady()
+        val predictor = livePredictor()!!
+        assertTrue("first fixture word must be known in the active dictionary", predictor.isInDictionary("hello"))
+        assertTrue("final fixture word must be known in the active dictionary", predictor.isInDictionary("friend"))
         val before = runtime.invocationCount
         val trackerField = CleverKeysService::class.java.getDeclaredField("_contextTracker").apply { isAccessible = true }
         val tracker = trackerField.get(CleverKeysService.getInstance()) as PredictionContextTracker
@@ -376,6 +383,8 @@ class OpenJevImeInstrumentedTest {
             it.primary.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE
             (it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).restartInput(it.primary)
         }
+        waitFor { CleverKeysService.getInstance()?.currentInputEditorInfo?.inputType == (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE) }
+        waitForPredictorReady()
         type("teh ")
         waitFor { primaryText().trim().lowercase() == "the" }
         assertNotEquals("autocorrect undo prompt keeps priority over saved phrases", SuggestionOrigin.LOCAL_SNIPPET,
@@ -411,11 +420,25 @@ class OpenJevImeInstrumentedTest {
         return field.get(service) as? SuggestionBar
     }
 
-    private fun enableNeural() {
+    private fun enableNeural(awaitDictionary: Boolean = true) {
         assertTrue(prefs.edit().putBoolean("openjev_enabled", true)
             .putBoolean("openjev_neural_autocorrect", true)
             .putBoolean("openjev_context_suggestions", false).commit())
         instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
+        if (awaitDictionary) waitForPredictorReady()
+    }
+
+    private fun livePredictor(): WordPredictor? {
+        val service = CleverKeysService.getInstance() ?: return null
+        val handlerField = CleverKeysService::class.java.getDeclaredField("_suggestionHandler").apply { isAccessible = true }
+        val coordinatorField = SuggestionHandler::class.java.getDeclaredField("predictionCoordinator").apply { isAccessible = true }
+        return (coordinatorField.get(handlerField.get(service)) as PredictionCoordinator).getWordPredictor()
+    }
+
+    private fun waitForPredictorReady() = waitFor {
+        var ready = false
+        instrumentation.runOnMainSync { ready = livePredictor()?.isReady() == true }
+        ready
     }
 
     private fun keyboard(): Keyboard2View? {
