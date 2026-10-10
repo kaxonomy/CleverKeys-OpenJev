@@ -339,7 +339,21 @@ class OpenJevImeInstrumentedTest {
         }
         waitFor { CleverKeysService.getInstance()?.currentInputEditorInfo?.inputType == InputType.TYPE_CLASS_TEXT }
         val before = runtime.invocationCount
-        type("hello friend ")
+        val trackerField = CleverKeysService::class.java.getDeclaredField("_contextTracker").apply { isAccessible = true }
+        val tracker = trackerField.get(CleverKeysService.getInstance()) as PredictionContextTracker
+        val coherence = org.json.JSONArray()
+        "hello friend ".forEachIndexed { index, character ->
+            tap(if (character == ' ') context.getString(R.string.key_descr_space) else character.toString())
+            val trailing = primaryText().substringAfterLast(' ')
+            var tracked = ""
+            instrumentation.runOnMainSync { tracked = tracker.getCurrentWord() }
+            coherence.put(org.json.JSONObject().put("touch", index + 1).put("editor_token_length", trailing.length)
+                .put("tracker_token_length", tracked.length).put("matches_editor", tracked.equals(trailing, true)))
+        }
+        val metricsFile = java.io.File(context.cacheDir, "openjev-ime-metrics.json")
+        val metrics = if (metricsFile.exists()) org.json.JSONObject(metricsFile.readText()) else org.json.JSONObject()
+        metrics.put("generic_touch_coherence", coherence)
+        metricsFile.writeText(metrics.toString())
         waitFor { runtime.invocationCount > before }
         assertEquals("context inference cannot insert a snippet", "hello friend ", primaryText().lowercase())
         // Ambiguous context may abstain. Any saved phrase shown retains explicit-selection provenance.
