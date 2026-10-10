@@ -24,7 +24,12 @@ def simple_typo(a, b):
     return any(longer[:i] + longer[i + 1:] == shorter for i in range(len(longer)))
 
 
-def observe(generated, model_rows, split, margin, identity):
+def terminal_vowel_typo(original, candidate):
+    return simple_typo(original, candidate) and original[:-1] == candidate and original[-1] in "aeiou" and original[-1] == original[-2]
+
+
+def observe(generated, model_rows, split, margin, identity, replacement_family="simple"):
+
     actual = {(row["id"], row["candidate"]): row for row in model_rows if row["split"] == split}
     if len(actual) != sum(row["split"] == split for row in model_rows):
         raise ValueError("duplicate binary observations")
@@ -54,7 +59,8 @@ def observe(generated, model_rows, split, margin, identity):
             if row["original"] != original:
                 raise ValueError("model input original differs from Android export")
             keep, correction = row["logits"]
-            action = "REPLACE" if correction > 0 and correction - keep >= margin else "SUGGEST" if correction > 0 and correction > keep else "KEEP"
+            family_allows = replacement_family == "simple" or terminal_vowel_typo(original, proposed)
+            action = "REPLACE" if family_allows and correction > 0 and correction - keep >= margin else "SUGGEST" if correction > 0 and correction > keep else "KEEP"
             chosen = proposed if action != "KEEP" else None
             ranking = ([proposed, original] if correction > keep else [original, proposed]) + [c for c in slate if c not in {original, proposed}]
             ran, latency = True, row["latency_ms"]
@@ -70,6 +76,7 @@ def main():
     parser.add_argument("--model-observations", type=Path, required=True)
     parser.add_argument("--split", choices=("tune", "test"), required=True)
     parser.add_argument("--margin", type=float, required=True)
+    parser.add_argument("--replacement-family", choices=("simple", "terminal-vowel"), default="simple")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if not 0 < args.margin < float("inf"):
@@ -83,13 +90,13 @@ def main():
         for fixture in generated:
             if fixture["id"] not in source or any(fixture.get(key) != value for key, value in source[fixture["id"]].items()):
                 raise ValueError("Android fixture inputs differ from model reference inputs")
-        observations = observe(generated, model["rows"], args.split, args.margin, model["model_identity"])
+        observations = observe(generated, model["rows"], args.split, args.margin, model["model_identity"], args.replacement_family)
         report = evaluate(generated, observations, args.split)
     except (ValueError, KeyError, TypeError) as error:
         parser.error(str(error))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text("".join(json.dumps(row, allow_nan=False) + "\n" for row in observations))
-    print(json.dumps(dict(report, margin=args.margin, model_sha256=model["model_sha256"]), indent=2, allow_nan=False))
+    print(json.dumps(dict(report, margin=args.margin, replacement_family=args.replacement_family, model_sha256=model["model_sha256"]), indent=2, allow_nan=False))
 
 
 if __name__ == "__main__":

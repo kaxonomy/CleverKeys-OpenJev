@@ -27,17 +27,20 @@ class OpenJevEvaluationInstrumentedTest {
         val priorAutocorrect = config.autocorrect_enabled
         val predictor = WordPredictor()
         val runtime = OpenJevRuntime.get(context)
+        val fixtureAsset = InstrumentationRegistry.getArguments().getString("openjevFixtures", "openjev/fixtures.jsonl")
+        require(fixtureAsset in setOf("openjev/fixtures.jsonl", "openjev/repeated-fixtures.jsonl"))
+        val suffix = if (fixtureAsset.contains("repeated-")) "-repeated" else ""
         val split = InstrumentationRegistry.getArguments().getString("openjevSplit", "test")
         require(split in setOf("tune", "test"))
         val margin = InstrumentationRegistry.getArguments().getString("openjevMargin")?.toFloat()
-        val output = File(context.cacheDir, "openjev-observations-$split.jsonl")
+        val output = File(context.cacheDir, "openjev-observations$suffix-$split.jsonl")
         var executed = 0
         try {
             config.autocorrect_enabled = true
             predictor.setContext(context)
             predictor.setConfig(config)
             predictor.loadDictionary(context, "en")
-            val fixtures = instrumentation.context.assets.open("openjev/fixtures.jsonl")
+            val fixtures = instrumentation.context.assets.open(fixtureAsset)
                 .bufferedReader().use { it.readLines().filter(String::isNotBlank).map(::JSONObject).filter { it.getString("split") == split } }
             output.bufferedWriter().use { writer ->
                 fixtures.forEachIndexed { index, fixture ->

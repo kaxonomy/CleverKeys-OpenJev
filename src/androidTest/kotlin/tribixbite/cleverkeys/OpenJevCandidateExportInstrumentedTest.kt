@@ -21,11 +21,14 @@ class OpenJevCandidateExportInstrumentedTest {
         val config = Config.globalConfig()
         val prior = config.autocorrect_enabled
         val predictor = WordPredictor().apply { setContext(context); setConfig(config) }
-        val output = File(context.cacheDir, "openjev-generated-candidates.jsonl")
+        val fixtureAsset = InstrumentationRegistry.getArguments().getString("openjevFixtures", "openjev/fixtures.jsonl")
+        require(fixtureAsset in setOf("openjev/fixtures.jsonl", "openjev/repeated-fixtures.jsonl"))
+        val suffix = if (fixtureAsset.contains("repeated-")) "-repeated" else ""
+        val output = File(context.cacheDir, "openjev-generated-candidates$suffix.jsonl")
         try {
             config.autocorrect_enabled = true
             predictor.loadDictionary(context, "en")
-            val fixtures = instrumentation.context.assets.open("openjev/fixtures.jsonl")
+            val fixtures = instrumentation.context.assets.open(fixtureAsset)
                 .bufferedReader().use { it.readLines().filter(String::isNotBlank).map(::JSONObject) }
             output.bufferedWriter().use { writer ->
                 fixtures.forEach { fixture ->
@@ -45,8 +48,8 @@ class OpenJevCandidateExportInstrumentedTest {
                     writer.appendLine(fixture.toString())
                 }
             }
-            assertEquals(46, output.readLines().size)
-            android.util.Log.i("OpenJevEvaluation", "generated_fixture_count=46 bytes=${output.length()}")
+            assertEquals(fixtures.size, output.readLines().size)
+            android.util.Log.i("OpenJevEvaluation", "generated_fixture_count=${fixtures.size} bytes=${output.length()}")
         } finally { config.autocorrect_enabled = prior }
     }
 }
