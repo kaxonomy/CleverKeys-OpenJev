@@ -102,13 +102,13 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
     override fun close() {
         check(Looper.myLooper() != Looper.getMainLooper()) { "WORKER_REQUIRED" }
         synchronized(lock) {
-        generation.incrementAndGet()
-        session?.close()
-        session = null
-        tokenizer = null
-        initializationFailed = false
-        errorCode = null
-        ready = false
+            generation.incrementAndGet()
+            session?.close()
+            session = null
+            tokenizer = null
+            initializationFailed = false
+            errorCode = null
+            ready = false
         }
     }
 

@@ -48,6 +48,15 @@ class OpenJevRuntimeInstrumentedTest {
         assertTrue(runtime.lastInferenceMs > 0)
     }
 
+    @Test fun closingSessionInvalidatesOutstandingModelOwnership() {
+        val runtime = OpenJevRuntime.get(context)
+        val before = runtime.modelGeneration
+        runtime.close()
+        assertEquals(before + 1, runtime.modelGeneration)
+        assertEquals(runtime.modelGeneration, OpenJevRuntime.currentModelGeneration)
+        assertEquals("INSTALLED", OpenJevModelStore(context).status())
+    }
+
     @Test fun tokenizerPreservesBoundariesAndRejectsMarkerInjection() {
         val tokenizer = OpenJevTokenizer(File(OpenJevModelStore(context).directory, "tokenizer.json"))
         val valid = tokenizer.encode("café isn't code", listOf("ordinary prose", "a technical identifier"))
