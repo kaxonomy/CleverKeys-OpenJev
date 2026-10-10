@@ -32,8 +32,8 @@ internal fun SettingsActivity.handlePreferenceChanged(sharedPreferences: SharedP
             "openjev_neural_autocorrect" -> { openjevNeuralAutocorrect = prefs.getSafeBoolean(key, Defaults.OPENJEV_NEURAL_AUTOCORRECT) }
             "openjev_diagnostics" -> { openjevDiagnostics = prefs.getSafeBoolean(key, Defaults.OPENJEV_DIAGNOSTICS) }
             "openjev_aggressiveness" -> { openjevAggressiveness = prefs.getSafeString(key, Defaults.OPENJEV_AGGRESSIVENESS) }
-            "openjev_email_snippet" -> { openjevEmailSnippet = prefs.getSafeString(key, Defaults.OPENJEV_EMAIL_SNIPPET) }
-            "openjev_chat_snippet" -> { openjevChatSnippet = prefs.getSafeString(key, Defaults.OPENJEV_CHAT_SNIPPET) }
+            "openjev_email_snippet" -> { openjevEmailSnippet = tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy.readSnippet(prefs, key) }
+            "openjev_chat_snippet" -> { openjevChatSnippet = tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy.readSnippet(prefs, key) }
 
             "continuous_swipe_enabled" -> { continuousSwipeEnabled = prefs.getSafeBoolean(key, Defaults.CONTINUOUS_SWIPE_ENABLED) }
             "swipe_typing_enabled" -> {
@@ -421,8 +421,8 @@ internal fun SettingsActivity.loadCurrentSettings() {
         openjevNeuralAutocorrect = prefs.getSafeBoolean("openjev_neural_autocorrect", Defaults.OPENJEV_NEURAL_AUTOCORRECT)
         openjevDiagnostics = prefs.getSafeBoolean("openjev_diagnostics", Defaults.OPENJEV_DIAGNOSTICS)
         openjevAggressiveness = prefs.getSafeString("openjev_aggressiveness", Defaults.OPENJEV_AGGRESSIVENESS)
-        openjevEmailSnippet = prefs.getSafeString("openjev_email_snippet", Defaults.OPENJEV_EMAIL_SNIPPET)
-        openjevChatSnippet = prefs.getSafeString("openjev_chat_snippet", Defaults.OPENJEV_CHAT_SNIPPET)
+        openjevEmailSnippet = tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy.readSnippet(prefs, "openjev_email_snippet")
+        openjevChatSnippet = tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy.readSnippet(prefs, "openjev_chat_snippet")
         onDeviceLearningEnabled = prefs.getSafeBoolean("on_device_learning_enabled", Defaults.ON_DEVICE_LEARNING_ENABLED)
         privacyCollectSwipe = prefs.getSafeBoolean("privacy_collect_swipe", Defaults.PRIVACY_COLLECT_SWIPE)
         privacyCollectPerformance = prefs.getSafeBoolean("privacy_collect_performance", Defaults.PRIVACY_COLLECT_PERFORMANCE)

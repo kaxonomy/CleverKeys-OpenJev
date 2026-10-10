@@ -1,5 +1,6 @@
 package tribixbite.cleverkeys.openjev.context
 
+import android.content.SharedPreferences
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import tribixbite.cleverkeys.Config
@@ -66,6 +67,11 @@ object OpenJevContextPolicy {
             else -> ContextAssessment()
         }
     }
+
+    /** Strict, bounded preference read; corrupt saved text never enters UI or diagnostics. */
+    fun readSnippet(prefs: SharedPreferences, key: String): String = try {
+        prefs.getString(key, "").orEmpty().takeIf(::validSnippet).orEmpty()
+    } catch (_: ClassCastException) { "" }
 
     fun validSnippet(value: String): Boolean = value.length <= MAX_SNIPPET_CHARS &&
         value.none { (it.isISOControl() && it != '\n') || it == '\u007f' }
