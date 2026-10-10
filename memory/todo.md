@@ -61,6 +61,10 @@ Owners: **device** = needs a test phone (Saga; Seeker 192.168.0.170 keeps droppi
 17. [ ] unowned roadmap: 1.3 at-rest clipboard encryption, 2.3 dwell picker (measure first),
     4.1 live theme preview, 4.2 spline swipe trail (benchmark first), #187 below-accents,
     #175(3)/#80(3) toolbar.
+18. [ ] device / ML: OpenJev ARM64 phone benchmarks and daily typing validation.
+    The x86_64 emulator runs genuine local inference, but does not establish OnePlus 15 performance.
+    Broader automatic correction and smaller quantized models need new held-out evaluation.
+    See [`docs/specs/openjev-local-intelligence.md`](../docs/specs/openjev-local-intelligence.md).
 
 ## Device results recorded 2026-10-07/08
 

@@ -48,6 +48,11 @@ CleverKeys is a feature-rich open-source keyboard for Android. On-device swipe t
 
 </div>
 
+This fork adds optional offline OpenJev context classification, candidate scoring, and saved phrases.
+Neural automatic replacement waits for one second of idle typing and supports a narrow, tested repeated-final-vowel policy.
+All intelligence controls default off. The model is a separate local import, and missing weights leave ordinary typing available.
+See the [build, model installation, measured results, and limitations](docs/specs/openjev-local-intelligence.md).
+
 <p align="middle">
     <img src="./docs/banners/feature_banner.png" width="99%" />
 </p>

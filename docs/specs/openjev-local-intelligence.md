@@ -1,8 +1,9 @@
 # OpenJev local intelligence
 
-**Status:** implementation integrated; final Android validation is in progress. The opt-in
-terminal-vowel replacement policy passed a separate held-out synthetic evaluation.
-Broader neural automatic correction remains unsupported.
+**Status:** implementation integrated and tested with actual IME touches on an API 35
+x86_64 emulator. Genuine offline ONNX inference and delayed automatic replacement work.
+The opt-in terminal-vowel policy passed a separate held-out synthetic evaluation.
+Broader neural automatic correction and ARM64 phone performance remain unvalidated.
 
 ## Requirements and architecture
 
@@ -48,6 +49,15 @@ against host reference inference before Android parity tests. Retain attribution
 verify checkpoint licensing. Verdict 2.0 repository visibility is not proof of available
 weights. No substitute model or hardcoded inference may be presented as OpenJev.
 
+The published FP16 graph is 303,785,047 bytes. Its SHA-256 is
+`4db28305590c714e33c2cacb75a57ec941c72bb210e1266ba2c7d77e85ddc526`.
+Checkpoint, GLiClass and ModernBERT declarations identify Apache-2.0 licensing.
+The bundle includes the complete official Apache license, including its appendix.
+The license SHA-256 is `cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30`.
+Source and model attribution are in `scripts/openjev/model-ATTRIBUTION.md`.
+The final optional FP16 bundle is 307,382,491 bytes. Its SHA-256 is
+`f5e2a5c211d884422d39756e56eb66b57a16ab5c9b9e4daf0d1163f21d47d581`.
+
 Host acquisition/conversion creates a checksummed bundle outside Git. The app imports
 only through explicit local selection into app-private storage. ZIP entries, sizes,
 duplicates, paths and hashes are validated in staging before replacing a working model;
@@ -78,11 +88,21 @@ No pull request, force-push, tag or release is authorized.
 
 ## Reproduce on Debian
 
-Use JDK 17 and the existing Android SDK; the Termux AAPT2 override is not suitable
-for a Debian host. Set `JAVA_HOME`, `ANDROID_HOME` and `ANDROID_SDK_ROOT` to local
-installations, then run `bash scripts/gradle-guard.sh assembleDebug assembleDebugAndroidTest runAllTests`.
-The guard serializes Gradle and bounds memory. Set `GRADLE_GUARD_LOG` to the central
-scratch directory if retaining diagnostics. ABI APKs are in `build/outputs/apk/debug/`.
+Use JDK 17 and the existing Android SDK. The Termux AAPT2 override does not run on Debian.
+The tested environment uses the following paths and memory limits. Adapt the SDK and JDK paths to your host.
+
+```sh
+mkdir -p "$HOME/.cache/cleverkeys-openjev/logs" "$HOME/.cache/cleverkeys-openjev/test-scratch"
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export ANDROID_HOME="$HOME/.android-sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$HOME/.cache/cleverkeys-openjev/test-scratch"
+export GRADLE_GUARD_XMX=2048m GRADLE_GUARD_METASPACE=512m
+export GRADLE_GUARD_LOG="$HOME/.cache/cleverkeys-openjev/logs/gradle-last.log"
+bash scripts/gradle-guard.sh assembleDebug assembleDebugAndroidTest runAllTests lintDebug
+```
+
+The guard serializes Gradle and bounds memory. ABI APKs are in `build/outputs/apk/debug/`.
 The debug application ID is `tribixbite.cleverkeys.debug`.
 
 Acquire the model on the host:
@@ -109,6 +129,17 @@ Run `OpenJevRuntimeInstrumentedTest` for token/inference parity and memory/laten
 `OpenJevImeInstrumentedTest` uses real screen touches on accessible IME key bounds.
 The native candidate exporter accepts `-e openjevFixtures openjev/repeated-fixtures.jsonl`.
 Synthetic exports are test data and must never be enabled for ordinary editor text.
+
+After importing the model through settings on an x86_64 emulator, run:
+
+```sh
+adb install -r build/outputs/apk/debug/CleverKeys-v2.0.0-x86_64.apk
+adb install -r build/outputs/apk/androidTest/debug/CleverKeys-debug-androidTest.apk
+adb shell am instrument -w -e class tribixbite.cleverkeys.OpenJevImeInstrumentedTest \
+  tribixbite.cleverkeys.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+The test fixture enables and selects the IME, launches the debug editor, and restores preferences and the previous IME afterward.
 
 ## Observed correction evidence
 
@@ -143,3 +174,49 @@ difference 0.01263. Experimental dynamic INT8 agreed on 43/46 with maximum diffe
 1.5267 and is rejected by the importer. FP16 is the shipped optional bundle; it reduces
 file size but may expand to a large CPU session in memory. No OnePlus 15 performance
 measurement is available from the current x86_64 emulator.
+
+## Observed Android runtime measurements
+
+The API 35 `codex_phone` emulator uses `sdk_gphone64_x86_64`/`ranchu`, KVM,
+SwiftShader and 4 GB RAM. The two-thread CPU session loaded in 3,094.5 ms; cold
+end-to-end inference took 3,492.0 ms. Twelve warm samples measured p50 223.5 ms
+and p95 324.1 ms. RSS rose from 240,144 KiB to a measured peak of 1,091,272 KiB;
+loaded PSS was 978,650 KiB. Process CPU time for the benchmark workload was
+8,920 ms. Android FP16 logits differed from the FP32 reference by at most
+0.0088314 in the exported numeric parity test (tolerance 0.03).
+
+These measurements exceed the ideal 75 ms warm p95 target and show substantial
+memory overhead. They establish working emulator inference, not phone latency,
+battery life, or sustained power consumption. Keep intelligence optional and use
+the bounded worker, exact stale-result guards and baseline fallback under load.
+
+Actual IME touchscreen injection measured 33 disabled samples at p50/p95
+47.56/61.83 ms and 222 neural-enabled samples at 45.21/75.21 ms.
+The enabled workload included 220 characters of continuous typing and editing.
+One last-key-to-verified-replacement sample took 1,466.08 ms, including the idle delay.
+These timings include instrumentation scheduling. They do not measure frame latency
+or physical touch response. Editor and current-word tracking agreed at all 13 sampled
+typing boundaries.
+
+## Completed validation
+
+The final JVM runs passed 2,945 pure tests and 1,156 mock tests.
+`lintDebug` passed with zero errors and 229 warnings. Its application-context singleton
+warning refers to deliberate process-wide runtime ownership, rather than an Activity reference.
+The baseline passed 2,923 pure tests. Its mock suite failed one invalid mocked
+`/data/` path assertion, which the implementation corrected before comparison.
+Python evaluation-accounting tests passed 15/15.
+
+Final Android runs passed 16/16 actual-IME tests and 47/47 targeted editor, undo,
+URL, suggestion, password and accessibility regressions. Separate offline runs passed
+2/2 live replacement/undo and disabled-typing cases, plus 1/1 numeric parity case.
+The emulator had no active default network before and after these offline runs.
+Its prior network configuration was restored afterward.
+The runtime suite also passed 7/7, including 12 Python tokenizer golden cases.
+The verified model importer and observed candidate evaluator each passed 1/1.
+
+The full unfiltered Android suite was not passed. Its experimental CTC benchmarks
+require additional weights unavailable in this checkout. The targeted regression and
+OpenJev suites use the real shipped swipe assets and actual local OpenJev weights.
+No OnePlus 15 or other ARM64 phone was available. The ARM64 APK was built and its
+signature, native library alignment and absence of Internet permission were checked.
