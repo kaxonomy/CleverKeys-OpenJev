@@ -21,9 +21,10 @@ class SettingsSearchLocalizationTest {
 
     private fun localizedTitles(locale: String): Map<String, String> {
         val strings = TranslationResources.strings(File("res/values-$locale"))
-        val english = TranslationResources.strings(TranslationResources.defaultDir)
         return resourceEntries.associate { e ->
-            e.settingId to TranslationResources.unescape(strings[e.settingId] ?: english.getValue(e.settingId))
+            val title = strings[e.settingId]
+                ?: throw AssertionError("$locale: missing title ${e.settingId}")
+            e.settingId to TranslationResources.unescape(title)
         }
     }
 
@@ -91,5 +92,22 @@ class SettingsSearchLocalizationTest {
         val missing = GENERATED_SEARCH_ENTRIES.map { it.sectionKey }.toSet() - mapped.keys
         assertWithMessage("section keys without a title resource").that(missing).isEmpty()
         assertThat(mapped.values.filterNot { it in english }).isEmpty()
+        for (dir in TranslationResources.localeDirs) {
+            val translated = TranslationResources.strings(dir)
+            assertWithMessage("${dir.name}: section titles missing translations")
+                .that(mapped.values.filterNot { it in translated }).isEmpty()
+        }
+    }
+
+    @Test fun resourceReadersIncludeFeatureXmlInEveryLocale() {
+        val key = "openjev_enable_title"
+        val english = TranslationResources.strings(TranslationResources.defaultDir).getValue(key)
+        for (dir in TranslationResources.localeDirs) {
+            val translated = TranslationResources.strings(dir).getValue(key)
+            assertWithMessage("${dir.name}: feature XML must contain a translated title")
+                .that(translated).isNotEqualTo(english)
+            assertWithMessage("${dir.name}: all-text audits must include feature XML")
+                .that(TranslationResources.allTexts(dir).getValue(key)).isEqualTo(translated)
+        }
     }
 }
