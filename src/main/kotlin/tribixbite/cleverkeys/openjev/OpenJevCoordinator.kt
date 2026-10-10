@@ -76,6 +76,24 @@ class OpenJevCoordinator(
         }, delayMillis, TimeUnit.MILLISECONDS)
     }
 
+    /** Shares the same bounded worker with candidate decisions; no second model/session. */
+    @Synchronized
+    fun submitContext(id: OpenJevRequestId, classify: (OpenJevScorer) -> Unit, deliver: () -> Unit) {
+        if (executor.isShutdown) return
+        activeRequest = id
+        val modelVersion = modelGeneration().also { activeModelGeneration = it }
+        val version = generation.incrementAndGet()
+        pending?.cancel(false)
+        pending = executor.schedule({
+            if (version != generation.get() || modelVersion != modelGeneration()) return@schedule
+            try {
+                classify(scorer ?: scorerFactory().also { scorer = it })
+                if (version == generation.get() && modelVersion == modelGeneration()) deliver()
+                else discarded.incrementAndGet()
+            } catch (_: Exception) { failures.incrementAndGet() }
+        }, 1000, TimeUnit.MILLISECONDS)
+    }
+
     @Synchronized
     fun invalidate() {
         activeRequest = null
