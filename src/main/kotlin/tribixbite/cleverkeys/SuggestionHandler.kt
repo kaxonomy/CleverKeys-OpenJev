@@ -2122,7 +2122,7 @@ class SuggestionHandler(
         return finishSuffixEdit(operation, edit)
     }
     override fun undoSuffix(): Boolean {
-        if (neuralUndo != null) return undoNeuralCorrection()
+        if (neuralUndo != null && config.backspace_undo_autocorrect) return undoNeuralCorrection()
         val receipt = wordEditReceipt?.takeIf { it.edit.suffix.isNotEmpty() } ?: return false
         // Once a suffix undo was requested, rejection must not fall through to a
         // normal Backspace or the whole-word swipe undo in this same key dispatch.
