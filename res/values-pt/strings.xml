@@ -2354,4 +2354,6 @@
     <string name="cmd_append_possessive_desc">Anexar \'s à última palavra verificada; um backspace remove apenas o sufixo</string>
     <string name="cmd_append_apostrophe">Anexar apóstrofo</string>
     <string name="cmd_append_apostrophe_desc">Anexar um apóstrofo à última palavra verificada (parents\'); um backspace remove apenas o sufixo</string>
+    <string name="provenance_origin_openjev_keep">Original sem alterações</string>
+    <string name="provenance_origin_local_snippet">Frase salva</string>
 </resources>

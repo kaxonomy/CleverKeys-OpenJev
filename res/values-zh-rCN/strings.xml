@@ -2270,4 +2270,6 @@
     <string name="cmd_append_possessive_desc">将 \'s 附加到最后一个已验证的单词；按一次退格键仅删除后缀</string>
     <string name="cmd_append_apostrophe">追加撇号</string>
     <string name="cmd_append_apostrophe_desc">将撇号附加到最后一个已验证的单词 (parents\')；按一次退格键仅删除后缀</string>
+    <string name="provenance_origin_openjev_keep">原文保持不变</string>
+    <string name="provenance_origin_local_snippet">已保存的短语</string>
 </resources>

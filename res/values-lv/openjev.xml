@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Lokālais intelekts</string>
+    <string name="openjev_enable_title">Iespējot OpenJev intelektu</string>
+    <string name="openjev_enable_desc">Izvēles vērtēšana ar lokālu modeli. Parasta rakstīšana darbojas arī tad, ja modeļa nav vai tas nav pieejams.</string>
+    <string name="openjev_privacy">Apstrāde notiek jūsu ierīcē. Bez interneta savienojuma un ievadītā teksta žurnāliem. Paroles, privātie lauki, adreses un neatbalstītās valodas netiek apstrādātas ar modeli.</string>
+    <string name="openjev_context_title">Kontekstam atbilstoši ieteikumi</string>
+    <string name="openjev_context_desc">Izmantot lauka informāciju un īsu teksta fragmentu, lai izvēlētos noderīgus lokālos ieteikumus.</string>
+    <string name="openjev_autocorrect_title">Neirālā automātiskā labošana</string>
+    <string name="openjev_autocorrect_desc">Nav pieejama, kamēr nav pārbaudīta labojumu kvalitāte. OpenJev pašlaik piedāvā tikai ieteikumus; tas nekad automātiski neaizstāj tekstu.</string>
+    <string name="openjev_aggressiveness_title">Labošanas intensitāte</string>
+    <string name="openjev_aggressiveness_desc">Piesardzīga politika ir vienīgā pieejamā. Citiem režīmiem nepieciešams atsevišķs labojumu kvalitātes novērtējums.</string>
+    <string name="openjev_conservative">Piesardzīga</string>
+    <string name="openjev_balanced">Līdzsvarota</string>
+    <string name="openjev_aggressive">Agresīva</string>
+    <string name="openjev_diagnostics_title">Lokālā veiktspējas diagnostika</string>
+    <string name="openjev_diagnostics_desc">Atļaut apkopotus laika mērījumus un modeļa aprēķinu skaitu, nereģistrējot tekstu.</string>
+    <string name="openjev_model_missing">Modeļa nav. Importējiet pārbaudītu lokālā modeļa pakotni, lai iespējotu modeļa aprēķinus.</string>
+    <string name="openjev_model_installed">Modelis ir instalēts. Modeļa aprēķini vēl nav veikti.</string>
+    <string name="openjev_model_ready">Modelis ir gatavs. Lokālie modeļa aprēķini ir veiksmīgi veikti.</string>
+    <string name="openjev_model_error">Modelis nav pieejams. Noņemiet to un importējiet pārbaudītu saderīgu pakotni.</string>
+    <string name="openjev_model_import">Importēt lokālā modeļa pakotni</string>
+    <string name="openjev_model_remove">Noņemt lokālo modeli</string>
+    <string name="openjev_model_working">Pārbauda lokālā modeļa failus…</string>
+    <string name="openjev_model_import_error">Neizdevās importēt šo pakotni. Izvēlieties pārbaudītu OpenJev ZIP pakotni un mēģiniet vēlreiz.</string>
+    <string name="openjev_model_remove_error">Neizdevās noņemt modeli. Aizveriet tastatūru un mēģiniet vēlreiz.</string>
+    <string name="openjev_snippets_desc">Izvēles saglabātās frāzes parādās tikai atbilstošos e-pasta vai tērzēšanas laukos. Pieskarieties frāzei, lai to ievietotu. Nekas netiek ievietots automātiski.</string>
+    <string name="openjev_email_snippet">Saglabāta e-pasta frāze</string>
+    <string name="openjev_chat_snippet">Saglabāta tērzēšanas frāze</string>
+    <string name="openjev_snippet_limit">Izmantojiet ne vairāk kā 256 rakstzīmes. Atstājiet tukšu, lai atspējotu.</string>
+    <string name="openjev_save_phrases">Saglabāt frāzes</string>
+    <string name="openjev_diagnostics_values">Pabeigtie modeļa aprēķini: %1$d • Pēdējais lēmums: %2$d ms • Modeļa ielāde: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Atļaut piesardzīgus labojumus pēc rakstīšanas pauzes. Neskaidru rezultātu gadījumā sākotnējais vārds paliek. Ar Backspace var atsaukt pieņemtu labojumu.</string>
+</resources>

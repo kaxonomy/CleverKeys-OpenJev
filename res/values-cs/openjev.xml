@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Místní inteligence</string>
+    <string name="openjev_enable_title">Zapnout inteligenci OpenJev</string>
+    <string name="openjev_enable_desc">Volitelné vyhodnocování místním modelem. Běžné psaní funguje i bez modelu nebo při jeho nedostupnosti.</string>
+    <string name="openjev_privacy">Zpracování probíhá na vašem zařízení. Bez připojení k internetu a bez záznamů psaného textu. Hesla, soukromá pole, adresy a nepodporované jazyky model obcházejí.</string>
+    <string name="openjev_context_title">Návrhy podle kontextu</string>
+    <string name="openjev_context_desc">Pomocí informací o poli a krátkého úseku textu vybírat užitečné místní návrhy.</string>
+    <string name="openjev_autocorrect_title">Neuronové automatické opravy</string>
+    <string name="openjev_autocorrect_desc">Nedostupné, dokud nebude ověřena kvalita oprav. OpenJev nyní nabízí pouze návrhy; nikdy automaticky nenahrazuje text.</string>
+    <string name="openjev_aggressiveness_title">Intenzita oprav</string>
+    <string name="openjev_aggressiveness_desc">Konzervativní pravidla jsou jedinou dostupnou možností. Ostatní režimy vyžadují samostatné vyhodnocení kvality oprav.</string>
+    <string name="openjev_conservative">Konzervativní</string>
+    <string name="openjev_balanced">Vyvážená</string>
+    <string name="openjev_aggressive">Agresivní</string>
+    <string name="openjev_diagnostics_title">Místní diagnostika výkonu</string>
+    <string name="openjev_diagnostics_desc">Povolit souhrnné údaje o čase a počtu vyhodnocení modelem bez zaznamenávání textu.</string>
+    <string name="openjev_model_missing">Model chybí. Pro vyhodnocování importujte ověřený balíček místního modelu.</string>
+    <string name="openjev_model_installed">Model je nainstalován. Vyhodnocování ještě neproběhlo.</string>
+    <string name="openjev_model_ready">Model je připraven. Místní vyhodnocování úspěšně proběhlo.</string>
+    <string name="openjev_model_error">Model není dostupný. Odeberte jej a importujte ověřený kompatibilní balíček.</string>
+    <string name="openjev_model_import">Importovat balíček místního modelu</string>
+    <string name="openjev_model_remove">Odebrat místní model</string>
+    <string name="openjev_model_working">Kontrola souborů místního modelu…</string>
+    <string name="openjev_model_import_error">Tento balíček nelze importovat. Vyberte ověřený balíček OpenJev ve formátu ZIP a zkuste to znovu.</string>
+    <string name="openjev_model_remove_error">Model nelze odebrat. Zavřete klávesnici a zkuste to znovu.</string>
+    <string name="openjev_snippets_desc">Volitelné uložené fráze se zobrazují pouze v odpovídajících e-mailových nebo chatových polích. Klepnutím frázi vložíte. Nic se nevkládá automaticky.</string>
+    <string name="openjev_email_snippet">Uložená e-mailová fráze</string>
+    <string name="openjev_chat_snippet">Uložená chatová fráze</string>
+    <string name="openjev_snippet_limit">Použijte nejvýše 256 znaků. Prázdné pole funkci vypne.</string>
+    <string name="openjev_save_phrases">Uložit fráze</string>
+    <string name="openjev_diagnostics_values">Dokončená vyhodnocení: %1$d • Poslední rozhodnutí: %2$d ms • Načtení modelu: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Povolit konzervativní opravy po přestávce v psaní. Nejisté výsledky ponechají původní slovo. Klávesou Backspace lze vrátit přijatou opravu.</string>
+</resources>

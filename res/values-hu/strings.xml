@@ -2319,4 +2319,6 @@
     <string name="cmd_append_possessive_desc">\'s csatolása az utolsó ellenőrzött szóhoz; egy visszatörlés csak a toldalékot távolítja el</string>
     <string name="cmd_append_apostrophe">Aposztróf hozzáfűzése</string>
     <string name="cmd_append_apostrophe_desc">Aposztróf csatolása az utolsó ellenőrzött szóhoz (parents\'); egy visszatörlés csak a toldalékot távolítja el</string>
+    <string name="provenance_origin_openjev_keep">Változatlan eredeti</string>
+    <string name="provenance_origin_local_snippet">Mentett kifejezés</string>
 </resources>

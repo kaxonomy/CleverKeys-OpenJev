@@ -2365,4 +2365,6 @@
     <string name="cmd_append_possessive_desc">Pievienot \'s pēdējam verificētajam vārdam; viena atpakaļatkāpe noņem tikai sufiksu</string>
     <string name="cmd_append_apostrophe">Pievienot apostrofu</string>
     <string name="cmd_append_apostrophe_desc">Pievienot apostrofu pēdējam verificētajam vārdam (parents\'); viena atpakaļatkāpe noņem tikai sufiksu</string>
+    <string name="provenance_origin_openjev_keep">Nemainīts oriģināls</string>
+    <string name="provenance_origin_local_snippet">Saglabāta frāze</string>
 </resources>

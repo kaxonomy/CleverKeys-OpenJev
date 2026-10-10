@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Kecerdasan lokal</string>
+    <string name="openjev_enable_title">Aktifkan kecerdasan OpenJev</string>
+    <string name="openjev_enable_desc">Penilaian opsional dengan model lokal. Pengetikan biasa tetap berfungsi saat model tidak ada atau tidak tersedia.</string>
+    <string name="openjev_privacy">Pemrosesan tetap di perangkat Anda. Tanpa koneksi internet atau catatan teks yang diketik. Kata sandi, kolom privat, alamat, dan bahasa yang tidak didukung tidak diproses oleh model.</string>
+    <string name="openjev_context_title">Saran sesuai konteks</string>
+    <string name="openjev_context_desc">Gunakan informasi kolom dan cuplikan teks singkat untuk memilih saran lokal yang berguna.</string>
+    <string name="openjev_autocorrect_title">Koreksi otomatis neural</string>
+    <string name="openjev_autocorrect_desc">Tidak tersedia hingga kualitas koreksi divalidasi. Saat ini OpenJev hanya menawarkan saran; tidak pernah mengganti teks secara otomatis.</string>
+    <string name="openjev_aggressiveness_title">Intensitas koreksi</string>
+    <string name="openjev_aggressiveness_desc">Konservatif adalah satu-satunya kebijakan yang tersedia. Mode lain memerlukan evaluasi kualitas koreksi tersendiri.</string>
+    <string name="openjev_conservative">Konservatif</string>
+    <string name="openjev_balanced">Seimbang</string>
+    <string name="openjev_aggressive">Agresif</string>
+    <string name="openjev_diagnostics_title">Diagnostik performa lokal</string>
+    <string name="openjev_diagnostics_desc">Izinkan data waktu gabungan dan jumlah inferensi tanpa mencatat teks.</string>
+    <string name="openjev_model_missing">Model tidak ada. Impor paket model lokal yang terverifikasi untuk mengaktifkan inferensi.</string>
+    <string name="openjev_model_installed">Model terpasang. Inferensi belum pernah dijalankan.</string>
+    <string name="openjev_model_ready">Model siap. Inferensi lokal telah berhasil dijalankan.</string>
+    <string name="openjev_model_error">Model tidak tersedia. Hapus model dan impor paket kompatibel yang terverifikasi.</string>
+    <string name="openjev_model_import">Impor paket model lokal</string>
+    <string name="openjev_model_remove">Hapus model lokal</string>
+    <string name="openjev_model_working">Memeriksa berkas model lokal…</string>
+    <string name="openjev_model_import_error">Paket ini tidak dapat diimpor. Pilih paket ZIP OpenJev yang terverifikasi dan coba lagi.</string>
+    <string name="openjev_model_remove_error">Model tidak dapat dihapus. Tutup keyboard dan coba lagi.</string>
+    <string name="openjev_snippets_desc">Frasa tersimpan opsional hanya muncul di kolom email atau chat yang sesuai. Ketuk frasa untuk menyisipkannya. Tidak ada yang disisipkan secara otomatis.</string>
+    <string name="openjev_email_snippet">Frasa email tersimpan</string>
+    <string name="openjev_chat_snippet">Frasa chat tersimpan</string>
+    <string name="openjev_snippet_limit">Gunakan maksimal 256 karakter. Kosongkan untuk menonaktifkan.</string>
+    <string name="openjev_save_phrases">Simpan frasa</string>
+    <string name="openjev_diagnostics_values">Inferensi selesai: %1$d • Keputusan terakhir: %2$d ms • Pemuatan model: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Izinkan koreksi konservatif setelah jeda mengetik. Hasil yang tidak pasti mempertahankan kata asli. Backspace dapat membatalkan koreksi yang diterima.</string>
+</resources>

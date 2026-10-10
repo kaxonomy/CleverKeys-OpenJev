@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Lokal na intelihensiya</string>
+    <string name="openjev_enable_title">I-enable ang intelihensiya ng OpenJev</string>
+    <string name="openjev_enable_desc">Opsyonal na pagmamarka gamit ang lokal na modelo. Gumagana ang karaniwang pag-type kahit wala o hindi magamit ang modelo.</string>
+    <string name="openjev_privacy">Nananatili sa iyong device ang pagproseso. Walang koneksyon sa internet o pagtatala ng tekstong tina-type. Hindi ginagamit ang modelo para sa mga password, pribadong field, address, at hindi suportadong wika.</string>
+    <string name="openjev_context_title">Mga mungkahing ayon sa konteksto</string>
+    <string name="openjev_context_desc">Gamitin ang impormasyon ng field at maikling bahagi ng teksto para pumili ng kapaki-pakinabang na lokal na mungkahi.</string>
+    <string name="openjev_autocorrect_title">Neural na awtomatikong pagwawasto</string>
+    <string name="openjev_autocorrect_desc">Hindi magagamit hangga’t hindi napapatunayan ang kalidad ng pagwawasto. Mga mungkahi lang ang ibinibigay ng OpenJev ngayon; hindi ito awtomatikong nagpapalit ng teksto.</string>
+    <string name="openjev_aggressiveness_title">Tindi ng pagwawasto</string>
+    <string name="openjev_aggressiveness_desc">Konserbatibo lang ang magagamit na patakaran. Kailangan ng hiwalay na pagsusuri sa kalidad ng pagwawasto para sa ibang mode.</string>
+    <string name="openjev_conservative">Konserbatibo</string>
+    <string name="openjev_balanced">Balanse</string>
+    <string name="openjev_aggressive">Agresibo</string>
+    <string name="openjev_diagnostics_title">Lokal na pagsusuri ng performance</string>
+    <string name="openjev_diagnostics_desc">Payagan ang pinagsama-samang oras at bilang ng inference nang walang pagtatala ng teksto.</string>
+    <string name="openjev_model_missing">Walang modelo. Mag-import ng beripikadong lokal na pakete ng modelo para paganahin ang inference.</string>
+    <string name="openjev_model_installed">Naka-install ang modelo. Wala pang naisagawang inference.</string>
+    <string name="openjev_model_ready">Handa ang modelo. Matagumpay nang naisagawa ang lokal na inference.</string>
+    <string name="openjev_model_error">Hindi magamit ang modelo. Alisin ito at mag-import ng beripikadong katugmang pakete.</string>
+    <string name="openjev_model_import">Mag-import ng lokal na pakete ng modelo</string>
+    <string name="openjev_model_remove">Alisin ang lokal na modelo</string>
+    <string name="openjev_model_working">Sinusuri ang mga lokal na file ng modelo…</string>
+    <string name="openjev_model_import_error">Hindi ma-import ang paketeng ito. Pumili ng beripikadong OpenJev ZIP na pakete at subukan ulit.</string>
+    <string name="openjev_model_remove_error">Hindi maalis ang modelo. Isara ang keyboard at subukan ulit.</string>
+    <string name="openjev_snippets_desc">Lalabas lang ang mga opsyonal na naka-save na parirala sa angkop na field ng email o chat. I-tap ang parirala para ipasok ito. Walang awtomatikong ipinapasok.</string>
+    <string name="openjev_email_snippet">Naka-save na parirala para sa email</string>
+    <string name="openjev_chat_snippet">Naka-save na parirala para sa chat</string>
+    <string name="openjev_snippet_limit">Gumamit ng hanggang 256 na character. Iwanang blangko para i-disable.</string>
+    <string name="openjev_save_phrases">I-save ang mga parirala</string>
+    <string name="openjev_diagnostics_values">Nakumpletong inference: %1$d • Huling pagpapasya: %2$d ms • Pag-load ng modelo: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Payagan ang konserbatibong pagwawasto pagkatapos huminto sandali sa pag-type. Pananatilihin ang orihinal na salita kapag hindi tiyak ang resulta. Maaaring bawiin ng Backspace ang tinanggap na pagwawasto.</string>
+</resources>

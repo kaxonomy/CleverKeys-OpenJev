@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">ローカルインテリジェンス</string>
+    <string name="openjev_enable_title">OpenJevインテリジェンスを有効にする</string>
+    <string name="openjev_enable_desc">ローカルモデルによる任意の評価機能です。モデルがない場合や使用できない場合も通常の入力はできます。</string>
+    <string name="openjev_privacy">処理は端末内で完結します。インターネット接続や入力テキストの記録は行いません。パスワード、非公開の入力欄、アドレス、非対応の言語ではモデルを使用しません。</string>
+    <string name="openjev_context_title">文脈に応じた候補</string>
+    <string name="openjev_context_desc">入力欄の情報と短いテキストを使って、役立つローカル候補を選びます。</string>
+    <string name="openjev_autocorrect_title">ニューラル自動修正</string>
+    <string name="openjev_autocorrect_desc">修正品質が検証されるまで利用できません。現在のOpenJevは候補の提示のみを行い、テキストを自動で置き換えることはありません。</string>
+    <string name="openjev_aggressiveness_title">修正の強さ</string>
+    <string name="openjev_aggressiveness_desc">利用できるのは慎重な方針のみです。他のモードには別途、修正品質の評価が必要です。</string>
+    <string name="openjev_conservative">慎重</string>
+    <string name="openjev_balanced">バランス</string>
+    <string name="openjev_aggressive">積極的</string>
+    <string name="openjev_diagnostics_title">ローカルの性能診断</string>
+    <string name="openjev_diagnostics_desc">テキストを記録せず、処理時間の集計と推論回数の記録を許可します。</string>
+    <string name="openjev_model_missing">モデルがありません。推論を有効にするには、検証済みのローカルモデルパッケージをインポートしてください。</string>
+    <string name="openjev_model_installed">モデルをインストール済みです。推論はまだ実行されていません。</string>
+    <string name="openjev_model_ready">モデルの準備ができました。ローカル推論が正常に実行されました。</string>
+    <string name="openjev_model_error">モデルを使用できません。削除して、検証済みの互換パッケージをインポートしてください。</string>
+    <string name="openjev_model_import">ローカルモデルパッケージをインポート</string>
+    <string name="openjev_model_remove">ローカルモデルを削除</string>
+    <string name="openjev_model_working">ローカルモデルファイルを確認中…</string>
+    <string name="openjev_model_import_error">このパッケージをインポートできませんでした。検証済みのOpenJev ZIPパッケージを選択して、もう一度お試しください。</string>
+    <string name="openjev_model_remove_error">モデルを削除できませんでした。キーボードを閉じて、もう一度お試しください。</string>
+    <string name="openjev_snippets_desc">任意の保存済みフレーズは、対応するメールやチャットの入力欄にのみ表示されます。フレーズをタップして挿入してください。自動では挿入されません。</string>
+    <string name="openjev_email_snippet">メール用の保存済みフレーズ</string>
+    <string name="openjev_chat_snippet">チャット用の保存済みフレーズ</string>
+    <string name="openjev_snippet_limit">256文字以内で入力してください。空欄にすると無効になります。</string>
+    <string name="openjev_save_phrases">フレーズを保存</string>
+    <string name="openjev_diagnostics_values">完了した推論: %1$d 回 • 直近の判定: %2$d ms • モデル読み込み: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">入力を一時停止した後に慎重な修正を許可します。結果が不確かな場合は元の単語を保持します。Backspaceで適用された修正を元に戻せます。</string>
+</resources>

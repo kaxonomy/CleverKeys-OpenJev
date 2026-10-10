@@ -2272,4 +2272,6 @@
     <string name="cmd_append_possessive_desc">마지막으로 확인된 단어에 \'s 붙이기; 백스페이스를 한 번 누르면 접미사만 삭제됩니다</string>
     <string name="cmd_append_apostrophe">아포스트로피 추가</string>
     <string name="cmd_append_apostrophe_desc">마지막으로 확인된 단어에 아포스트로피 붙이기(parents\'); 백스페이스를 한 번 누르면 접미사만 삭제됩니다</string>
+    <string name="provenance_origin_openjev_keep">변경하지 않은 원문</string>
+    <string name="provenance_origin_local_snippet">저장된 문구</string>
 </resources>

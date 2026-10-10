@@ -2271,4 +2271,6 @@
     <string name="cmd_append_possessive_desc">最後に確認された単語に \'s を付加。Backspace 1 回で接尾辞のみを削除</string>
     <string name="cmd_append_apostrophe">アポストロフィを追加</string>
     <string name="cmd_append_apostrophe_desc">最後に確認された単語にアポストロフィを付加 (parents\')。Backspace 1 回で接尾辞のみを削除</string>
+    <string name="provenance_origin_openjev_keep">元の文字列をそのまま保持</string>
+    <string name="provenance_origin_local_snippet">保存済みフレーズ</string>
 </resources>

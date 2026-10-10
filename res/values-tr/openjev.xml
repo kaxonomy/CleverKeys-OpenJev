@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Yerel zekâ</string>
+    <string name="openjev_enable_title">OpenJev zekâsını etkinleştir</string>
+    <string name="openjev_enable_desc">Yerel modelle isteğe bağlı puanlama. Model yokken veya kullanılamadığında da normal yazma çalışır.</string>
+    <string name="openjev_privacy">İşleme cihazınızda kalır. İnternet bağlantısı veya yazılan metinlerin kaydı yoktur. Parolalar, özel alanlar, adresler ve desteklenmeyen diller model tarafından işlenmez.</string>
+    <string name="openjev_context_title">Bağlama duyarlı öneriler</string>
+    <string name="openjev_context_desc">Yararlı yerel öneriler seçmek için alan bilgilerini ve kısa bir metin bölümünü kullan.</string>
+    <string name="openjev_autocorrect_title">Sinir ağıyla otomatik düzeltme</string>
+    <string name="openjev_autocorrect_desc">Düzeltme kalitesi doğrulanana kadar kullanılamaz. OpenJev şu anda yalnızca öneriler sunar; metni asla otomatik olarak değiştirmez.</string>
+    <string name="openjev_aggressiveness_title">Düzeltme yoğunluğu</string>
+    <string name="openjev_aggressiveness_desc">Yalnızca temkinli politika kullanılabilir. Diğer modlar için ayrı bir düzeltme kalitesi değerlendirmesi gerekir.</string>
+    <string name="openjev_conservative">Temkinli</string>
+    <string name="openjev_balanced">Dengeli</string>
+    <string name="openjev_aggressive">Agresif</string>
+    <string name="openjev_diagnostics_title">Yerel performans tanılaması</string>
+    <string name="openjev_diagnostics_desc">Metin kaydetmeden toplu süre verilerine ve çıkarım sayılarına izin ver.</string>
+    <string name="openjev_model_missing">Model yok. Çıkarımı etkinleştirmek için doğrulanmış bir yerel model paketi içe aktarın.</string>
+    <string name="openjev_model_installed">Model yüklendi. Henüz çıkarım çalıştırılmadı.</string>
+    <string name="openjev_model_ready">Model hazır. Yerel çıkarım başarıyla çalıştırıldı.</string>
+    <string name="openjev_model_error">Model kullanılamıyor. Modeli kaldırın ve doğrulanmış uyumlu bir paket içe aktarın.</string>
+    <string name="openjev_model_import">Yerel model paketi içe aktar</string>
+    <string name="openjev_model_remove">Yerel modeli kaldır</string>
+    <string name="openjev_model_working">Yerel model dosyaları denetleniyor…</string>
+    <string name="openjev_model_import_error">Bu paket içe aktarılamadı. Doğrulanmış bir OpenJev ZIP paketi seçip tekrar deneyin.</string>
+    <string name="openjev_model_remove_error">Model kaldırılamadı. Klavyeyi kapatıp tekrar deneyin.</string>
+    <string name="openjev_snippets_desc">İsteğe bağlı kayıtlı ifadeler yalnızca uygun e-posta veya sohbet alanlarında görünür. Eklemek için bir ifadeye dokunun. Hiçbir şey otomatik olarak eklenmez.</string>
+    <string name="openjev_email_snippet">Kayıtlı e-posta ifadesi</string>
+    <string name="openjev_chat_snippet">Kayıtlı sohbet ifadesi</string>
+    <string name="openjev_snippet_limit">En fazla 256 karakter kullanın. Devre dışı bırakmak için boş bırakın.</string>
+    <string name="openjev_save_phrases">İfadeleri kaydet</string>
+    <string name="openjev_diagnostics_values">Tamamlanan çıkarımlar: %1$d • Son karar: %2$d ms • Model yükleme: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Yazmaya ara verdikten sonra temkinli düzeltmelere izin ver. Belirsiz sonuçlar özgün sözcüğü korur. Backspace, kabul edilen bir düzeltmeyi geri alabilir.</string>
+</resources>

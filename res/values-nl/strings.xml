@@ -2313,4 +2313,6 @@
     <string name="cmd_append_possessive_desc">\'s aan het laatst geverifieerde woord koppelen; één backspace verwijdert alleen het achtervoegsel</string>
     <string name="cmd_append_apostrophe">Apostrof toevoegen</string>
     <string name="cmd_append_apostrophe_desc">Een apostrof aan het laatst geverifieerde woord koppelen (parents\'); één backspace verwijdert alleen het achtervoegsel</string>
+    <string name="provenance_origin_openjev_keep">Ongewijzigd origineel</string>
+    <string name="provenance_origin_local_snippet">Opgeslagen zin</string>
 </resources>

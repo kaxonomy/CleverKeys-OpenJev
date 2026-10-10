@@ -2300,4 +2300,6 @@
     <string name="cmd_append_possessive_desc">Gắn \'s vào từ đã xác minh gần nhất; một lần backspace chỉ xóa hậu tố</string>
     <string name="cmd_append_apostrophe">Thêm dấu nháy đơn vào cuối</string>
     <string name="cmd_append_apostrophe_desc">Gắn dấu nháy đơn vào từ đã xác minh gần nhất (parents\'); một lần backspace chỉ xóa hậu tố</string>
+    <string name="provenance_origin_openjev_keep">Nguyên văn ban đầu</string>
+    <string name="provenance_origin_local_snippet">Cụm từ đã lưu</string>
 </resources>

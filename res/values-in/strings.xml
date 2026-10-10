@@ -2284,4 +2284,6 @@
     <string name="cmd_append_possessive_desc">Lampirkan \'s ke kata terverifikasi terakhir; satu backspace hanya menghapus akhiran</string>
     <string name="cmd_append_apostrophe">Tambahkan apostrof di akhir</string>
     <string name="cmd_append_apostrophe_desc">Lampirkan apostrof ke kata terverifikasi terakhir (parents\'); satu backspace hanya menghapus akhiran</string>
+    <string name="provenance_origin_openjev_keep">Asli tanpa perubahan</string>
+    <string name="provenance_origin_local_snippet">Frasa tersimpan</string>
 </resources>

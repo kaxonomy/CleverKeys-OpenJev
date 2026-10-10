@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">هوشمندی محلی</string>
+    <string name="openjev_enable_title">فعال‌سازی هوشمندی OpenJev</string>
+    <string name="openjev_enable_desc">امتیازدهی اختیاری با مدل محلی. تایپ معمولی در صورت نبودن یا در دسترس نبودن مدل هم کار می‌کند.</string>
+    <string name="openjev_privacy">پردازش در دستگاه شما انجام می‌شود. بدون اتصال به اینترنت و بدون ثبت متن تایپ‌شده. گذرواژه‌ها، فیلدهای خصوصی، نشانی‌ها و زبان‌های پشتیبانی‌نشده به مدل فرستاده نمی‌شوند.</string>
+    <string name="openjev_context_title">پیشنهادهای متناسب با بافت</string>
+    <string name="openjev_context_desc">استفاده از اطلاعات فیلد و بخش کوتاهی از متن برای انتخاب پیشنهادهای محلی مفید.</string>
+    <string name="openjev_autocorrect_title">اصلاح خودکار عصبی</string>
+    <string name="openjev_autocorrect_desc">تا تأیید کیفیت اصلاح‌ها در دسترس نیست. OpenJev در حال حاضر فقط پیشنهاد می‌دهد و هرگز متن را خودکار جایگزین نمی‌کند.</string>
+    <string name="openjev_aggressiveness_title">شدت اصلاح</string>
+    <string name="openjev_aggressiveness_desc">سیاست محافظه‌کارانه تنها گزینهٔ در دسترس است. حالت‌های دیگر به ارزیابی جداگانهٔ کیفیت اصلاح نیاز دارند.</string>
+    <string name="openjev_conservative">محافظه‌کارانه</string>
+    <string name="openjev_balanced">متعادل</string>
+    <string name="openjev_aggressive">تهاجمی</string>
+    <string name="openjev_diagnostics_title">عیب‌یابی محلی عملکرد</string>
+    <string name="openjev_diagnostics_desc">اجازهٔ ثبت مجموع زمان‌ها و تعداد استنتاج‌ها بدون ثبت متن.</string>
+    <string name="openjev_model_missing">مدل وجود ندارد. برای فعال‌سازی استنتاج، بستهٔ مدل محلی تأییدشده‌ای وارد کنید.</string>
+    <string name="openjev_model_installed">مدل نصب شده است. هنوز استنتاجی اجرا نشده است.</string>
+    <string name="openjev_model_ready">مدل آماده است. استنتاج محلی با موفقیت اجرا شده است.</string>
+    <string name="openjev_model_error">مدل در دسترس نیست. آن را حذف کنید و بستهٔ سازگار تأییدشده‌ای وارد کنید.</string>
+    <string name="openjev_model_import">وارد کردن بستهٔ مدل محلی</string>
+    <string name="openjev_model_remove">حذف مدل محلی</string>
+    <string name="openjev_model_working">در حال بررسی فایل‌های مدل محلی…</string>
+    <string name="openjev_model_import_error">این بسته وارد نشد. یک بستهٔ ZIP تأییدشدهٔ OpenJev انتخاب کنید و دوباره تلاش کنید.</string>
+    <string name="openjev_model_remove_error">مدل حذف نشد. صفحه‌کلید را ببندید و دوباره تلاش کنید.</string>
+    <string name="openjev_snippets_desc">عبارت‌های ذخیره‌شدهٔ اختیاری فقط در فیلدهای ایمیل یا گفت‌وگوی متناسب نمایش داده می‌شوند. برای درج عبارت روی آن بزنید. هیچ چیزی خودکار درج نمی‌شود.</string>
+    <string name="openjev_email_snippet">عبارت ذخیره‌شدهٔ ایمیل</string>
+    <string name="openjev_chat_snippet">عبارت ذخیره‌شدهٔ گفت‌وگو</string>
+    <string name="openjev_snippet_limit">حداکثر 256 نویسه بنویسید. برای غیرفعال‌سازی، خالی بگذارید.</string>
+    <string name="openjev_save_phrases">ذخیرهٔ عبارت‌ها</string>
+    <string name="openjev_diagnostics_values">استنتاج‌های تکمیل‌شده: %1$d • آخرین تصمیم: %2$d میلی‌ثانیه • بارگذاری مدل: %3$d میلی‌ثانیه</string>
+    <string name="openjev_autocorrect_ready_desc">اجازهٔ اصلاح‌های محافظه‌کارانه پس از مکث در تایپ. در صورت نامطمئن بودن نتیجه، واژهٔ اصلی حفظ می‌شود. با کلید پس‌بر می‌توان اصلاح پذیرفته‌شده را برگرداند.</string>
+</resources>

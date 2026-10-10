@@ -2395,4 +2395,6 @@
     <string name="cmd_append_possessive_desc">Připojit \'s k poslednímu ověřenému slovu; jeden backspace odstraní pouze příponu</string>
     <string name="cmd_append_apostrophe">Připojit apostrof</string>
     <string name="cmd_append_apostrophe_desc">Připojit apostrof k poslednímu ověřenému slovu (parents\'); jeden backspace odstraní pouze příponu</string>
+    <string name="provenance_origin_openjev_keep">Původní text beze změn</string>
+    <string name="provenance_origin_local_snippet">Uložená fráze</string>
 </resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Lokale intelligentie</string>
+    <string name="openjev_enable_title">OpenJev-intelligentie inschakelen</string>
+    <string name="openjev_enable_desc">Optionele beoordeling door een lokaal model. Normaal typen werkt ook als het model ontbreekt of niet beschikbaar is.</string>
+    <string name="openjev_privacy">De verwerking blijft op je apparaat. Geen internetverbinding of logboeken van getypte tekst. Wachtwoorden, privévelden, adressen en niet-ondersteunde talen worden niet door het model verwerkt.</string>
+    <string name="openjev_context_title">Contextafhankelijke suggesties</string>
+    <string name="openjev_context_desc">Veldinformatie en een kort tekstfragment gebruiken om nuttige lokale suggesties te kiezen.</string>
+    <string name="openjev_autocorrect_title">Neurale autocorrectie</string>
+    <string name="openjev_autocorrect_desc">Niet beschikbaar totdat de correctiekwaliteit is gevalideerd. OpenJev biedt momenteel alleen suggesties en vervangt tekst nooit automatisch.</string>
+    <string name="openjev_aggressiveness_title">Correctiesterkte</string>
+    <string name="openjev_aggressiveness_desc">Terughoudend is het enige beschikbare beleid. Andere modi vereisen een afzonderlijke beoordeling van de correctiekwaliteit.</string>
+    <string name="openjev_conservative">Terughoudend</string>
+    <string name="openjev_balanced">Evenwichtig</string>
+    <string name="openjev_aggressive">Agressief</string>
+    <string name="openjev_diagnostics_title">Lokale prestatiediagnostiek</string>
+    <string name="openjev_diagnostics_desc">Samengevoegde tijdmetingen en aantallen modelberekeningen toestaan zonder tekst vast te leggen.</string>
+    <string name="openjev_model_missing">Model ontbreekt. Importeer een gecontroleerd lokaal modelpakket om modelberekeningen in te schakelen.</string>
+    <string name="openjev_model_installed">Model geïnstalleerd. Er zijn nog geen modelberekeningen uitgevoerd.</string>
+    <string name="openjev_model_ready">Model gereed. Lokale modelberekeningen zijn succesvol uitgevoerd.</string>
+    <string name="openjev_model_error">Model niet beschikbaar. Verwijder het en importeer een gecontroleerd compatibel pakket.</string>
+    <string name="openjev_model_import">Lokaal modelpakket importeren</string>
+    <string name="openjev_model_remove">Lokaal model verwijderen</string>
+    <string name="openjev_model_working">Lokale modelbestanden controleren…</string>
+    <string name="openjev_model_import_error">Dit pakket kon niet worden geïmporteerd. Kies een gecontroleerd OpenJev-ZIP-pakket en probeer het opnieuw.</string>
+    <string name="openjev_model_remove_error">Het model kon niet worden verwijderd. Sluit het toetsenbord en probeer het opnieuw.</string>
+    <string name="openjev_snippets_desc">Optionele opgeslagen zinnen verschijnen alleen in passende e-mail- of chatvelden. Tik op een zin om deze in te voegen. Er wordt niets automatisch ingevoegd.</string>
+    <string name="openjev_email_snippet">Opgeslagen e-mailzin</string>
+    <string name="openjev_chat_snippet">Opgeslagen chatzin</string>
+    <string name="openjev_snippet_limit">Gebruik maximaal 256 tekens. Laat leeg om uit te schakelen.</string>
+    <string name="openjev_save_phrases">Zinnen opslaan</string>
+    <string name="openjev_diagnostics_values">Voltooide modelberekeningen: %1$d • Laatste beslissing: %2$d ms • Model laden: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Terughoudende correcties toestaan na een pauze tijdens het typen. Onzekere resultaten behouden het oorspronkelijke woord. Met Backspace kun je een geaccepteerde correctie ongedaan maken.</string>
+</resources>

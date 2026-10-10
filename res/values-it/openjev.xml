@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Intelligenza locale</string>
+    <string name="openjev_enable_title">Attiva l’intelligenza OpenJev</string>
+    <string name="openjev_enable_desc">Valutazione facoltativa con un modello locale. La digitazione normale funziona anche se il modello manca o non è disponibile.</string>
+    <string name="openjev_privacy">L’elaborazione rimane sul dispositivo. Nessuna connessione Internet né registrazione del testo digitato. Password, campi privati, indirizzi e lingue non supportate non vengono elaborati dal modello.</string>
+    <string name="openjev_context_title">Suggerimenti contestuali</string>
+    <string name="openjev_context_desc">Usa le informazioni del campo e un breve frammento di testo per scegliere suggerimenti locali utili.</string>
+    <string name="openjev_autocorrect_title">Correzione automatica neurale</string>
+    <string name="openjev_autocorrect_desc">Non disponibile finché la qualità delle correzioni non sarà convalidata. Per ora OpenJev offre solo suggerimenti; non sostituisce mai automaticamente il testo.</string>
+    <string name="openjev_aggressiveness_title">Intensità della correzione</string>
+    <string name="openjev_aggressiveness_desc">La politica prudente è l’unica disponibile. Le altre modalità richiedono una valutazione separata della qualità delle correzioni.</string>
+    <string name="openjev_conservative">Prudente</string>
+    <string name="openjev_balanced">Bilanciata</string>
+    <string name="openjev_aggressive">Aggressiva</string>
+    <string name="openjev_diagnostics_title">Diagnostica locale delle prestazioni</string>
+    <string name="openjev_diagnostics_desc">Consenti dati aggregati sui tempi e sul numero di inferenze senza registrare il testo.</string>
+    <string name="openjev_model_missing">Modello mancante. Importa un pacchetto di modello locale verificato per attivare l’inferenza.</string>
+    <string name="openjev_model_installed">Modello installato. L’inferenza non è ancora stata eseguita.</string>
+    <string name="openjev_model_ready">Modello pronto. L’inferenza locale è stata eseguita correttamente.</string>
+    <string name="openjev_model_error">Modello non disponibile. Rimuovilo e importa un pacchetto compatibile verificato.</string>
+    <string name="openjev_model_import">Importa pacchetto di modello locale</string>
+    <string name="openjev_model_remove">Rimuovi modello locale</string>
+    <string name="openjev_model_working">Verifica dei file del modello locale…</string>
+    <string name="openjev_model_import_error">Impossibile importare questo pacchetto. Scegli un pacchetto ZIP OpenJev verificato e riprova.</string>
+    <string name="openjev_model_remove_error">Impossibile rimuovere il modello. Chiudi la tastiera e riprova.</string>
+    <string name="openjev_snippets_desc">Le frasi salvate facoltative compaiono solo nei campi email o chat appropriati. Tocca una frase per inserirla. Non viene inserito nulla automaticamente.</string>
+    <string name="openjev_email_snippet">Frase email salvata</string>
+    <string name="openjev_chat_snippet">Frase chat salvata</string>
+    <string name="openjev_snippet_limit">Usa al massimo 256 caratteri. Lascia vuoto per disattivare.</string>
+    <string name="openjev_save_phrases">Salva frasi</string>
+    <string name="openjev_diagnostics_values">Inferenze completate: %1$d • Ultima decisione: %2$d ms • Caricamento modello: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Consenti correzioni prudenti dopo una pausa nella digitazione. I risultati incerti mantengono la parola originale. Il tasto Backspace può annullare una correzione accettata.</string>
+</resources>

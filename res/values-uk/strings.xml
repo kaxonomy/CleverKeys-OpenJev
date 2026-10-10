@@ -2406,4 +2406,6 @@
     <string name="cmd_append_possessive_desc">Приєднати \'s до останнього перевіреного слова; одне натискання backspace видаляє лише суфікс</string>
     <string name="cmd_append_apostrophe">Додати апостроф</string>
     <string name="cmd_append_apostrophe_desc">Приєднати апостроф до останнього перевіреного слова (parents\'); одне натискання backspace видаляє лише суфікс</string>
+    <string name="provenance_origin_openjev_keep">Початковий текст без змін</string>
+    <string name="provenance_origin_local_snippet">Збережена фраза</string>
 </resources>

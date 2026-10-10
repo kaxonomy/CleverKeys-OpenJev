@@ -2381,4 +2381,6 @@
     <string name="cmd_append_possessive_desc">Atașează \'s la ultimul cuvânt verificat; un backspace elimină doar sufixul</string>
     <string name="cmd_append_apostrophe">Adaugă apostrof la sfârșit</string>
     <string name="cmd_append_apostrophe_desc">Atașează un apostrof la ultimul cuvânt verificat (parents\'); un backspace elimină doar sufixul</string>
+    <string name="provenance_origin_openjev_keep">Original nemodificat</string>
+    <string name="provenance_origin_local_snippet">Expresie salvată</string>
 </resources>

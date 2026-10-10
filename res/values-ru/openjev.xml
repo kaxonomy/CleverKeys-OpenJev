@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Локальный интеллект</string>
+    <string name="openjev_enable_title">Включить интеллект OpenJev</string>
+    <string name="openjev_enable_desc">Необязательная оценка локальной моделью. Обычный ввод работает, даже если модель отсутствует или недоступна.</string>
+    <string name="openjev_privacy">Обработка остаётся на вашем устройстве. Без подключения к интернету и журналов введённого текста. Пароли, приватные поля, адреса и неподдерживаемые языки не обрабатываются моделью.</string>
+    <string name="openjev_context_title">Подсказки с учётом контекста</string>
+    <string name="openjev_context_desc">Использовать сведения о поле и короткий фрагмент текста для выбора полезных локальных подсказок.</string>
+    <string name="openjev_autocorrect_title">Нейросетевая автокоррекция</string>
+    <string name="openjev_autocorrect_desc">Недоступна до проверки качества исправлений. Сейчас OpenJev предлагает только подсказки и никогда не заменяет текст автоматически.</string>
+    <string name="openjev_aggressiveness_title">Интенсивность исправлений</string>
+    <string name="openjev_aggressiveness_desc">Доступна только осторожная политика. Другие режимы требуют отдельной оценки качества исправлений.</string>
+    <string name="openjev_conservative">Осторожная</string>
+    <string name="openjev_balanced">Сбалансированная</string>
+    <string name="openjev_aggressive">Агрессивная</string>
+    <string name="openjev_diagnostics_title">Локальная диагностика производительности</string>
+    <string name="openjev_diagnostics_desc">Разрешить сбор суммарных данных о времени и числе запусков модели без записи текста.</string>
+    <string name="openjev_model_missing">Модель отсутствует. Импортируйте проверенный пакет локальной модели, чтобы включить обработку моделью.</string>
+    <string name="openjev_model_installed">Модель установлена. Обработка моделью ещё не запускалась.</string>
+    <string name="openjev_model_ready">Модель готова. Локальная обработка моделью успешно выполнена.</string>
+    <string name="openjev_model_error">Модель недоступна. Удалите её и импортируйте проверенный совместимый пакет.</string>
+    <string name="openjev_model_import">Импортировать пакет локальной модели</string>
+    <string name="openjev_model_remove">Удалить локальную модель</string>
+    <string name="openjev_model_working">Проверка файлов локальной модели…</string>
+    <string name="openjev_model_import_error">Не удалось импортировать этот пакет. Выберите проверенный ZIP-пакет OpenJev и повторите попытку.</string>
+    <string name="openjev_model_remove_error">Не удалось удалить модель. Закройте клавиатуру и повторите попытку.</string>
+    <string name="openjev_snippets_desc">Необязательные сохранённые фразы появляются только в подходящих полях почты или чата. Нажмите на фразу, чтобы вставить её. Ничего не вставляется автоматически.</string>
+    <string name="openjev_email_snippet">Сохранённая фраза для почты</string>
+    <string name="openjev_chat_snippet">Сохранённая фраза для чата</string>
+    <string name="openjev_snippet_limit">Не более 256 символов. Оставьте пустым, чтобы отключить.</string>
+    <string name="openjev_save_phrases">Сохранить фразы</string>
+    <string name="openjev_diagnostics_values">Выполнено запусков модели: %1$d • Последнее решение: %2$d мс • Загрузка модели: %3$d мс</string>
+    <string name="openjev_autocorrect_ready_desc">Разрешить осторожные исправления после паузы в наборе. При неуверенном результате исходное слово сохраняется. Клавишей Backspace можно отменить принятое исправление.</string>
+</resources>

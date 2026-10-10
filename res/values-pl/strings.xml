@@ -2405,4 +2405,6 @@
     <string name="cmd_append_possessive_desc">Dołącz \'s do ostatniego zweryfikowanego słowa; jedno cofnięcie usuwa tylko sufiks</string>
     <string name="cmd_append_apostrophe">Dołącz apostrof</string>
     <string name="cmd_append_apostrophe_desc">Dołącz apostrof do ostatniego zweryfikowanego słowa (parents\'); jedno cofnięcie usuwa tylko sufiks</string>
+    <string name="provenance_origin_openjev_keep">Oryginał bez zmian</string>
+    <string name="provenance_origin_local_snippet">Zapisana fraza</string>
 </resources>

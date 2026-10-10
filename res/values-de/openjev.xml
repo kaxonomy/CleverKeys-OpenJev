@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Lokale Intelligenz</string>
+    <string name="openjev_enable_title">OpenJev-Intelligenz aktivieren</string>
+    <string name="openjev_enable_desc">Optionale Bewertung durch ein lokales Modell. Normales Tippen funktioniert auch bei fehlendem oder nicht verfügbarem Modell.</string>
+    <string name="openjev_privacy">Die Verarbeitung bleibt auf Ihrem Gerät. Keine Internetverbindung und keine Protokolle eingegebener Texte. Passwörter, private Felder, Adressen und nicht unterstützte Sprachen umgehen das Modell.</string>
+    <string name="openjev_context_title">Kontextbezogene Vorschläge</string>
+    <string name="openjev_context_desc">Feldinformationen und einen kurzen Textausschnitt nutzen, um hilfreiche lokale Vorschläge auszuwählen.</string>
+    <string name="openjev_autocorrect_title">Neuronale Autokorrektur</string>
+    <string name="openjev_autocorrect_desc">Erst verfügbar, wenn die Korrekturqualität geprüft wurde. OpenJev bietet derzeit nur Vorschläge und ersetzt Text niemals automatisch.</string>
+    <string name="openjev_aggressiveness_title">Korrekturstärke</string>
+    <string name="openjev_aggressiveness_desc">Zurückhaltend ist die einzige verfügbare Einstellung. Andere Modi erfordern eine gesonderte Bewertung der Korrekturqualität.</string>
+    <string name="openjev_conservative">Zurückhaltend</string>
+    <string name="openjev_balanced">Ausgewogen</string>
+    <string name="openjev_aggressive">Aggressiv</string>
+    <string name="openjev_diagnostics_title">Lokale Leistungsdiagnose</string>
+    <string name="openjev_diagnostics_desc">Zusammengefasste Zeitmessungen und Anzahl der Modellberechnungen erlauben, ohne Text aufzuzeichnen.</string>
+    <string name="openjev_model_missing">Modell fehlt. Importieren Sie ein geprüftes lokales Modellpaket, um Modellberechnungen zu aktivieren.</string>
+    <string name="openjev_model_installed">Modell installiert. Es wurde noch keine Modellberechnung ausgeführt.</string>
+    <string name="openjev_model_ready">Modell bereit. Die lokale Modellberechnung wurde erfolgreich ausgeführt.</string>
+    <string name="openjev_model_error">Modell nicht verfügbar. Entfernen Sie es und importieren Sie ein geprüftes kompatibles Paket.</string>
+    <string name="openjev_model_import">Lokales Modellpaket importieren</string>
+    <string name="openjev_model_remove">Lokales Modell entfernen</string>
+    <string name="openjev_model_working">Lokale Modelldateien werden geprüft…</string>
+    <string name="openjev_model_import_error">Dieses Paket konnte nicht importiert werden. Wählen Sie ein geprüftes OpenJev-ZIP-Paket und versuchen Sie es erneut.</string>
+    <string name="openjev_model_remove_error">Das Modell konnte nicht entfernt werden. Schließen Sie die Tastatur und versuchen Sie es erneut.</string>
+    <string name="openjev_snippets_desc">Optionale gespeicherte Phrasen erscheinen nur in passenden E-Mail- oder Chatfeldern. Tippen Sie auf eine Phrase, um sie einzufügen. Es wird nichts automatisch eingefügt.</string>
+    <string name="openjev_email_snippet">Gespeicherte E-Mail-Phrase</string>
+    <string name="openjev_chat_snippet">Gespeicherte Chatphrase</string>
+    <string name="openjev_snippet_limit">Höchstens 256 Zeichen. Zum Deaktivieren leer lassen.</string>
+    <string name="openjev_save_phrases">Phrasen speichern</string>
+    <string name="openjev_diagnostics_values">Abgeschlossene Modellberechnungen: %1$d • Letzte Entscheidung: %2$d ms • Modell laden: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Zurückhaltende Korrekturen nach einer Tippause erlauben. Unsichere Ergebnisse behalten das ursprüngliche Wort bei. Mit der Rücktaste lässt sich eine angenommene Korrektur rückgängig machen.</string>
+</resources>

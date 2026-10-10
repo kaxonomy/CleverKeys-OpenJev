@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Trí tuệ cục bộ</string>
+    <string name="openjev_enable_title">Bật trí tuệ OpenJev</string>
+    <string name="openjev_enable_desc">Chấm điểm tùy chọn bằng mô hình cục bộ. Bạn vẫn gõ bình thường khi không có mô hình hoặc mô hình không khả dụng.</string>
+    <string name="openjev_privacy">Việc xử lý diễn ra trên thiết bị của bạn. Không có kết nối internet hay nhật ký văn bản đã gõ. Mật khẩu, trường riêng tư, địa chỉ và ngôn ngữ không được hỗ trợ không được xử lý bằng mô hình.</string>
+    <string name="openjev_context_title">Gợi ý theo ngữ cảnh</string>
+    <string name="openjev_context_desc">Dùng thông tin của trường và một đoạn văn bản ngắn để chọn gợi ý cục bộ hữu ích.</string>
+    <string name="openjev_autocorrect_title">Tự động sửa bằng mạng nơ-ron</string>
+    <string name="openjev_autocorrect_desc">Chưa khả dụng cho đến khi chất lượng sửa được xác thực. Hiện OpenJev chỉ đưa ra gợi ý; không bao giờ tự động thay thế văn bản.</string>
+    <string name="openjev_aggressiveness_title">Mức độ sửa</string>
+    <string name="openjev_aggressiveness_desc">Thận trọng là chính sách duy nhất khả dụng. Các chế độ khác cần đánh giá riêng về chất lượng sửa.</string>
+    <string name="openjev_conservative">Thận trọng</string>
+    <string name="openjev_balanced">Cân bằng</string>
+    <string name="openjev_aggressive">Mạnh</string>
+    <string name="openjev_diagnostics_title">Chẩn đoán hiệu năng cục bộ</string>
+    <string name="openjev_diagnostics_desc">Cho phép dữ liệu thời gian tổng hợp và số lần suy luận mà không ghi lại văn bản.</string>
+    <string name="openjev_model_missing">Chưa có mô hình. Nhập gói mô hình cục bộ đã xác minh để bật suy luận.</string>
+    <string name="openjev_model_installed">Đã cài mô hình. Chưa chạy suy luận.</string>
+    <string name="openjev_model_ready">Mô hình sẵn sàng. Đã chạy suy luận cục bộ thành công.</string>
+    <string name="openjev_model_error">Mô hình không khả dụng. Xóa mô hình rồi nhập gói tương thích đã xác minh.</string>
+    <string name="openjev_model_import">Nhập gói mô hình cục bộ</string>
+    <string name="openjev_model_remove">Xóa mô hình cục bộ</string>
+    <string name="openjev_model_working">Đang kiểm tra tệp mô hình cục bộ…</string>
+    <string name="openjev_model_import_error">Không thể nhập gói này. Chọn gói ZIP OpenJev đã xác minh rồi thử lại.</string>
+    <string name="openjev_model_remove_error">Không thể xóa mô hình. Đóng bàn phím rồi thử lại.</string>
+    <string name="openjev_snippets_desc">Các cụm từ đã lưu tùy chọn chỉ xuất hiện trong trường email hoặc trò chuyện phù hợp. Chạm vào cụm từ để chèn. Không có nội dung nào được chèn tự động.</string>
+    <string name="openjev_email_snippet">Cụm từ email đã lưu</string>
+    <string name="openjev_chat_snippet">Cụm từ trò chuyện đã lưu</string>
+    <string name="openjev_snippet_limit">Dùng tối đa 256 ký tự. Để trống để tắt.</string>
+    <string name="openjev_save_phrases">Lưu cụm từ</string>
+    <string name="openjev_diagnostics_values">Số lần suy luận hoàn tất: %1$d • Quyết định gần nhất: %2$d ms • Tải mô hình: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Cho phép sửa thận trọng sau khi tạm dừng gõ. Kết quả không chắc chắn sẽ giữ nguyên từ gốc. Phím Backspace có thể hoàn tác một sửa đổi đã được chấp nhận.</string>
+</resources>

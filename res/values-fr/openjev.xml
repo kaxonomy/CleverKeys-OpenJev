@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Intelligence locale</string>
+    <string name="openjev_enable_title">Activer l’intelligence OpenJev</string>
+    <string name="openjev_enable_desc">Évaluation facultative par un modèle local. La saisie normale fonctionne même si le modèle est absent ou indisponible.</string>
+    <string name="openjev_privacy">Le traitement reste sur votre appareil. Aucune connexion Internet ni journal du texte saisi. Les mots de passe, les champs privés, les adresses et les langues non prises en charge contournent le modèle.</string>
+    <string name="openjev_context_title">Suggestions selon le contexte</string>
+    <string name="openjev_context_desc">Utiliser les informations du champ et un court extrait de texte pour choisir des suggestions locales utiles.</string>
+    <string name="openjev_autocorrect_title">Correction automatique neuronale</string>
+    <string name="openjev_autocorrect_desc">Indisponible tant que la qualité des corrections n’a pas été validée. OpenJev propose uniquement des suggestions pour le moment ; il ne remplace jamais le texte automatiquement.</string>
+    <string name="openjev_aggressiveness_title">Intensité des corrections</string>
+    <string name="openjev_aggressiveness_desc">La politique prudente est la seule disponible. Les autres modes nécessitent une évaluation distincte de la qualité des corrections.</string>
+    <string name="openjev_conservative">Prudente</string>
+    <string name="openjev_balanced">Équilibrée</string>
+    <string name="openjev_aggressive">Agressive</string>
+    <string name="openjev_diagnostics_title">Diagnostic local des performances</string>
+    <string name="openjev_diagnostics_desc">Autoriser les mesures de temps et les nombres d’inférences agrégés sans enregistrer de texte.</string>
+    <string name="openjev_model_missing">Modèle absent. Importez un paquet de modèle local vérifié pour activer l’inférence.</string>
+    <string name="openjev_model_installed">Modèle installé. Aucune inférence n’a encore été exécutée.</string>
+    <string name="openjev_model_ready">Modèle prêt. L’inférence locale a été exécutée avec succès.</string>
+    <string name="openjev_model_error">Modèle indisponible. Supprimez-le et importez un paquet compatible vérifié.</string>
+    <string name="openjev_model_import">Importer un paquet de modèle local</string>
+    <string name="openjev_model_remove">Supprimer le modèle local</string>
+    <string name="openjev_model_working">Vérification des fichiers du modèle local…</string>
+    <string name="openjev_model_import_error">Impossible d’importer ce paquet. Choisissez un paquet ZIP OpenJev vérifié et réessayez.</string>
+    <string name="openjev_model_remove_error">Impossible de supprimer le modèle. Fermez le clavier et réessayez.</string>
+    <string name="openjev_snippets_desc">Les phrases enregistrées facultatives apparaissent uniquement dans les champs de courriel ou de discussion adaptés. Touchez une phrase pour l’insérer. Rien n’est inséré automatiquement.</string>
+    <string name="openjev_email_snippet">Phrase enregistrée pour les courriels</string>
+    <string name="openjev_chat_snippet">Phrase enregistrée pour les discussions</string>
+    <string name="openjev_snippet_limit">256 caractères maximum. Laissez vide pour désactiver.</string>
+    <string name="openjev_save_phrases">Enregistrer les phrases</string>
+    <string name="openjev_diagnostics_values">Inférences terminées : %1$d • Dernière décision : %2$d ms • Chargement du modèle : %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Autoriser les corrections prudentes après une pause dans la saisie. Les résultats incertains conservent le mot d’origine. La touche Retour arrière permet d’annuler une correction acceptée.</string>
+</resources>

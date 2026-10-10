@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Inteligență locală</string>
+    <string name="openjev_enable_title">Activează inteligența OpenJev</string>
+    <string name="openjev_enable_desc">Evaluare opțională cu un model local. Tastarea obișnuită funcționează și când modelul lipsește sau nu este disponibil.</string>
+    <string name="openjev_privacy">Procesarea rămâne pe dispozitivul tău. Fără conexiune la internet sau jurnale ale textului tastat. Parolele, câmpurile private, adresele și limbile neacceptate nu sunt procesate de model.</string>
+    <string name="openjev_context_title">Sugestii în funcție de context</string>
+    <string name="openjev_context_desc">Folosește informațiile câmpului și un fragment scurt de text pentru a selecta sugestii locale utile.</string>
+    <string name="openjev_autocorrect_title">Corectare automată neuronală</string>
+    <string name="openjev_autocorrect_desc">Indisponibilă până la validarea calității corectărilor. OpenJev oferă momentan doar sugestii; nu înlocuiește niciodată textul automat.</string>
+    <string name="openjev_aggressiveness_title">Intensitatea corectării</string>
+    <string name="openjev_aggressiveness_desc">Politica prudentă este singura disponibilă. Celelalte moduri necesită o evaluare separată a calității corectărilor.</string>
+    <string name="openjev_conservative">Prudentă</string>
+    <string name="openjev_balanced">Echilibrată</string>
+    <string name="openjev_aggressive">Agresivă</string>
+    <string name="openjev_diagnostics_title">Diagnostic local de performanță</string>
+    <string name="openjev_diagnostics_desc">Permite date cumulate despre timpi și numărul de inferențe fără a înregistra text.</string>
+    <string name="openjev_model_missing">Modelul lipsește. Importă un pachet de model local verificat pentru a activa inferența.</string>
+    <string name="openjev_model_installed">Model instalat. Inferența nu a fost încă executată.</string>
+    <string name="openjev_model_ready">Model pregătit. Inferența locală a fost executată cu succes.</string>
+    <string name="openjev_model_error">Model indisponibil. Elimină-l și importă un pachet compatibil verificat.</string>
+    <string name="openjev_model_import">Importă un pachet de model local</string>
+    <string name="openjev_model_remove">Elimină modelul local</string>
+    <string name="openjev_model_working">Se verifică fișierele modelului local…</string>
+    <string name="openjev_model_import_error">Acest pachet nu a putut fi importat. Alege un pachet ZIP OpenJev verificat și încearcă din nou.</string>
+    <string name="openjev_model_remove_error">Modelul nu a putut fi eliminat. Închide tastatura și încearcă din nou.</string>
+    <string name="openjev_snippets_desc">Expresiile salvate opționale apar doar în câmpuri de e-mail sau chat potrivite. Atinge o expresie pentru a o insera. Nimic nu este inserat automat.</string>
+    <string name="openjev_email_snippet">Expresie salvată pentru e-mail</string>
+    <string name="openjev_chat_snippet">Expresie salvată pentru chat</string>
+    <string name="openjev_snippet_limit">Folosește cel mult 256 de caractere. Lasă necompletat pentru a dezactiva.</string>
+    <string name="openjev_save_phrases">Salvează expresiile</string>
+    <string name="openjev_diagnostics_values">Inferențe finalizate: %1$d • Ultima decizie: %2$d ms • Încărcarea modelului: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Permite corectări prudente după o pauză în tastare. Rezultatele incerte păstrează cuvântul original. Tasta Backspace poate anula o corectare acceptată.</string>
+</resources>

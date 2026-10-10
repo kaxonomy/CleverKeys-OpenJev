@@ -2324,4 +2324,6 @@
     <string name="cmd_append_possessive_desc">Son doğrulanan kelimeye \'s iliştir; bir geri alma yalnızca son eki siler</string>
     <string name="cmd_append_apostrophe">Kesme işareti ekle</string>
     <string name="cmd_append_apostrophe_desc">Son doğrulanan kelimeye kesme işareti iliştir (parents\'); bir geri alma yalnızca son eki siler</string>
+    <string name="provenance_origin_openjev_keep">Değiştirilmemiş özgün metin</string>
+    <string name="provenance_origin_local_snippet">Kayıtlı ifade</string>
 </resources>

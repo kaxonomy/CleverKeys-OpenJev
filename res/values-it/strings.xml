@@ -2394,4 +2394,6 @@
     <string name="cmd_append_possessive_desc">Collega \'s all\'ultima parola verificata; un backspace rimuove solo il suffisso</string>
     <string name="cmd_append_apostrophe">Aggiungi apostrofo</string>
     <string name="cmd_append_apostrophe_desc">Collega un apostrofo all\'ultima parola verificata (parents\'); un backspace rimuove solo il suffisso</string>
+    <string name="provenance_origin_openjev_keep">Originale invariato</string>
+    <string name="provenance_origin_local_snippet">Frase salvata</string>
 </resources>

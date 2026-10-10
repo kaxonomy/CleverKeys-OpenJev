@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Helyi intelligencia</string>
+    <string name="openjev_enable_title">OpenJev-intelligencia bekapcsolása</string>
+    <string name="openjev_enable_desc">Választható pontozás helyi modellel. A szokásos gépelés hiányzó vagy nem elérhető modell esetén is működik.</string>
+    <string name="openjev_privacy">A feldolgozás az eszközön történik. Nincs internetkapcsolat vagy a begépelt szöveget rögzítő napló. A jelszavak, privát mezők, címek és nem támogatott nyelvek esetén a modell kimarad.</string>
+    <string name="openjev_context_title">Környezetfüggő javaslatok</string>
+    <string name="openjev_context_desc">Mezőadatok és rövid szövegrészlet használata hasznos helyi javaslatok kiválasztásához.</string>
+    <string name="openjev_autocorrect_title">Neurális automatikus javítás</string>
+    <string name="openjev_autocorrect_desc">A javítások minőségének ellenőrzéséig nem érhető el. Az OpenJev jelenleg csak javaslatokat ad; soha nem cserél szöveget automatikusan.</string>
+    <string name="openjev_aggressiveness_title">Javítás erőssége</string>
+    <string name="openjev_aggressiveness_desc">Csak az óvatos szabály érhető el. A többi mód külön javításminőségi értékelést igényel.</string>
+    <string name="openjev_conservative">Óvatos</string>
+    <string name="openjev_balanced">Kiegyensúlyozott</string>
+    <string name="openjev_aggressive">Erőteljes</string>
+    <string name="openjev_diagnostics_title">Helyi teljesítménydiagnosztika</string>
+    <string name="openjev_diagnostics_desc">Összesített időadatok és következtetésszámok engedélyezése szöveg rögzítése nélkül.</string>
+    <string name="openjev_model_missing">Hiányzó modell. A következtetés bekapcsolásához importáljon egy ellenőrzött helyi modellcsomagot.</string>
+    <string name="openjev_model_installed">A modell telepítve van. Még nem történt következtetés.</string>
+    <string name="openjev_model_ready">A modell készen áll. A helyi következtetés sikeresen lefutott.</string>
+    <string name="openjev_model_error">A modell nem érhető el. Távolítsa el, és importáljon egy ellenőrzött, kompatibilis csomagot.</string>
+    <string name="openjev_model_import">Helyi modellcsomag importálása</string>
+    <string name="openjev_model_remove">Helyi modell eltávolítása</string>
+    <string name="openjev_model_working">Helyi modellfájlok ellenőrzése…</string>
+    <string name="openjev_model_import_error">A csomag nem importálható. Válasszon egy ellenőrzött OpenJev ZIP-csomagot, és próbálja újra.</string>
+    <string name="openjev_model_remove_error">A modell nem távolítható el. Zárja be a billentyűzetet, és próbálja újra.</string>
+    <string name="openjev_snippets_desc">A választható mentett kifejezések csak megfelelő e-mail- vagy csevegőmezőkben jelennek meg. Koppintson egy kifejezésre a beszúrásához. Semmi sem kerül be automatikusan.</string>
+    <string name="openjev_email_snippet">Mentett e-mail-kifejezés</string>
+    <string name="openjev_chat_snippet">Mentett csevegőkifejezés</string>
+    <string name="openjev_snippet_limit">Legfeljebb 256 karakter. Kikapcsoláshoz hagyja üresen.</string>
+    <string name="openjev_save_phrases">Kifejezések mentése</string>
+    <string name="openjev_diagnostics_values">Befejezett következtetések: %1$d • Utolsó döntés: %2$d ms • Modellbetöltés: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Óvatos javítások engedélyezése gépelési szünet után. Bizonytalan eredmény esetén az eredeti szó marad. A Backspace billentyűvel visszavonható az elfogadott javítás.</string>
+</resources>

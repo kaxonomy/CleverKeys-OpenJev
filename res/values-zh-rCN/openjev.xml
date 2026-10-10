@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">本地智能</string>
+    <string name="openjev_enable_title">启用 OpenJev 智能</string>
+    <string name="openjev_enable_desc">可选的本地模型评分。模型缺失或不可用时，普通输入仍可正常使用。</string>
+    <string name="openjev_privacy">处理始终在您的设备上进行。不连接互联网，也不记录输入的文本。密码、私密输入框、地址及不支持的语言不会使用模型处理。</string>
+    <string name="openjev_context_title">上下文感知建议</string>
+    <string name="openjev_context_desc">使用输入框信息和一小段文本，选择有帮助的本地建议。</string>
+    <string name="openjev_autocorrect_title">神经网络自动纠错</string>
+    <string name="openjev_autocorrect_desc">在纠错质量通过验证前不可用。OpenJev 目前仅提供建议，绝不会自动替换文本。</string>
+    <string name="openjev_aggressiveness_title">纠错强度</string>
+    <string name="openjev_aggressiveness_desc">目前仅提供保守策略。其他模式需要单独进行纠错质量评估。</string>
+    <string name="openjev_conservative">保守</string>
+    <string name="openjev_balanced">均衡</string>
+    <string name="openjev_aggressive">积极</string>
+    <string name="openjev_diagnostics_title">本地性能诊断</string>
+    <string name="openjev_diagnostics_desc">允许汇总计时数据和推理次数，不记录文本。</string>
+    <string name="openjev_model_missing">模型缺失。请导入经过验证的本地模型包以启用推理。</string>
+    <string name="openjev_model_installed">模型已安装。尚未运行推理。</string>
+    <string name="openjev_model_ready">模型就绪。本地推理已成功运行。</string>
+    <string name="openjev_model_error">模型不可用。请移除模型并导入经过验证的兼容模型包。</string>
+    <string name="openjev_model_import">导入本地模型包</string>
+    <string name="openjev_model_remove">移除本地模型</string>
+    <string name="openjev_model_working">正在检查本地模型文件…</string>
+    <string name="openjev_model_import_error">无法导入此模型包。请选择经过验证的 OpenJev ZIP 模型包，然后重试。</string>
+    <string name="openjev_model_remove_error">无法移除模型。请关闭键盘，然后重试。</string>
+    <string name="openjev_snippets_desc">可选的已保存短语仅在匹配的电子邮件或聊天输入框中显示。点按短语即可插入。任何内容都不会自动插入。</string>
+    <string name="openjev_email_snippet">已保存的邮件短语</string>
+    <string name="openjev_chat_snippet">已保存的聊天短语</string>
+    <string name="openjev_snippet_limit">最多使用 256 个字符。留空即可禁用。</string>
+    <string name="openjev_save_phrases">保存短语</string>
+    <string name="openjev_diagnostics_values">已完成推理：%1$d 次 • 最近一次决策：%2$d ms • 模型加载：%3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">允许在暂停输入后进行保守纠错。结果不确定时保留原词。按退格键可撤销已接受的纠错。</string>
+</resources>

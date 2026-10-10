@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="openjev_section_title">Lokalna inteligencja</string>
+    <string name="openjev_enable_title">Włącz inteligencję OpenJev</string>
+    <string name="openjev_enable_desc">Opcjonalna ocena przez lokalny model. Zwykłe pisanie działa także wtedy, gdy modelu brakuje lub jest niedostępny.</string>
+    <string name="openjev_privacy">Przetwarzanie odbywa się na urządzeniu. Bez połączenia z internetem i rejestrowania wpisywanego tekstu. Hasła, pola prywatne, adresy i nieobsługiwane języki są pomijane przez model.</string>
+    <string name="openjev_context_title">Podpowiedzi kontekstowe</string>
+    <string name="openjev_context_desc">Używaj informacji o polu i krótkiego fragmentu tekstu, aby wybierać przydatne lokalne podpowiedzi.</string>
+    <string name="openjev_autocorrect_title">Neuronowa autokorekta</string>
+    <string name="openjev_autocorrect_desc">Niedostępna do czasu potwierdzenia jakości poprawek. OpenJev obecnie oferuje tylko podpowiedzi; nigdy nie zastępuje tekstu automatycznie.</string>
+    <string name="openjev_aggressiveness_title">Intensywność korekty</string>
+    <string name="openjev_aggressiveness_desc">Dostępna jest tylko ostrożna polityka. Inne tryby wymagają odrębnej oceny jakości poprawek.</string>
+    <string name="openjev_conservative">Ostrożna</string>
+    <string name="openjev_balanced">Zrównoważona</string>
+    <string name="openjev_aggressive">Agresywna</string>
+    <string name="openjev_diagnostics_title">Lokalna diagnostyka wydajności</string>
+    <string name="openjev_diagnostics_desc">Zezwalaj na zbiorcze pomiary czasu i liczby wnioskowań bez rejestrowania tekstu.</string>
+    <string name="openjev_model_missing">Brak modelu. Zaimportuj zweryfikowany pakiet lokalnego modelu, aby włączyć wnioskowanie.</string>
+    <string name="openjev_model_installed">Model zainstalowany. Wnioskowanie nie zostało jeszcze uruchomione.</string>
+    <string name="openjev_model_ready">Model gotowy. Lokalne wnioskowanie zostało pomyślnie uruchomione.</string>
+    <string name="openjev_model_error">Model niedostępny. Usuń go i zaimportuj zweryfikowany zgodny pakiet.</string>
+    <string name="openjev_model_import">Importuj pakiet lokalnego modelu</string>
+    <string name="openjev_model_remove">Usuń lokalny model</string>
+    <string name="openjev_model_working">Sprawdzanie plików lokalnego modelu…</string>
+    <string name="openjev_model_import_error">Nie udało się zaimportować tego pakietu. Wybierz zweryfikowany pakiet ZIP OpenJev i spróbuj ponownie.</string>
+    <string name="openjev_model_remove_error">Nie udało się usunąć modelu. Zamknij klawiaturę i spróbuj ponownie.</string>
+    <string name="openjev_snippets_desc">Opcjonalne zapisane frazy pojawiają się tylko w odpowiednich polach poczty lub czatu. Dotknij frazy, aby ją wstawić. Nic nie jest wstawiane automatycznie.</string>
+    <string name="openjev_email_snippet">Zapisana fraza do wiadomości e-mail</string>
+    <string name="openjev_chat_snippet">Zapisana fraza do czatu</string>
+    <string name="openjev_snippet_limit">Użyj najwyżej 256 znaków. Pozostaw puste, aby wyłączyć.</string>
+    <string name="openjev_save_phrases">Zapisz frazy</string>
+    <string name="openjev_diagnostics_values">Ukończone wnioskowania: %1$d • Ostatnia decyzja: %2$d ms • Wczytanie modelu: %3$d ms</string>
+    <string name="openjev_autocorrect_ready_desc">Zezwalaj na ostrożne poprawki po przerwie w pisaniu. Niepewne wyniki zachowują oryginalne słowo. Klawiszem Backspace można cofnąć zaakceptowaną poprawkę.</string>
+</resources>
