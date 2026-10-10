@@ -196,6 +196,41 @@ class OpenJevImeInstrumentedTest {
         SystemClock.sleep(2_000)
         assertEquals("private field must bypass ONNX entirely", before, runtime.invocationCount)
         assertEquals("ideaa", secondaryText().lowercase())
+        scenario.onActivity {
+            it.secondary.text.clear()
+            it.secondary.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            (it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).restartInput(it.secondary)
+        }
+        waitFor { (CleverKeysService.getInstance()?.currentInputEditorInfo?.inputType ?: 0) and InputType.TYPE_MASK_CLASS == InputType.TYPE_CLASS_NUMBER }
+        SystemClock.sleep(100)
+        type("1234")
+        SystemClock.sleep(2_000)
+        assertEquals("PIN field must bypass ONNX entirely", before, runtime.invocationCount)
+        assertEquals("1234", secondaryText())
+    }
+
+    @Test
+    fun missingModelKeepsOrdinaryTypingAndBaselineCorrectionAvailable() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        val model = java.io.File(context.filesDir, "openjev/model")
+        val parked = java.io.File(context.filesDir, "openjev/model-missing-validation")
+        assertTrue("verified model must exist before missing-model test", model.isDirectory)
+        assertFalse("temporary model backup must not already exist", parked.exists())
+        runtime.close()
+        assertTrue("park weights atomically without duplicate copies", model.renameTo(parked))
+        try {
+            enableNeural()
+            val before = runtime.invocationCount
+            type("this is a good ideaa")
+            SystemClock.sleep(2_000)
+            assertEquals("missing model cannot claim successful inference", before, runtime.invocationCount)
+            assertEquals("this is a good ideaa", primaryText().lowercase())
+            tap(context.getString(R.string.key_descr_space))
+            waitFor { primaryText().lowercase() == "this is a good idea " }
+        } finally {
+            runtime.close()
+            assertTrue("restore exact verified model bytes", parked.renameTo(model))
+        }
     }
 
     @Test
