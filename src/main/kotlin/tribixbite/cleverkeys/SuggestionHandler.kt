@@ -621,6 +621,10 @@ class SuggestionHandler(
         openJevContextCache?.clear()
         openJevContextCache = null
         config = newConfig
+        if (!newConfig.openjev_enabled) {
+            openJev?.close() // Resource release stays behind any running inference on its worker.
+            openJev = null
+        }
     }
 
     /** Verbose-only debug log; message lambda is not evaluated unless verbose logging is enabled. */
