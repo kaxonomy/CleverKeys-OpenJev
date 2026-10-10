@@ -34,12 +34,16 @@ class OpenJevImeInstrumentedTest {
             .putBoolean("autocorrect_enabled", true)
             .putBoolean("backspace_undo_autocorrect", true)
             .putBoolean("haptic_enabled", false).commit())
+        instrumentation.runOnMainSync {
+            if (CleverKeysService.getInstance() != null) Config.globalConfig().refresh(context.resources, null)
+        }
         priorIme = shell("settings get secure default_input_method").trim().takeUnless { it == "null" }
         priorEnabledImes = shell("settings get secure enabled_input_methods").trim().takeUnless { it == "null" }
         shell("ime enable ${context.packageName}/tribixbite.cleverkeys.CleverKeysService")
         shell("ime set ${context.packageName}/tribixbite.cleverkeys.CleverKeysService")
         scenario = ActivityScenario.launch(OpenJevTestEditorActivity::class.java)
         waitFor { keyboard()?.isShown == true }
+        instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
     }
 
     @After
@@ -58,6 +62,9 @@ class OpenJevImeInstrumentedTest {
                 }
             }
             assertTrue("restore preferences durably", editor.commit())
+            instrumentation.runOnMainSync {
+                if (CleverKeysService.getInstance() != null) Config.globalConfig().refresh(context.resources, null)
+            }
         }
         priorIme?.takeIf { it.matches(Regex("[A-Za-z0-9._/]+")) }?.let { shell("ime set $it") }
         val component = "${context.packageName}/tribixbite.cleverkeys.CleverKeysService"
@@ -207,7 +214,7 @@ class OpenJevImeInstrumentedTest {
 
     @Test
     fun localChatSnippetRequiresExplicitTouchAndCommitsLiteralText() {
-        val phrase = "Thanks for the update."
+        val phrase = "Thanks"
         assertTrue(prefs.edit().putBoolean("openjev_enabled", true)
             .putBoolean("openjev_context_suggestions", true)
             .putBoolean("openjev_neural_autocorrect", false)
@@ -223,6 +230,37 @@ class OpenJevImeInstrumentedTest {
                 bar.getMetaForSuggestion(phrase)?.origin == SuggestionOrigin.LOCAL_SNIPPET
         }
         assertEquals("snippet must not insert automatically", "", primaryText())
+        clickSnippet(phrase)
+        waitFor { primaryText() == phrase }
+        tap("x")
+        waitFor { primaryText() == "Thanksx" }
+        val field = CleverKeysService::class.java.getDeclaredField("_contextTracker").apply { isAccessible = true }
+        val tracker = field.get(CleverKeysService.getInstance()) as PredictionContextTracker
+        assertEquals("literal snippet joins following typed letters as the full word", "thanksx", tracker.getCurrentWord().lowercase())
+    }
+
+    @Test
+    fun explicitSnippetEndingInPriorAutocorrectWordPreservesCharacterBackspace() {
+        val phrase = "the"
+        assertTrue(prefs.edit().putBoolean("openjev_enabled", true)
+            .putBoolean("openjev_context_suggestions", true).putBoolean("openjev_neural_autocorrect", false)
+            .putString("openjev_chat_snippet", phrase).commit())
+        instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
+        scenario.onActivity {
+            it.primary.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE
+            (it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).restartInput(it.primary)
+        }
+        type("teh ")
+        waitFor { primaryText().trim().lowercase() == "the" }
+        waitFor { suggestionBar()?.getMetaForSuggestion(phrase)?.origin == SuggestionOrigin.LOCAL_SNIPPET }
+        val prefix = primaryText()
+        clickSnippet(phrase)
+        waitFor { primaryText() == prefix + phrase }
+        tap(context.getString(R.string.key_descr_backspace))
+        waitFor { primaryText() == prefix + "th" }
+    }
+
+    private fun clickSnippet(phrase: String) {
         val bounds = Rect()
         instrumentation.runOnMainSync {
             val bar = suggestionBar() ?: error("suggestion bar missing")
@@ -233,7 +271,6 @@ class OpenJevImeInstrumentedTest {
             assertTrue(view.getGlobalVisibleRect(bounds))
         }
         tapBounds(bounds)
-        waitFor { primaryText() == phrase }
     }
 
     private fun suggestionBar(): SuggestionBar? {
