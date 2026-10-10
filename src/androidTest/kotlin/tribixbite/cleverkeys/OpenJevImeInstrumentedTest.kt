@@ -306,6 +306,34 @@ class OpenJevImeInstrumentedTest {
     }
 
     @Test
+    fun genericKnownWordBoundaryRunsRealContextInferenceWithoutInsertion() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        runtime.score("Hey, see you soon!", listOf("casual chat", "formal email"))
+        assertTrue(prefs.edit().putBoolean("openjev_enabled", true)
+            .putBoolean("openjev_context_suggestions", true)
+            .putBoolean("openjev_neural_autocorrect", false)
+            .putString("openjev_chat_snippet", "Thanks")
+            .putString("openjev_email_snippet", "Regards").commit())
+        instrumentation.runOnMainSync { Config.globalConfig().refresh(context.resources, null) }
+        scenario.onActivity {
+            it.primary.inputType = InputType.TYPE_CLASS_TEXT
+            (it.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).restartInput(it.primary)
+        }
+        waitFor { CleverKeysService.getInstance()?.currentInputEditorInfo?.inputType == InputType.TYPE_CLASS_TEXT }
+        val before = runtime.invocationCount
+        type("hello friend ")
+        waitFor { runtime.invocationCount > before }
+        assertEquals("context inference cannot insert a snippet", "hello friend ", primaryText().lowercase())
+        // Ambiguous context may abstain. Any saved phrase shown retains explicit-selection provenance.
+        val bar = suggestionBar()
+        for (phrase in listOf("Thanks", "Regards")) {
+            if (bar?.getCurrentSuggestions()?.contains(phrase) == true) {
+                assertEquals(SuggestionOrigin.LOCAL_SNIPPET, bar.getMetaForSuggestion(phrase)?.origin)
+            }
+        }
+    }
+
+    @Test
     fun explicitSnippetEndingInPriorAutocorrectWordPreservesCharacterBackspace() {
         val phrase = "the"
         assertTrue(prefs.edit().putBoolean("openjev_enabled", true)
