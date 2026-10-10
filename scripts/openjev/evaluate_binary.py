@@ -54,7 +54,7 @@ def observe(generated, model_rows, split, margin, identity):
             if row["original"] != original:
                 raise ValueError("model input original differs from Android export")
             keep, correction = row["logits"]
-            action = "REPLACE" if correction - keep >= margin else "SUGGEST" if correction > keep else "KEEP"
+            action = "REPLACE" if correction > 0 and correction - keep >= margin else "SUGGEST" if correction > 0 and correction > keep else "KEEP"
             chosen = proposed if action != "KEEP" else None
             ranking = ([proposed, original] if correction > keep else [original, proposed]) + [c for c in slate if c not in {original, proposed}]
             ran, latency = True, row["latency_ms"]

@@ -3,7 +3,6 @@ package tribixbite.cleverkeys
 import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.SystemClock
-import android.provider.Settings
 import android.text.InputType
 import android.view.InputDevice
 import android.view.MotionEvent
@@ -35,8 +34,8 @@ class OpenJevImeInstrumentedTest {
             .putBoolean("autocorrect_enabled", true)
             .putBoolean("backspace_undo_autocorrect", true)
             .putBoolean("haptic_enabled", false).commit())
-        priorIme = Settings.Secure.getString(context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
-        priorEnabledImes = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_INPUT_METHODS)
+        priorIme = shell("settings get secure default_input_method").trim().takeUnless { it == "null" }
+        priorEnabledImes = shell("settings get secure enabled_input_methods").trim().takeUnless { it == "null" }
         shell("ime enable ${context.packageName}/tribixbite.cleverkeys.CleverKeysService")
         shell("ime set ${context.packageName}/tribixbite.cleverkeys.CleverKeysService")
         scenario = ActivityScenario.launch(OpenJevTestEditorActivity::class.java)
@@ -141,6 +140,32 @@ class OpenJevImeInstrumentedTest {
     }
 
     @Test
+    fun genuineOnnxReplacementSpaceAndUndo() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
+        enableNeural()
+        type("this is a good ideaa")
+        waitFor { primaryText().lowercase() == "this is a good idea" }
+        tap(context.getString(R.string.key_descr_space))
+        waitFor { primaryText().lowercase() == "this is a good idea " }
+        tap(context.getString(R.string.key_descr_backspace))
+        waitFor { primaryText().lowercase() == "this is a good ideaa " }
+    }
+
+    @Test
+    fun genuineOnnxKeepPreventsBaselineSpaceCorrection() {
+        val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
+        runtime.score("Please pass teh", listOf("the final typed word should remain teh", "the intended final typed word is the"))
+        enableNeural()
+        type("please pass teh")
+        val before = CleverKeysService.getInstance()!!.getOpenJevDiagnostics().completedInferenceCount
+        waitFor { CleverKeysService.getInstance()!!.getOpenJevDiagnostics().completedInferenceCount > before }
+        assertEquals("please pass teh", primaryText().lowercase())
+        tap(context.getString(R.string.key_descr_space))
+        waitFor { primaryText().lowercase() == "please pass teh " }
+    }
+
+    @Test
     fun enabledModelPasswordAndPrivateFieldsNeverInfer() {
         val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
         runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
@@ -225,7 +250,7 @@ class OpenJevImeInstrumentedTest {
     private fun primaryText(): String { var result = ""; scenario.onActivity { result = it.primary.text.toString() }; return result }
     private fun secondaryText(): String { var result = ""; scenario.onActivity { result = it.secondary.text.toString() }; return result }
     private fun shell(command: String) = instrumentation.uiAutomation.executeShellCommand(command).use { descriptor ->
-        java.io.FileInputStream(descriptor.fileDescriptor).use { it.readBytes() }
+        java.io.FileInputStream(descriptor.fileDescriptor).use { it.readBytes().toString(Charsets.UTF_8) }
     }
     private fun waitFor(predicate: () -> Boolean) {
         val deadline = SystemClock.uptimeMillis() + 20_000
