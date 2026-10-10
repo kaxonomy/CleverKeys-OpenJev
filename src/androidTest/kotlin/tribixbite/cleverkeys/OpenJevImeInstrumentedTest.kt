@@ -43,14 +43,15 @@ class OpenJevImeInstrumentedTest {
         priorIme = shell("settings get secure default_input_method").trim().takeUnless { it == "null" }
         priorEnabledImes = shell("settings get secure enabled_input_methods").trim().takeUnless { it == "null" }
         val component = "${context.packageName}/tribixbite.cleverkeys.CleverKeysService"
-        shell("ime enable $component")
+        assertTrue("IME enable must be acknowledged", shell("ime enable $component").contains("enabled"))
+        waitFor { enabledImeComponents().contains(component) }
         if (priorIme == component && CleverKeysService.getInstance() == null) {
             // A terminated instrumentation process can leave the same selected component unbound.
             priorEnabledImes?.split(':')?.map { it.substringBefore(';') }?.firstOrNull {
                 it != component && it.matches(Regex("[A-Za-z0-9._/]+"))
-            }?.let { shell("ime set $it") }
+            }?.let(::switchIme)
         }
-        shell("ime set $component")
+        switchIme(component)
         scenario = ActivityScenario.launch(OpenJevTestEditorActivity::class.java)
         waitFor { var focused = false; scenario.onActivity { focused = it.primary.hasWindowFocus() }; focused }
         scenario.onActivity { it.focus(it.primary) }
@@ -78,10 +79,11 @@ class OpenJevImeInstrumentedTest {
                 if (CleverKeysService.getInstance() != null) Config.globalConfig().refresh(context.resources, null)
             }
         }
-        priorIme?.takeIf { it.matches(Regex("[A-Za-z0-9._/]+")) }?.let { shell("ime set $it") }
+        priorIme?.takeIf { it.matches(Regex("[A-Za-z0-9._/]+")) }?.let(::switchIme)
         val component = "${context.packageName}/tribixbite.cleverkeys.CleverKeysService"
         if (priorEnabledImes?.split(':')?.none { it.substringBefore(';') == component } == true) {
-            shell("ime disable $component")
+            assertTrue("IME disable must be acknowledged", shell("ime disable $component").contains("disabled"))
+            waitFor { !enabledImeComponents().contains(component) }
         }
     }
 
@@ -501,6 +503,25 @@ class OpenJevImeInstrumentedTest {
     private fun secondaryText(): String { var result = ""; scenario.onActivity { result = it.secondary.text.toString() }; return result }
     private fun shell(command: String) = instrumentation.uiAutomation.executeShellCommand(command).use { descriptor ->
         java.io.FileInputStream(descriptor.fileDescriptor).use { it.readBytes().toString(Charsets.UTF_8) }
+    }
+    private fun enabledImeComponents() = shell("settings get secure enabled_input_methods").trim()
+        .split(':').map { it.substringBefore(';') }
+
+    private fun switchIme(component: String) {
+        require(component.matches(Regex("[A-Za-z0-9._/]+")))
+        assertTrue("IME selection must be acknowledged", shell("ime set $component")
+            .contains("Input method $component selected"))
+        waitFor {
+            shell("settings get secure default_input_method").trim() == component && boundImeComponent() == component
+        }
+    }
+
+    private fun boundImeComponent(): String? {
+        // UiAutomation uses Runtime.exec, not a shell: sh -c needs one whitespace-free argument.
+        // Filter on-device and consume the entire dump so editor text never enters the test process.
+        val filtered = shell("sh -c dumpsys${'$'}{IFS}input_method|grep${'$'}{IFS}mCurMethodId=").trim()
+        val fields = filtered.lines().filter { it.trimStart().startsWith("mCurMethodId=") }
+        return fields.singleOrNull()?.trim()?.substringAfter("mCurMethodId=")
     }
     private fun waitFor(predicate: () -> Boolean) {
         val deadline = SystemClock.uptimeMillis() + 20_000
