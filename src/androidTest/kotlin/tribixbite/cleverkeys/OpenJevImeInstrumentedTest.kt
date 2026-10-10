@@ -369,7 +369,10 @@ class OpenJevImeInstrumentedTest {
             @Suppress("UNCHECKED_CAST")
             val views = field.get(bar) as List<android.widget.TextView>
             val view = views.first { it.text.toString().contains(phrase) }
-            assertTrue(view.getGlobalVisibleRect(bounds))
+            assertTrue(view.getLocalVisibleRect(bounds))
+            val location = IntArray(2)
+            view.getLocationOnScreen(location)
+            bounds.offset(location[0], location[1])
         }
         tapBounds(bounds)
     }
