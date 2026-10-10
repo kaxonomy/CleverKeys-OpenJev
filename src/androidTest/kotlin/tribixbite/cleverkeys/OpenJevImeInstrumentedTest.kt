@@ -282,6 +282,7 @@ class OpenJevImeInstrumentedTest {
         SystemClock.sleep(2_000)
         assertEquals("obsolete neural result must not edit the old suffix", "this is a good ideaa", primaryText().lowercase())
         scenario.onActivity { assertEquals("selection must remain at the manually edited position", 0, it.primary.selectionStart) }
+        recordMetrics("enabled_neural_keyboard_touch", touchDurationsMs)
     }
 
     @Test
