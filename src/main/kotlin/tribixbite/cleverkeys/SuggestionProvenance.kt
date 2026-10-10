@@ -42,6 +42,12 @@ enum class SuggestionOrigin {
     /** #42 exact-typed-word tap-to-add entry. */
     EXACT_ADD,
 
+    /** Literal typed spelling offered as the OpenJev KEEP choice. */
+    OPENJEV_KEEP,
+
+    /** A saved local phrase that requires explicit selection. */
+    LOCAL_SNIPPET,
+
     /**
      * Context-only next-word prediction: learned n-gram LM first, shipped
      * static bigram seed for the slots it cannot fill (ARC-020 cold start).
@@ -394,6 +400,8 @@ object OriginMarkerPalette {
         SuggestionOrigin.CONTRACTION -> 0xFFFFCC80.toInt()       // orange
         SuggestionOrigin.POSSESSIVE -> 0xFFFFE082.toInt()        // amber
         SuggestionOrigin.EXACT_ADD -> 0xFFB0BEC5.toInt()         // gray
+        SuggestionOrigin.OPENJEV_KEEP -> 0xFFBCAAA4.toInt()      // brown
+        SuggestionOrigin.LOCAL_SNIPPET -> 0xFF81D4FA.toInt()     // cyan
         SuggestionOrigin.NEXT_WORD -> 0xFFA5D6A7.toInt()         // green
         SuggestionOrigin.AUTOCORRECT -> 0xFFEF9A9A.toInt()       // red
         // Purple: related to autocorrect's warm red but clear of indigo (CTC) and of

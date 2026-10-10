@@ -2725,4 +2725,6 @@
     <string name="cmd_append_possessive_desc">Attach \'s to the last verified word; one backspace removes only the suffix</string>
     <string name="cmd_append_apostrophe">Append apostrophe</string>
     <string name="cmd_append_apostrophe_desc">Attach an apostrophe to the last verified word (parents\'); one backspace removes only the suffix</string>
+    <string name="provenance_origin_openjev_keep">Literal original</string>
+    <string name="provenance_origin_local_snippet">Saved phrase</string>
 </resources>

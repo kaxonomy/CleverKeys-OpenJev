@@ -22,6 +22,8 @@ internal fun SuggestionOrigin.labelRes(): Int = when (this) {
     SuggestionOrigin.CONTRACTION -> R.string.provenance_origin_contraction
     SuggestionOrigin.POSSESSIVE -> R.string.provenance_origin_possessive
     SuggestionOrigin.EXACT_ADD -> R.string.provenance_origin_exact_add
+    SuggestionOrigin.OPENJEV_KEEP -> R.string.provenance_origin_openjev_keep
+    SuggestionOrigin.LOCAL_SNIPPET -> R.string.provenance_origin_local_snippet
     SuggestionOrigin.NEXT_WORD -> R.string.provenance_origin_next_word
     SuggestionOrigin.AUTOCORRECT -> R.string.provenance_origin_autocorrect
     SuggestionOrigin.TYPO_CORRECTION -> R.string.provenance_origin_typo_correction
