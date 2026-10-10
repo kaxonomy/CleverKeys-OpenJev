@@ -56,7 +56,8 @@ class OpenJevDecisionPolicyTest {
         for ((original, candidate) in listOf("ideaa" to "idea", "canoee" to "canoe", "potatoo" to "potato", "sushii" to "sushi", "tofuu" to "tofu"))
             assertTrue(OpenJevDecisionPolicy.terminalRepeatedVowelTypo(original, candidate))
         for ((original, candidate) in listOf("lette" to "lete", "boook" to "book", "bookk" to "book", "teh" to "the",
-            "jsut" to "just", "names" to "name", "ideaaa" to "idea", "Ideaa" to "Idea", "caféé" to "café", "aai" to "ai"))
+            "jsut" to "just", "names" to "name", "ideaaa" to "idea", "Ideaa" to "Idea", "caféé" to "café", "aai" to "ai",
+            "reee" to "ree", "nooo" to "noo", "wooo" to "woo", "treee" to "tree"))
             assertFalse(OpenJevDecisionPolicy.terminalRepeatedVowelTypo(original, candidate))
     }
 
@@ -65,6 +66,12 @@ class OpenJevDecisionPolicyTest {
         val decision = OpenJevDecisionPolicy.decide(ambiguous, floatArrayOf(-10f, 10f), allowReplace = true, validatedMargin = 1.5f)
         assertEquals(OpenJevAction.SUGGEST, decision.action)
         assertTrue(decision.uncertain)
+    }
+
+    @Test fun strongModelScoresCannotAutomaticallyRemoveRepeatedVowelEmphasis() {
+        val emphasis = OpenJevTypingRequest(OpenJevRequestId(1, 1, 1, "en"), "chat ", "reee", listOf("reee", "ree"), "ree")
+        assertEquals(OpenJevAction.SUGGEST, OpenJevDecisionPolicy.decide(emphasis, floatArrayOf(-10f, 10f),
+            allowReplace = true, validatedMargin = 1.5f).action)
     }
 
 }

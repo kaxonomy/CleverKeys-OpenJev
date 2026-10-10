@@ -46,12 +46,13 @@ object OpenJevDecisionPolicy {
         else "the intended final typed word is $word"
     }
 
-    /** Narrow accidental key-repeat rescue; common internal double consonants are never removed. */
+    /** Exactly one terminal vowel repeat; longer emphasis and internal double consonants abstain. */
     fun terminalRepeatedVowelTypo(original: String, candidate: String): Boolean =
         original.length in 4..24 && candidate.length in 3..23 &&
             original.all { it in 'a'..'z' } && candidate.all { it in 'a'..'z' } &&
             original.length == candidate.length + 1 && original.dropLast(1) == candidate &&
-            original.last() in "aeiou" && original.last() == original[original.lastIndex - 1]
+            original.last() in "aeiou" && original.last() == original[original.lastIndex - 1] &&
+            original.last() != original[original.lastIndex - 2]
 
     fun simpleTypo(original: String, candidate: String): Boolean =
         original.length in 3..24 && candidate.length in 3..24 &&
