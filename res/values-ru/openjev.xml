@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Не более 256 символов. Оставьте пустым, чтобы отключить.</string>
     <string name="openjev_save_phrases">Сохранить фразы</string>
     <string name="openjev_diagnostics_values">Выполнено запусков модели: %1$d • Последнее решение: %2$d мс • Загрузка модели: %3$d мс</string>
-    <string name="openjev_autocorrect_ready_desc">Разрешить осторожные исправления после паузы в наборе. При неуверенном результате исходное слово сохраняется. Клавишей Backspace можно отменить принятое исправление.</string>
+    <string name="openjev_autocorrect_ready_desc">Разрешить исправление повторной гласной в конце слова после секундной паузы в наборе. При неуверенном результате исходное слово сохраняется. Клавишей Backspace можно отменить принятое исправление.</string>
 </resources>

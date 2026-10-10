@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">256文字以内で入力してください。空欄にすると無効になります。</string>
     <string name="openjev_save_phrases">フレーズを保存</string>
     <string name="openjev_diagnostics_values">完了した推論: %1$d 回 • 直近の判定: %2$d ms • モデル読み込み: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">入力を一時停止した後に慎重な修正を許可します。結果が不確かな場合は元の単語を保持します。Backspaceで適用された修正を元に戻せます。</string>
+    <string name="openjev_autocorrect_ready_desc">入力を1秒間停止した後、単語末尾で重複した母音の修正を許可します。結果が不確かな場合は元の単語を保持します。Backspaceで適用された修正を元に戻せます。</string>
 </resources>

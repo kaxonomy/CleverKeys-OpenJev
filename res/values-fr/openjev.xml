@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">256 caractères maximum. Laissez vide pour désactiver.</string>
     <string name="openjev_save_phrases">Enregistrer les phrases</string>
     <string name="openjev_diagnostics_values">Inférences terminées : %1$d • Dernière décision : %2$d ms • Chargement du modèle : %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Autoriser les corrections prudentes après une pause dans la saisie. Les résultats incertains conservent le mot d’origine. La touche Retour arrière permet d’annuler une correction acceptée.</string>
+    <string name="openjev_autocorrect_ready_desc">Autoriser la correction d’une voyelle répétée en fin de mot après une pause d’une seconde dans la saisie. Les résultats incertains conservent le mot d’origine. La touche Retour arrière permet d’annuler une correction acceptée.</string>
 </resources>

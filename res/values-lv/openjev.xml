@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Izmantojiet ne vairāk kā 256 rakstzīmes. Atstājiet tukšu, lai atspējotu.</string>
     <string name="openjev_save_phrases">Saglabāt frāzes</string>
     <string name="openjev_diagnostics_values">Pabeigtie modeļa aprēķini: %1$d • Pēdējais lēmums: %2$d ms • Modeļa ielāde: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Atļaut piesardzīgus labojumus pēc rakstīšanas pauzes. Neskaidru rezultātu gadījumā sākotnējais vārds paliek. Ar Backspace var atsaukt pieņemtu labojumu.</string>
+    <string name="openjev_autocorrect_ready_desc">Atļaut atkārtota patskaņa labošanu vārda beigās pēc vienas sekundes rakstīšanas pauzes. Neskaidru rezultātu gadījumā sākotnējais vārds paliek. Ar Backspace var atsaukt pieņemtu labojumu.</string>
 </resources>

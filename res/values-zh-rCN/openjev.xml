@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">最多使用 256 个字符。留空即可禁用。</string>
     <string name="openjev_save_phrases">保存短语</string>
     <string name="openjev_diagnostics_values">已完成推理：%1$d 次 • 最近一次决策：%2$d ms • 模型加载：%3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">允许在暂停输入后进行保守纠错。结果不确定时保留原词。按退格键可撤销已接受的纠错。</string>
+    <string name="openjev_autocorrect_ready_desc">允许在暂停输入1秒后，纠正词尾重复的元音。结果不确定时保留原词。按退格键可撤销已接受的纠错。</string>
 </resources>

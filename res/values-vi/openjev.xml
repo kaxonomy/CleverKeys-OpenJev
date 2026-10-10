@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Dùng tối đa 256 ký tự. Để trống để tắt.</string>
     <string name="openjev_save_phrases">Lưu cụm từ</string>
     <string name="openjev_diagnostics_values">Số lần suy luận hoàn tất: %1$d • Quyết định gần nhất: %2$d ms • Tải mô hình: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Cho phép sửa thận trọng sau khi tạm dừng gõ. Kết quả không chắc chắn sẽ giữ nguyên từ gốc. Phím Backspace có thể hoàn tác một sửa đổi đã được chấp nhận.</string>
+    <string name="openjev_autocorrect_ready_desc">Cho phép sửa nguyên âm lặp lại ở cuối từ sau khi tạm dừng gõ một giây. Kết quả không chắc chắn sẽ giữ nguyên từ gốc. Phím Backspace có thể hoàn tác một sửa đổi đã được chấp nhận.</string>
 </resources>

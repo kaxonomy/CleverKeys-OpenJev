@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Použijte nejvýše 256 znaků. Prázdné pole funkci vypne.</string>
     <string name="openjev_save_phrases">Uložit fráze</string>
     <string name="openjev_diagnostics_values">Dokončená vyhodnocení: %1$d • Poslední rozhodnutí: %2$d ms • Načtení modelu: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Povolit konzervativní opravy po přestávce v psaní. Nejisté výsledky ponechají původní slovo. Klávesou Backspace lze vrátit přijatou opravu.</string>
+    <string name="openjev_autocorrect_ready_desc">Povolit opravu opakované samohlásky na konci slova po sekundové přestávce v psaní. Nejisté výsledky ponechají původní slovo. Klávesou Backspace lze vrátit přijatou opravu.</string>
 </resources>

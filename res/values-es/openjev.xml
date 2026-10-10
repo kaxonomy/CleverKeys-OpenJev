@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Usa un máximo de 256 caracteres. Deja el campo vacío para desactivar.</string>
     <string name="openjev_save_phrases">Guardar frases</string>
     <string name="openjev_diagnostics_values">Inferencias completadas: %1$d • Última decisión: %2$d ms • Carga del modelo: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Permitir correcciones conservadoras tras una pausa al escribir. Los resultados inciertos conservan la palabra original. Retroceso puede deshacer una corrección aceptada.</string>
+    <string name="openjev_autocorrect_ready_desc">Permitir corregir una vocal repetida al final de una palabra tras una pausa de un segundo al escribir. Los resultados inciertos conservan la palabra original. Retroceso puede deshacer una corrección aceptada.</string>
 </resources>

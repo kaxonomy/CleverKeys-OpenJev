@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Höchstens 256 Zeichen. Zum Deaktivieren leer lassen.</string>
     <string name="openjev_save_phrases">Phrasen speichern</string>
     <string name="openjev_diagnostics_values">Abgeschlossene Modellberechnungen: %1$d • Letzte Entscheidung: %2$d ms • Modell laden: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Zurückhaltende Korrekturen nach einer Tippause erlauben. Unsichere Ergebnisse behalten das ursprüngliche Wort bei. Mit der Rücktaste lässt sich eine angenommene Korrektur rückgängig machen.</string>
+    <string name="openjev_autocorrect_ready_desc">Die Korrektur eines wiederholten Vokals am Wortende nach einer Tippause von einer Sekunde erlauben. Unsichere Ergebnisse behalten das ursprüngliche Wort bei. Mit der Rücktaste lässt sich eine angenommene Korrektur rückgängig machen.</string>
 </resources>

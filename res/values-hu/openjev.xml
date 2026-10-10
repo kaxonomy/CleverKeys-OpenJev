@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Legfeljebb 256 karakter. Kikapcsoláshoz hagyja üresen.</string>
     <string name="openjev_save_phrases">Kifejezések mentése</string>
     <string name="openjev_diagnostics_values">Befejezett következtetések: %1$d • Utolsó döntés: %2$d ms • Modellbetöltés: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Óvatos javítások engedélyezése gépelési szünet után. Bizonytalan eredmény esetén az eredeti szó marad. A Backspace billentyűvel visszavonható az elfogadott javítás.</string>
+    <string name="openjev_autocorrect_ready_desc">Szó végén ismétlődő magánhangzó javításának engedélyezése egy másodperces gépelési szünet után. Bizonytalan eredmény esetén az eredeti szó marad. A Backspace billentyűvel visszavonható az elfogadott javítás.</string>
 </resources>

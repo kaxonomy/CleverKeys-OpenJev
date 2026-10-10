@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Use at most 256 characters. Leave empty to disable.</string>
     <string name="openjev_save_phrases">Save phrases</string>
     <string name="openjev_diagnostics_values">Completed inferences: %1$d. Last decision: %2$d ms. Model load: %3$d ms.</string>
-    <string name="openjev_autocorrect_ready_desc">Allow conservative corrections after a pause in typing. Uncertain results keep the original word. Backspace can undo an accepted correction.</string>
+    <string name="openjev_autocorrect_ready_desc">Allow correction of a repeated vowel at the end of a word after a 1-second typing pause. Uncertain results keep the original word. Backspace can undo an accepted correction.</string>
 </resources>

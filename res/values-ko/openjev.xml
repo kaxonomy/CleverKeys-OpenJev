@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">최대 256자를 사용하세요. 비워 두면 비활성화됩니다.</string>
     <string name="openjev_save_phrases">문구 저장</string>
     <string name="openjev_diagnostics_values">완료된 추론: %1$d회 • 최근 결정: %2$d ms • 모델 로드: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">입력을 잠시 멈춘 후 보수적인 교정을 허용합니다. 결과가 불확실하면 원래 단어를 유지합니다. Backspace로 적용된 교정을 되돌릴 수 있습니다.</string>
+    <string name="openjev_autocorrect_ready_desc">입력을 1초 동안 멈춘 후 단어 끝의 반복된 모음을 교정하도록 허용합니다. 결과가 불확실하면 원래 단어를 유지합니다. Backspace로 적용된 교정을 되돌릴 수 있습니다.</string>
 </resources>

@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">Gebruik maximaal 256 tekens. Laat leeg om uit te schakelen.</string>
     <string name="openjev_save_phrases">Zinnen opslaan</string>
     <string name="openjev_diagnostics_values">Voltooide modelberekeningen: %1$d • Laatste beslissing: %2$d ms • Model laden: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Terughoudende correcties toestaan na een pauze tijdens het typen. Onzekere resultaten behouden het oorspronkelijke woord. Met Backspace kun je een geaccepteerde correctie ongedaan maken.</string>
+    <string name="openjev_autocorrect_ready_desc">Correctie van een herhaalde klinker aan het einde van een woord toestaan na een typpauze van één seconde. Onzekere resultaten behouden het oorspronkelijke woord. Met Backspace kun je een geaccepteerde correctie ongedaan maken.</string>
 </resources>

@@ -30,5 +30,5 @@
     <string name="openjev_snippet_limit">En fazla 256 karakter kullanın. Devre dışı bırakmak için boş bırakın.</string>
     <string name="openjev_save_phrases">İfadeleri kaydet</string>
     <string name="openjev_diagnostics_values">Tamamlanan çıkarımlar: %1$d • Son karar: %2$d ms • Model yükleme: %3$d ms</string>
-    <string name="openjev_autocorrect_ready_desc">Yazmaya ara verdikten sonra temkinli düzeltmelere izin ver. Belirsiz sonuçlar özgün sözcüğü korur. Backspace, kabul edilen bir düzeltmeyi geri alabilir.</string>
+    <string name="openjev_autocorrect_ready_desc">Yazmaya bir saniye ara verdikten sonra sözcük sonundaki tekrarlanan ünlünün düzeltilmesine izin ver. Belirsiz sonuçlar özgün sözcüğü korur. Backspace, kabul edilen bir düzeltmeyi geri alabilir.</string>
 </resources>
