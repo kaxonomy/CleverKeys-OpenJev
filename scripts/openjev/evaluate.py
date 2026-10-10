@@ -118,7 +118,9 @@ def metrics(cases, rows):
             "suggestion_usefulness_proxy": ratio(counts["useful_suggestions"], counts["suggestions"]),
             "keep_frequency": ratio(counts["keep"], n),
             "latency_p50_ms": percentile([r["latency_ms"] for r in rows.values()], .5),
-            "latency_p95_ms": percentile([r["latency_ms"] for r in rows.values()], .95)}
+            "latency_p95_ms": percentile([r["latency_ms"] for r in rows.values()], .95),
+            "neural_inference_latency_p50_ms": percentile([r["latency_ms"] for r in rows.values() if r["inference_executed"]], .5),
+            "neural_inference_latency_p95_ms": percentile([r["latency_ms"] for r in rows.values() if r["inference_executed"]], .95)}
 
 
 def evaluate(fixtures, observations, split):

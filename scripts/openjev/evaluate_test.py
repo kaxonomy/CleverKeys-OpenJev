@@ -22,7 +22,8 @@ class EvaluatorTest(unittest.TestCase):
 
     def test_terminal_vowel_family_rejects_observed_internal_repeat_failure(self):
         self.assertTrue(terminal_vowel_typo("ideaa", "idea"))
-        self.assertTrue(terminal_vowel_typo("treee", "tree"))
+        self.assertFalse(terminal_vowel_typo("treee", "tree"))
+        self.assertFalse(terminal_vowel_typo("reee", "ree"))
         self.assertFalse(terminal_vowel_typo("lette", "lete"))
         self.assertFalse(terminal_vowel_typo("helloo", "heloo"))
         self.assertFalse(terminal_vowel_typo("helloo", "helloO"))

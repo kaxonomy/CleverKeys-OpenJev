@@ -25,7 +25,7 @@ def simple_typo(a, b):
 
 
 def terminal_vowel_typo(original, candidate):
-    return simple_typo(original, candidate) and original[:-1] == candidate and original[-1] in "aeiou" and original[-1] == original[-2]
+    return simple_typo(original, candidate) and original[:-1] == candidate and original[-1] in "aeiou" and original[-1] == original[-2] and original[-3] != original[-1]
 
 
 def observe(generated, model_rows, split, margin, identity, replacement_family="simple"):
