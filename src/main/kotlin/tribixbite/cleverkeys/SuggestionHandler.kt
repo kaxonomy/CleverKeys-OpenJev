@@ -1327,6 +1327,7 @@ class SuggestionHandler(
         commitGuard: EditorCommitGuard? = null
     ): String? {
         if (word != null && suggestionBar?.getMetaForSuggestion(word)?.origin == SuggestionOrigin.LOCAL_SNIPPET) {
+            if (!isManualSelection) return null
             return commitLocalSnippet(word, ic, editorInfo, commitGuard)
         }
         val undo = neuralUndo
