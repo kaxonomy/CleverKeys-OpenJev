@@ -279,16 +279,19 @@ class OpenJevImeInstrumentedTest {
         val runtime = tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime.get(context)
         runtime.score("This is a good ideaa", listOf("the final typed word should remain ideaa", "the intended final typed word is idea"))
         enableNeural()
-        type("this is a good ideaa")
+        val stablePrefix = "this is a good idea ".repeat(10)
+        val expected = stablePrefix + "this is a good ideaa"
+        type(expected)
+        assertEquals("long continuous typing must retain every character", expected, primaryText().lowercase())
         // Move before the delayed word decision starts, then edit through actual IME touches.
         scenario.onActivity { it.primary.setSelection(0) }
         SystemClock.sleep(100)
         tap("x")
-        waitFor { primaryText().lowercase() == "xthis is a good ideaa" }
+        waitFor { primaryText().lowercase() == "x" + expected }
         tap(context.getString(R.string.key_descr_backspace))
-        waitFor { primaryText().lowercase() == "this is a good ideaa" }
+        waitFor { primaryText().lowercase() == expected }
         SystemClock.sleep(2_000)
-        assertEquals("obsolete neural result must not edit the old suffix", "this is a good ideaa", primaryText().lowercase())
+        assertEquals("obsolete neural result must not edit the old suffix", expected, primaryText().lowercase())
         scenario.onActivity { assertEquals("selection must remain at the manually edited position", 0, it.primary.selectionStart) }
         recordMetrics("enabled_neural_keyboard_touch", touchDurationsMs)
     }
