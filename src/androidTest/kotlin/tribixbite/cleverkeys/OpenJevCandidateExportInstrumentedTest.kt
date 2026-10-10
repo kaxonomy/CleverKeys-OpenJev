@@ -35,7 +35,11 @@ class OpenJevCandidateExportInstrumentedTest {
                     val predictions = predictor.predictWordsWithContext(original,
                         prefix.trim().split(Regex("\\s+")).filter(String::isNotEmpty).takeLast(4))
                     val correction = predictor.autoCorrect(original)
-                    fixture.put("generated_candidates", JSONArray((listOf(original, correction) + predictions.words).distinct().take(6)))
+                    val slate = (listOf(original, correction) + predictions.words).distinct().take(6)
+                    fixture.put("generated_candidates", JSONArray(slate))
+                    fixture.put("baseline_ranking", JSONArray((predictions.words.filter { it in slate } + slate).distinct()))
+                    fixture.put("original_known", predictor.isInDictionary(original))
+                    fixture.put("original_user", predictor.isInUserVocabulary(original))
                     fixture.put("baseline_candidate", correction)
                     fixture.put("baseline_latency_ms", (SystemClock.elapsedRealtimeNanos() - start) / 1e6)
                     writer.appendLine(fixture.toString())
