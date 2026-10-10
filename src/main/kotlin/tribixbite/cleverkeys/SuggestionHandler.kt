@@ -14,6 +14,11 @@ import tribixbite.cleverkeys.ml.SwipeMLData
 import tribixbite.cleverkeys.autocorrect.AutocorrectContextGuard
 import tribixbite.cleverkeys.swipe.SwipeContextRescorer
 import tribixbite.cleverkeys.swipe.ctc.CtcLanguageSupport
+import tribixbite.cleverkeys.openjev.*
+import tribixbite.cleverkeys.openjev.context.OpenJevContextPolicy
+import tribixbite.cleverkeys.openjev.context.OpenJevContextClassifier
+import tribixbite.cleverkeys.openjev.context.OpenJevContextCache
+import tribixbite.cleverkeys.openjev.runtime.OpenJevRuntime
 
 /**
  * Handles suggestion selection, prediction display, and text completion logic.
@@ -492,6 +497,32 @@ class SuggestionHandler(
     // Post to main thread explicitly — View.post() silently drops runnables for detached views
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    // Lazily created only for an enabled, permitted prose field. No model I/O on construction.
+    private var openJev: OpenJevCoordinator? = null
+    private var openJevContextCache: OpenJevContextCache? = null
+    private var openJevRevision = 0L
+    private data class NeuralUndo(val ic: InputConnection, val info: EditorInfo, val id: OpenJevRequestId,
+        val original: String, val corrected: String, val editor: EditorReadback)
+    private class NeuralOperation(val ic: InputConnection, val info: EditorInfo, val id: OpenJevRequestId,
+        var expected: EditorReadback, val callbacks: OwnedSelectionLedger = OwnedSelectionLedger(3))
+    private var neuralUndo: NeuralUndo? = null
+    private var neuralOperation: NeuralOperation? = null
+    private var currentInputProvider: (() -> Pair<InputConnection?, EditorInfo?>)? = null
+
+    fun setCurrentInputProvider(provider: () -> Pair<InputConnection?, EditorInfo?>) {
+        currentInputProvider = provider
+    }
+
+    fun openJevDiagnostics(): OpenJevDiagnostics = openJev?.diagnostics()
+        ?: OpenJevDiagnostics(0, 0, 0, 0, 0)
+
+    private fun invalidateOpenJev() {
+        openJevRevision++
+        neuralUndo = null
+        neuralOperation = null
+        openJev?.invalidate()
+    }
+
     // WP9 R-1 step 6 (D5): single ML-capture implementation for the swipe auto-insert path —
     // the same collector SuggestionBridge uses for the tap path (privacy-gated internally).
     private val mlDataCollector = MLDataCollector(context)
@@ -571,6 +602,9 @@ class SuggestionHandler(
      * @param newConfig Updated configuration
      */
     fun setConfig(newConfig: Config) {
+        invalidateOpenJev()
+        openJevContextCache?.clear()
+        openJevContextCache = null
         config = newConfig
     }
 
@@ -582,6 +616,12 @@ class SuggestionHandler(
      * callbacks. Called during IME teardown so no prediction thread outlives the service.
      */
     fun shutdown() {
+        invalidateOpenJev()
+        openJev?.close()
+        openJev = null
+        openJevContextCache?.clear()
+        openJevContextCache = null
+        currentInputProvider = null
         predictionTasks.shutdown()
         mainHandler.removeCallbacksAndMessages(null)
     }
@@ -1271,6 +1311,9 @@ class SuggestionHandler(
         isManualSelection: Boolean = false,
         commitGuard: EditorCommitGuard? = null
     ): String? {
+        val undo = neuralUndo
+        if (undo != null && word == undo.original) { undoNeuralCorrection(); return null }
+        invalidateOpenJev()
         // Null/empty check
         if (word.isNullOrBlank()) return null
 
@@ -1853,6 +1896,9 @@ class SuggestionHandler(
     private var lastLearningCommit: LearningCommit? = null
 
     fun onEditorSessionChanged() {
+        invalidateOpenJev()
+        openJevContextCache?.clear()
+        openJevContextCache = null
         wordEditSession++; wordEditReceipt = null; suffixOperation = null; lastLearningCommit = null
     }
 
@@ -1995,6 +2041,15 @@ class SuggestionHandler(
      * receives every callback independently of this gate.
      */
     fun onEditorSelectionChanged(start: Int, end: Int, onUnownedSelection: () -> Unit) {
+        val operation = neuralOperation
+        val now = android.os.SystemClock.uptimeMillis()
+        if (operation != null && operation.callbacks.contains(start, end, now) &&
+            ownsNeuralSession(operation.ic, operation.info, operation.id) &&
+            runCatching { operation.expected.matches(operation.ic) }.getOrDefault(false)) {
+            operation.callbacks.consume(start, end, now)
+            return
+        }
+        invalidateOpenJev()
         if (!validateWordReceiptSelection(start, end)) onUnownedSelection()
     }
 
@@ -2028,6 +2083,7 @@ class SuggestionHandler(
         return finishSuffixEdit(operation, edit)
     }
     override fun undoSuffix(): Boolean {
+        if (neuralUndo != null) return undoNeuralCorrection()
         val receipt = wordEditReceipt?.takeIf { it.edit.suffix.isNotEmpty() } ?: return false
         // Once a suffix undo was requested, rejection must not fall through to a
         // normal Backspace or the whole-word swipe undo in this same key dispatch.
@@ -2890,12 +2946,14 @@ class SuggestionHandler(
      * the same way sentence-final punctuation does (audit §4.6 — no bigram across it).
      */
     override fun onExplicitEdit() {
+        invalidateOpenJev()
         clearRejectedCommitState()
         predictionCoordinator.getWordPredictor()?.clearContext()
         suggestionBar?.clearSuggestions()
     }
 
     override fun onEditorWordBoundary(ic: InputConnection?) {
+        invalidateOpenJev()
         flushPendingTypedWord(ic)
         predictionCoordinator.getWordPredictor()?.onSentenceBoundary()
         // Swipe corrections resolved here are recorded; the offer is not shown now (the editor is
@@ -2934,6 +2992,7 @@ class SuggestionHandler(
      * @param editorInfo Editor info for app detection
      */
     fun handleRegularTyping(text: String, ic: InputConnection?, editorInfo: EditorInfo?) {
+        invalidateOpenJev()
         wordEditReceipt = null
         // Any typing dismisses an undoable "Added …" confirmation — BEFORE the prediction update
         // below, which a showing bar message would otherwise swallow.
@@ -3263,6 +3322,7 @@ class SuggestionHandler(
      * Updates predictions as user deletes characters.
      */
     fun handleBackspace() {
+        invalidateOpenJev()
         wordEditReceipt = null
         suggestionBar?.dismissUndoableMessage()
 
@@ -3314,6 +3374,7 @@ class SuggestionHandler(
      * callback that follows the key re-syncs the tracker from their real text.
      */
     fun handleNonTextInput(editorInfo: EditorInfo?) {
+        invalidateOpenJev()
         if (!isTerminalEditor(editorInfo)) return
         endTerminalTypedWord()
     }
@@ -3397,6 +3458,135 @@ class SuggestionHandler(
      * term below is a no-op for the typing path (typed partials are letters-only) and restores the
      * legacy IC cursor-sync's dual-search so contraction bases hidden behind an apostrophe still hit.
      */
+    private fun ownsNeuralSession(ic: InputConnection, info: EditorInfo, id: OpenJevRequestId): Boolean =
+        id.session == wordEditSession && id.revision == openJevRevision && id.configuration == config.snapshot.version &&
+            id.language == config.primary_language && !isPasswordMode && fieldAllowsPersonalizedLearning &&
+            OpenJevContextPolicy.permits(info, config.primary_language, config) && keyeventhandler.isCurrentEditor(ic, info)
+
+    private fun replaceNeuralWord(ic: InputConnection, info: EditorInfo, id: OpenJevRequestId,
+        expected: EditorReadback, original: String, replacement: String): EditorReadback? {
+        val operation = NeuralOperation(ic, info, id, expected).also { neuralOperation = it }
+        return VerifiedNeuralEdit.replace(ic, expected, original, replacement,
+            ownsSession = { neuralOperation === operation && ownsNeuralSession(ic, info, id) }, prepare = { state ->
+                if (neuralOperation !== operation || !ownsNeuralSession(ic, info, id)) false
+                else operation.callbacks.stamp(state.start, state.end, android.os.SystemClock.uptimeMillis()).also { stamped ->
+                    if (stamped) operation.expected = state
+                }
+            })
+    }
+
+    private fun applyNeuralCorrection(ic: InputConnection, info: EditorInfo, id: OpenJevRequestId,
+        expected: EditorReadback, original: String, replacement: String): Boolean {
+        if (!config.openjev_neural_autocorrect || !OpenJevDecisionPolicy.automaticReplacementValidated ||
+            !OpenJevDecisionPolicy.simpleTypo(original, replacement) || !ownsNeuralSession(ic, info, id)) return false
+        val accepted = replaceNeuralWord(ic, info, id, expected, original, replacement) ?: run {
+            neuralOperation = null
+            return false
+        }
+        openJev?.invalidate()
+        neuralUndo = NeuralUndo(ic, info, id, original, replacement, accepted)
+        contextTracker.clearCurrentWord()
+        contextTracker.appendToCurrentWord(replacement)
+        pendingTypedWord = replacement // Learned only when ordinary completion later accepts the word.
+        contextTracker.clearAutocorrectTracking()
+        contextTracker.clearLastAutoInsertedWord()
+        suggestionBar?.setSuggestionsWithScores(listOf(original, replacement), listOf(0, 0),
+            listOf(SuggestionMeta(SuggestionOrigin.OPENJEV_KEEP), SuggestionMeta(SuggestionOrigin.AUTOCORRECT)))
+        return true
+    }
+
+    private fun undoNeuralCorrection(): Boolean {
+        val undo = neuralUndo ?: return false
+        // Once requested, failure consumes Backspace: do not follow an uncertain write with deletion.
+        neuralUndo = null
+        val restored = replaceNeuralWord(undo.ic, undo.info, undo.id, undo.editor, undo.corrected, undo.original)
+        if (restored != null) {
+            contextTracker.clearCurrentWord()
+            contextTracker.appendToCurrentWord(undo.original)
+            pendingTypedWord = undo.original
+        } else neuralOperation = null
+        openJev?.invalidate()
+        contextTracker.clearAutocorrectTracking()
+        suggestionBar?.clearSuggestions()
+        return true
+    }
+
+    private fun maybeRerankWithOpenJev(partial: String, words: List<String>, scores: List<Int>,
+        metas: List<SuggestionMeta>, bar: SuggestionBar) {
+        val (ic, info) = currentInputProvider?.invoke() ?: return
+        // Gate metadata before any editor content access, including readback capture.
+        if (ic == null || info == null || !OpenJevContextPolicy.permits(info, config.primary_language, config) ||
+            isPasswordMode || !fieldAllowsPersonalizedLearning || specialPromptActive ||
+            !keyeventhandler.isCurrentEditor(ic, info)) return
+        val candidates = OpenJevDecisionPolicy.candidates(partial, words)
+        if (candidates.size < 2) return
+        val dictionaries = predictionCoordinator.getDictionaryManager()
+        if (dictionaries?.isUserWordIgnoringCase(partial) == true ||
+            predictionCoordinator.getWordPredictor()?.isInDictionary(partial, fieldAllowsPersonalizedLearning) == true) return
+        val receipt = EditorReadback.capture(ic)?.takeIf { it.collapsed } ?: return
+        val before = runCatching { ic.getTextBeforeCursor(OpenJevContextPolicy.MAX_CONTEXT_CHARS, 0)?.toString() }.getOrNull() ?: return
+        if (before.length > OpenJevContextPolicy.MAX_CONTEXT_CHARS || !before.endsWith(partial) || AutocorrectContextGuard.isNonProseContext(before) ||
+            before.any { it.isLetter() && it !in 'a'..'z' && it !in 'A'..'Z' } ||
+            receipt.after.firstOrNull()?.let { it.isLetterOrDigit() || it in "'’_-" } == true) return
+        // The current token must be the whole ASCII word, not a suffix of a name or identifier.
+        val token = before.substringAfterLast(' ').substringAfterLast('\n').substringAfterLast('\t')
+        if (token != partial) return
+        val id = OpenJevRequestId(wordEditSession, openJevRevision, config.snapshot.version, config.primary_language)
+        val automatic = config.openjev_neural_autocorrect && OpenJevDecisionPolicy.automaticReplacementValidated &&
+            config.autocorrect_enabled && before.none { it in "{}[]`=\\" }
+        val request = OpenJevTypingRequest(id, before.dropLast(partial.length), partial, candidates)
+        val predictor = predictionCoordinator.getWordPredictor()
+        val generation = bar.contentGeneration()
+        val coordinator = openJev ?: OpenJevCoordinator({ OpenJevRuntime.get(context.applicationContext) }).also { openJev = it }
+        val cache = openJevContextCache ?: OpenJevContextCache().also { openJevContextCache = it }
+        val metadata = OpenJevContextPolicy.metadata(info)
+        val contextSuggestions = config.openjev_context_suggestions
+        coordinator.submit(request, classify = { scorer ->
+            if (contextSuggestions && metadata.context == WritingContext.UNKNOWN &&
+                cache.get(id, request.precedingText) == null) {
+                val epoch = cache.epoch()
+                val assessment = OpenJevContextClassifier.classify(request.precedingText, scorer)
+                if (coordinator.isCurrent(id)) cache.put(id, request.precedingText, assessment, epoch)
+            }
+        }, allowReplace = automatic, delayMillis = if (automatic) 1000 else 250, prepareRequest = { input ->
+            // The existing autocorrect sweep stays on the settled background worker.
+            val baseline = if (automatic) predictor?.autoCorrect(input.original)
+                ?.takeIf { it != input.original && OpenJevDecisionPolicy.simpleTypo(input.original, it) } else null
+            if (baseline != null) input.copy(candidates = listOf(input.original, baseline), baselineCandidate = baseline) else input
+        }) { decision ->
+            mainHandler.post {
+                val current = currentInputProvider?.invoke()
+                val owns = current?.first === ic && current.second === info &&
+                    id.session == wordEditSession && id.revision == openJevRevision &&
+                    id.configuration == config.snapshot.version && id.language == config.primary_language &&
+                    OpenJevContextPolicy.permits(info, config.primary_language, config) &&
+                    !isPasswordMode && fieldAllowsPersonalizedLearning && !specialPromptActive &&
+                    suggestionBar === bar && bar.contentGeneration() == generation &&
+                    contextTracker.getCurrentWord() == partial && keyeventhandler.isCurrentEditor(ic, info)
+                val assessment = cache.get(id, request.precedingText) ?: metadata
+                if (!owns || assessment.context == WritingContext.CODE_OR_TERMINAL || !runCatching { receipt.matches(ic) &&
+                    ic.getTextBeforeCursor(OpenJevContextPolicy.MAX_CONTEXT_CHARS, 0)?.toString() == before }.getOrDefault(false)) {
+                    coordinator.resultDiscarded()
+                    return@post
+                }
+                if (decision.action == OpenJevAction.REPLACE) {
+                    if (applyNeuralCorrection(ic, info, id, receipt, partial, decision.candidate)) coordinator.resultAccepted()
+                    else coordinator.resultDiscarded()
+                    return@post
+                }
+                // KEEP is a real selectable candidate, even with ExactAdd disabled.
+                val selected = decision.candidate
+                val ordered = (listOf(selected, partial) + words).distinct()
+                val index = words.withIndex().associate { it.value to it.index }
+                val orderedScores = ordered.map { word -> index[word]?.let { scores.getOrElse(it) { 0 } } ?: 0 }
+                val orderedMetas = ordered.map { word -> index[word]?.let { metas.getOrNull(it) }
+                    ?: SuggestionMeta(SuggestionOrigin.OPENJEV_KEEP) }
+                bar.setSuggestionsWithScores(ordered, orderedScores, orderedMetas)
+                coordinator.resultAccepted()
+            }
+        }
+    }
+
     private fun updatePredictionsForCurrentWord() {
         if (contextTracker.getCurrentWordLength() > 0) {
             val partial = contextTracker.getCurrentWord()
@@ -3593,6 +3783,7 @@ class SuggestionHandler(
                             bar.setShowOriginMarkers(config.suggestion_provenance_markers)
                             // v1.2.0: Use merged scores that include contraction scores
                             bar.setSuggestionsWithScores(finalWords, finalScores, finalMetas)
+                            maybeRerankWithOpenJev(partial, finalWords, finalScores, finalMetas, bar)
                         }
                     }
                 }
@@ -3608,6 +3799,7 @@ class SuggestionHandler(
      * @param editorInfo Editor info for app detection
      */
     fun handleDeleteLastWord(ic: InputConnection?, editorInfo: EditorInfo?) {
+        invalidateOpenJev()
         suggestionBar?.dismissUndoableMessage()
         if (ic == null) return
 

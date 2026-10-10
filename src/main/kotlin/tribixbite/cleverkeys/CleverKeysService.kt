@@ -446,6 +446,7 @@ class CleverKeysService : InputMethodService(),
         _predictionCoordinator = _graph.predictionCoordinator
         _inputCoordinator = _graph.inputCoordinator
         _suggestionHandler = _graph.suggestionHandler
+        _suggestionHandler.setCurrentInputProvider { currentInputConnection to currentInputEditorInfo }
         // Learning-system audit 2026-09-26 (W2/W5): the #110 backspace undos and Enter / the IME
         // action are only visible to KeyEventHandler; route them to the learn-funnel owner.
         _keyeventhandler.learningHooks = _suggestionHandler
@@ -674,6 +675,19 @@ class CleverKeysService : InputMethodService(),
     private fun refresh_special_layout(info: EditorInfo): KeyboardData? {
         return _layoutManager?.refresh_special_layout(info)
     }
+
+    override fun onStartInput(info: EditorInfo, restarting: Boolean) {
+        if (::_suggestionHandler.isInitialized) _suggestionHandler.onEditorSessionChanged()
+        super.onStartInput(info, restarting)
+    }
+
+    override fun onFinishInput() {
+        if (::_suggestionHandler.isInitialized) _suggestionHandler.onEditorSessionChanged()
+        super.onFinishInput()
+    }
+
+    fun getOpenJevDiagnostics(): tribixbite.cleverkeys.openjev.OpenJevDiagnostics =
+        _suggestionHandler.openJevDiagnostics()
 
     override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
         _keyboardView.cancelContinuousSwipe()
