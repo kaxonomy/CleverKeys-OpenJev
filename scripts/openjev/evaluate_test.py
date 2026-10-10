@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tests the evaluator's accounting and rejection paths; observations here are test doubles."""
 import unittest
-from evaluate_binary import observe, simple_typo
+from evaluate_binary import observe, simple_typo, terminal_vowel_typo
 from evaluate import evaluate
 
 
@@ -19,6 +19,25 @@ class EvaluatorTest(unittest.TestCase):
             self.assertTrue(simple_typo(original, candidate))
         for original, candidate in (("jsut", "jutting"), ("O’Neil", "oneil"), ("Zevran", "zebra"), ("url_id", "url")):
             self.assertFalse(simple_typo(original, candidate))
+
+    def test_terminal_vowel_family_rejects_observed_internal_repeat_failure(self):
+        self.assertTrue(terminal_vowel_typo("ideaa", "idea"))
+        self.assertTrue(terminal_vowel_typo("treee", "tree"))
+        self.assertFalse(terminal_vowel_typo("lette", "lete"))
+        self.assertFalse(terminal_vowel_typo("helloo", "heloo"))
+        self.assertFalse(terminal_vowel_typo("helloo", "helloO"))
+
+    def test_replacement_requires_candidate_known_in_actual_export(self):
+        fixture = dict(id="a", split="test", original="ideaa", accepted=["idea"], must_preserve=False,
+                       baseline_candidate="idea", generated_candidates=["ideaa", "idea"],
+                       baseline_ranking=["idea", "ideaa"], baseline_latency_ms=1., context="GENERAL_WRITING",
+                       input_kind="text", language="en", original_known=False, original_user=False, baseline_known=False)
+        model_test_double = dict(id="a", split="test", original="ideaa", candidate="idea", logits=[0., 5.], latency_ms=1.)
+        rows = observe([fixture], [model_test_double], "test", 1.5, "test-double", "terminal-vowel")
+        self.assertEqual("SUGGEST", rows[1]["action"])
+        fixture["baseline_known"] = True
+        rows = observe([fixture], [model_test_double], "test", 1.5, "test-double", "terminal-vowel")
+        self.assertEqual("REPLACE", rows[1]["action"])
 
     def test_binary_join_requires_real_model_observation(self):
         generated = [dict(self.fixtures[0], baseline_candidate="the", generated_candidates=["teh", "the"],
