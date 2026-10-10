@@ -26,7 +26,7 @@ for name in ['model.onnx','model_fp16.onnx','model_int8.onnx']:
  for x,(ids,count) in zip(fixtures,inputs):
   started=time.perf_counter();scores=session.run(None,{'input_ids':ids,'attention_mask':np.ones_like(ids)})[0][0,:count];elapsed=(time.perf_counter()-started)*1000
   rows.append(dict(id=x['id'],split=x['split'],logits=scores.tolist(),top1=x['candidates'][int(scores.argmax())],latency_ms=elapsed,correct=x['candidates'][int(scores.argmax())] in x['accepted']))
- results[name]=dict(sha256=digest(a.cache/name),size=(a.cache/name).stat().st_size,load_ms=load,rows=rows)
+ results[name]=dict(fixture_sha256=digest(a.fixtures),sha256=digest(a.cache/name),size=(a.cache/name).stat().st_size,load_ms=load,rows=rows)
  del session;gc.collect()
 reference=results['model.onnx']['rows']
 for name,model in results.items():
