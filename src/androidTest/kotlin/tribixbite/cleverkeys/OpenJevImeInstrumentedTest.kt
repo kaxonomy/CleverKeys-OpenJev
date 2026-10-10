@@ -428,7 +428,7 @@ class OpenJevImeInstrumentedTest {
         if (awaitDictionary) waitForPredictorReady()
     }
 
-    private fun livePredictor(): WordPredictor? {
+    private fun livePredictor(): Predictor? {
         val service = CleverKeysService.getInstance() ?: return null
         val handlerField = CleverKeysService::class.java.getDeclaredField("_suggestionHandler").apply { isAccessible = true }
         val coordinatorField = SuggestionHandler::class.java.getDeclaredField("predictionCoordinator").apply { isAccessible = true }
@@ -437,7 +437,8 @@ class OpenJevImeInstrumentedTest {
 
     private fun waitForPredictorReady() = waitFor {
         var ready = false
-        instrumentation.runOnMainSync { ready = livePredictor()?.isReady() == true }
+        // isReady intentionally stays off the production Predictor interface.
+        instrumentation.runOnMainSync { ready = (livePredictor() as? WordPredictor)?.isReady() == true }
         ready
     }
 
