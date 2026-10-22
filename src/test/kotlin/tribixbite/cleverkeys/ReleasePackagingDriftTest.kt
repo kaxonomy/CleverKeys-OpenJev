@@ -313,6 +313,21 @@ class ReleasePackagingDriftTest {
             .that(release).contains("'proguard-rules.pro'")
     }
 
+    @Test
+    fun onnxRuntimeLicensesMatchThePackagedRuntime() {
+        val version = Regex("""onnxruntime-android:([^"\s]+)""").find(buildGradle)!!.groupValues[1]
+        val directory = File("src/main/assets/licenses/onnxruntime")
+        val provenance = org.json.JSONObject(File(directory, "PROVENANCE.json").readText())
+        assertThat(provenance.getString("version")).isEqualTo(version)
+        for (name in listOf("LICENSE", "ThirdPartyNotices.txt")) {
+            val bytes = File(directory, name).readBytes()
+            val digest = java.security.MessageDigest.getInstance("SHA-256").digest(bytes)
+                .joinToString("") { "%02x".format(it) }
+            assertThat(digest).isEqualTo(provenance.getJSONObject("files").getJSONObject(name).getString("sha256"))
+        }
+        assertThat(File(directory, "ThirdPartyNotices.txt").readText()).contains("cpp_client_telemetry")
+    }
+
     /** The `release { … }` buildType body (up to the sibling `debug {`). */
     private fun releaseBuildTypeBlock(): String {
         val start = Regex("""(?m)^\s{4}release\s*\{""").find(buildGradle)

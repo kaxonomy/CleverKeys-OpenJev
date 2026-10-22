@@ -270,3 +270,14 @@ files generated with each model:
   scripts/data/tatoeba-contributors-fr.txt
   scripts/data/tatoeba-contributors-it.txt
   scripts/data/tatoeba-contributors-sv.txt
+
+================================================================================
+ONNX Runtime 1.31.0 and bundled third-party components
+================================================================================
+Copyright (c) Microsoft Corporation. All rights reserved.
+ONNX Runtime is licensed under the MIT License. Its complete license and
+upstream third-party notices (including Apache-2.0 cpp_client_telemetry) are
+packaged in src/main/assets/licenses/onnxruntime/ with pinned source provenance.
+These notices remain packaged even when duplicate META-INF license resources
+are excluded. Telemetry initialization and network permissions are removed;
+Android and host inference explicitly opt out of telemetry.

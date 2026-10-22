@@ -34,6 +34,10 @@ import java.util.Locale
  */
 class DictionaryManagerTest {
 
+    private val originalLocale = Locale.getDefault()
+    private val originalDisplayLocale = Locale.getDefault(Locale.Category.DISPLAY)
+    private val originalFormatLocale = Locale.getDefault(Locale.Category.FORMAT)
+
     private lateinit var mockContext: Context
     private lateinit var mockPrefs: SharedPreferences
     private lateinit var mockEditor: SharedPreferences.Editor
@@ -56,9 +60,9 @@ class DictionaryManagerTest {
         // Mock DirectBootAwarePreferences @JvmStatic method
         mockkStatic(DirectBootAwarePreferences::get_shared_preferences)
 
-        // Mock Locale.getDefault()
-        mockkStatic(Locale::class)
-        every { Locale.getDefault() } returns Locale.ENGLISH
+        // Static-mocking Locale re-enters MockK while the JVM loads reflection classes.
+        // Use the real process default and restore it after each test instead.
+        Locale.setDefault(Locale.ENGLISH)
 
         // Create mock SharedPreferences + Editor (DirectBootAware prefs).
         // The store is READ-YOUR-WRITES: getString serves whatever putString last saved
@@ -94,10 +98,12 @@ class DictionaryManagerTest {
 
     @After
     fun teardown() {
+        Locale.setDefault(originalLocale)
+        Locale.setDefault(Locale.Category.DISPLAY, originalDisplayLocale)
+        Locale.setDefault(Locale.Category.FORMAT, originalFormatLocale)
         savedStrings.clear()
         unmockkStatic(DirectBootAwarePreferences::get_shared_preferences)
         unmockkStatic(Log::class)
-        unmockkStatic(Locale::class)
     }
 
     /**

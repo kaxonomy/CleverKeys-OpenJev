@@ -48,6 +48,24 @@ open class Paint {
 
     fun getTypeface(): Typeface? = _typeface
 
+    // Framework classes expose these nested types to Kotlin/MockK reflection. Loading
+    // them from android.jar while shadowing only Paint makes JVM InnerClasses disagree.
+    open class FontMetrics {
+        @JvmField var ascent = 0f
+        @JvmField var bottom = 0f
+        @JvmField var descent = 0f
+        @JvmField var leading = 0f
+        @JvmField var top = 0f
+    }
+
+    open class FontMetricsInt {
+        @JvmField var ascent = 0
+        @JvmField var bottom = 0
+        @JvmField var descent = 0
+        @JvmField var leading = 0
+        @JvmField var top = 0
+    }
+
     enum class Style { FILL, STROKE, FILL_AND_STROKE }
 
     enum class Align { LEFT, CENTER, RIGHT }
