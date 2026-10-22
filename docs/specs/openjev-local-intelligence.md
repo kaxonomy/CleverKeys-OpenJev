@@ -88,7 +88,7 @@ No pull request, force-push, tag or release is authorized.
 
 ## Reproduce on Debian
 
-Use JDK 17 and the existing Android SDK. The Termux AAPT2 override does not run on Debian.
+Use JDK 17, Android SDK platform 37.2 and build-tools 37.0.0. The Termux AAPT2 override does not run on Debian.
 The tested environment uses the following paths and memory limits. Adapt the SDK and JDK paths to your host.
 
 ```sh
@@ -96,6 +96,7 @@ mkdir -p "$HOME/.cache/cleverkeys-openjev/logs" "$HOME/.cache/cleverkeys-openjev
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 export ANDROID_HOME="$HOME/.android-sdk"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export ORT_DISABLE_TELEMETRY=1
 export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$HOME/.cache/cleverkeys-openjev/test-scratch"
 export GRADLE_GUARD_XMX=2048m GRADLE_GUARD_METASPACE=512m
 export GRADLE_GUARD_LOG="$HOME/.cache/cleverkeys-openjev/logs/gradle-last.log"

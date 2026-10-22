@@ -9,6 +9,7 @@ No Android network permission or runtime download is needed.
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import time
 import resource
@@ -16,6 +17,9 @@ import platform
 import shutil
 import urllib.request
 import zipfile
+
+# Disable native telemetry before importing or initializing ONNX Runtime.
+os.environ["ORT_DISABLE_TELEMETRY"] = "1"
 
 CHECKPOINT = "heman10x/rlcd-modernbert-151m"
 REVISION = "8af2496eb63c7fa66d7d234e1f62629380030eb4"
@@ -56,6 +60,7 @@ def prompt(text, descriptions):
 def infer(path, tokenizer, text, descriptions, runs=8):
     import numpy as np
     import onnxruntime as ort
+    ort.disable_telemetry_events()
     ids = np.asarray([tokenizer.encode(prompt(text, descriptions)).ids], dtype=np.int64)
     if ids.shape[1] > 512:
         raise ValueError("Token budget exceeded")

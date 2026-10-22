@@ -71,10 +71,9 @@ python3 web_demo/tools/build_ctc_vocab.py \
 
 ## Vendored runtime
 
-`../vendor/ort/` holds onnxruntime-web **1.18.0** (`ort.wasm.min.js` +
-`ort-wasm-simd.wasm`, MIT). The demo previously pulled these from jsdelivr; they
-are vendored so the demo has no CDN dependency and runs from a bare static
-server. Only the SIMD, single-threaded WASM binary is vendored — the threaded
-build additionally needs cross-origin isolation headers that a plain static host
-does not send, and the non-SIMD fallback is dead weight for any browser from the
-last five years.
+`../vendor/ort/` holds ONNX Runtime Web **1.30.0** (MIT), copied from the
+integrity-locked npm package in `web_demo/tests/bun.lock`. The JavaScript loader,
+SIMD WASM module and binary must move together. The threaded-capable module runs
+with `numThreads = 1`, preserving compatibility with static hosts that do not send
+cross-origin isolation headers. Artifact SHA-256 hashes and provenance are in
+[`../vendor/ort/PROVENANCE.md`](../vendor/ort/PROVENANCE.md).

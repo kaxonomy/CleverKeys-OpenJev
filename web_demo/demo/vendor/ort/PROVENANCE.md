@@ -1,0 +1,6 @@
+ONNX Runtime Web 1.30.0 (MIT), from integrity-verified npm package locked in web_demo/tests/bun.lock.
+Selected WASM runtime uses one thread, with matching JavaScript/WASM module assets.
+
+ort.wasm.min.js SHA256 faece07e84faa9001f5104bbe4e5c70861d06cb2376a0dea1fa0ad33a67adc81
+ort-wasm-simd-threaded.mjs SHA256 e13f7f94fc51b4ca72b12faeb1ee95f4ace6dfbc8939bc718aabdc0a27c4299b
+ort-wasm-simd-threaded.wasm SHA256 3398c10d07d229bd91b364548e130e0e51a8e5704b88c7c083ebbeb78842dee2

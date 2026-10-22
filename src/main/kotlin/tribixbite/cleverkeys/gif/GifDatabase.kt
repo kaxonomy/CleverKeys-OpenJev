@@ -370,7 +370,7 @@ class GifDatabase private constructor(private val appContext: Context) {
                 // Register pack in packs lookup table to get an integer ID for gifs FK
                 db.execSQL("""
                     INSERT OR IGNORE INTO packs (name, gif_count) VALUES (?, ?)
-                """, arrayOf(packId, gifCount))
+                """, arrayOf<Any>(packId, gifCount))
                 val intPackIdCursor = db.rawQuery(
                     "SELECT pack_id FROM packs WHERE name = ?", arrayOf(packId)
                 )
@@ -427,7 +427,7 @@ class GifDatabase private constructor(private val appContext: Context) {
                 db.execSQL("""
                     INSERT OR IGNORE INTO gif_pack_membership (gif_id, pack_id, has_full_gif)
                     SELECT gif_id, ?, ? FROM pack_db.gifs
-                """, arrayOf(packId, hasFullInt))
+                """, arrayOf<Any>(packId, hasFullInt))
 
                 // Rebuild FTS4 index to include new rows
                 db.execSQL("INSERT INTO gifs_fts(gifs_fts) VALUES('rebuild')")
@@ -437,7 +437,7 @@ class GifDatabase private constructor(private val appContext: Context) {
                 db.execSQL("""
                     INSERT OR REPLACE INTO installed_packs (pack_id, name, gif_count, installed_at, size_bytes)
                     VALUES (?, ?, ?, ?, ?)
-                """, arrayOf(packId, packName, gifCount, now, sizeBytes))
+                """, arrayOf<Any>(packId, packName, gifCount, now, sizeBytes))
 
                 // E-9: `imported` was captured via SELECT changes() right after the gifs
                 // insert above — counting pack_db.gifs here overcounted OR IGNOREd rows.
@@ -734,7 +734,7 @@ class GifDatabaseHelper(context: Context) : SQLiteOpenHelper(
             if (category != GifCategory.RECENTLY_USED) {
                 db.execSQL(
                     "INSERT INTO categories (category_id, name, icon, sort_order) VALUES (?, ?, ?, ?)",
-                    arrayOf(category.id, category.displayName, category.icon, category.ordinal)
+                    arrayOf<Any>(category.id, category.displayName, category.icon, category.ordinal)
                 )
             }
         }

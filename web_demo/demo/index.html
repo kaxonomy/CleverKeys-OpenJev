@@ -9,8 +9,8 @@
          its PROVENANCE.md). Previously pulled from cdn.tailwindcss.com; this
          was the demo's last network dependency. -->
     <script src="vendor/tailwind/tailwindcss-play-3.4.17.min.js"></script>
-    <!-- ONNX Runtime Web 1.18.0 — vendored under vendor/ort/ (see
-         models/PROVENANCE.md). Previously pulled from jsdelivr; serving it
+    <!-- ONNX Runtime Web 1.30.0 — vendored under vendor/ort/ (see
+         vendor/ort/PROVENANCE.md). Previously pulled from jsdelivr; serving it
          locally keeps the demo runnable from any bare static host and removes
          the CDN as a single point of failure. -->
     <script src="vendor/ort/ort.wasm.min.js"></script>
@@ -237,13 +237,11 @@
                         <span class="text-gray-300">WASM SIMD</span>
                         <input type="checkbox" id="settingsWasmSimd" class="w-4 h-4 accent-neon-purple" />
                     </label>
-                    <!-- Disabled since onnxruntime-web was vendored: only the
-                         single-threaded SIMD .wasm is shipped, so this control
-                         could not do anything. Shown rather than removed so the
-                         reason is visible instead of the option just vanishing. -->
+                    <!-- Static hosts do not provide cross-origin isolation, so keep one
+                         worker and retain the saved-config field for compatibility. -->
                     <label class="flex items-center justify-between opacity-50 cursor-not-allowed"
-                           title="The vendored onnxruntime-web build is single-threaded">
-                        <span class="text-gray-300">WASM threads <span class="text-xs text-gray-500">(vendored build is single-threaded)</span></span>
+                           title="This static demo uses one WASM thread">
+                        <span class="text-gray-300">WASM threads <span class="text-xs text-gray-500">(one thread on static hosts)</span></span>
                         <input type="checkbox" id="settingsWasmThreads" class="w-4 h-4 accent-neon-purple" disabled />
                     </label>
                 </div>
@@ -537,7 +535,7 @@
             batchBeams: true,       // run one decoder per step with a batched target_tokens tensor
             wasmSimd: true,
             // Kept only so an existing saved config still round-trips; the
-            // vendored ORT build ships no threaded .wasm, so this is inert.
+            // static demo fixes numThreads to one, so this is inert.
             wasmThreads: false,
             // Selected decode engine (ENGINE_SPECS id). Additive field — an
             // older saved .v2 config without it merges the default in, so no
@@ -703,19 +701,9 @@
             {
                 updateLoadingStatus('Initializing ONNX Runtime...');
 
-                // Configure ONNX Runtime Web WASM paths + perf flags.
-                // SIMD is safe on every browser that also runs WASM. Threads
-                // need cross-origin isolation (COOP/COEP) which GH Pages does
-                // not set — ORT will silently fall back to 1 thread if the
-                // browser refuses SharedArrayBuffer, so enabling this is a
-                // free optimisation where it's available.
+                // Extra WASM threads require cross-origin isolation; static hosts use one.
                 if (typeof ort !== 'undefined') {
-                    // Vendored locally (vendor/ort/) — only the SIMD, single-
-                    // threaded binary is shipped. The threaded build needs
-                    // COOP/COEP cross-origin isolation, which neither GH Pages
-                    // nor a bare `python3 -m http.server` sends, so ORT would
-                    // fall back to 1 thread anyway; shipping the extra 10 MB
-                    // .wasm to never use it isn't worth it.
+                    // JavaScript, SIMD module and WASM binary are vendored together.
                     ort.env.wasm.wasmPaths = 'vendor/ort/';
                     ort.env.wasm.simd = DEMO_CONFIG.wasmSimd !== false;
                     ort.env.wasm.numThreads = 1;
@@ -4267,7 +4255,7 @@
             DEMO_CONFIG.batchBeams = document.getElementById('settingsBatchBeams').checked;
             DEMO_CONFIG.wasmSimd = document.getElementById('settingsWasmSimd').checked;
             // wasmThreads is intentionally NOT read back: the control is
-            // disabled (the vendored ORT build has no threaded .wasm), and a
+            // disabled (this static demo fixes numThreads to one), and a
             // disabled checkbox reads as false, which would flip a returning
             // user's saved `true` and trigger a pointless reload prompt.
 

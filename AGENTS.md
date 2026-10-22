@@ -62,6 +62,19 @@ bounded memory. In-process Kotlin is the Gradle property
 `-Pkotlin.compiler.execution.strategy=in-process`; `-D` did not enforce it here.
 Fields used by view construction/reset must precede the Kotlin `init` block.
 
+### Dependency toolchain
+
+- Gradle 9.7.0, AGP 9.4.1, Kotlin/Compose compiler 2.4.21, JDK 17, SDK 37.2.
+- AGP9 legacy DSL/external Kotlin opt-outs preserve ABI/version-code and host-runner contracts;
+  migrate these before AGP10. Generated `resValue` resources remain explicitly enabled.
+- The six shipped/installed configurations use strict dependency locks. Regenerate with real
+  guarded app/test/release tasks, then rerun ordinary tasks against the committed lockfile.
+- ORT1.31 telemetry startup and network permissions are removed in manifest merging. Disable
+  native telemetry before sessions; host processes set `ORT_DISABLE_TELEMETRY=1` before loading ORT.
+- CI uses isolated runners: the required guard sweeps matching JVMs globally and cannot share
+  a host with another active Gradle/Kotlin build. Dev runs are build/test/security only.
+- Site/demo tooling uses Node24.22.1 and Bun1.4.4.
+
 ### Gradle Configuration (`build.gradle`)
 -   **Single Source of Truth (SSoT):** Versioning is controlled by `ext.VERSION_MAJOR`, `MINOR`, and `PATCH` at the top of `build.gradle`. `versionCode` and `versionName` are derived from these.
 -   **ABI Splits:** The build produces separate APKs for `armeabi-v7a`, `arm64-v8a`, and `x86_64` to reduce size.

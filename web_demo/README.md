@@ -21,7 +21,7 @@ The two "accurate/fast" entries are the earlier from-scratch experimental
 encoders, kept for comparison.
 
 Every model, lexicon, runtime and stylesheet is served from the repo — the
-demo has **no CDN dependency at all**. onnxruntime-web 1.18.0 is vendored under
+demo has **no CDN dependency at all**. onnxruntime-web 1.30.0 is vendored under
 `demo/vendor/ort/`, and the Tailwind Play runtime (v3.4.17) under
 `demo/vendor/tailwind/` (vendored 2026-09-01, ARC-046 — it was the last
 external request).
@@ -245,7 +245,7 @@ web_demo/
 │   ├── index.html              the demo (engine dropdown, capture, all decode paths)
 │   ├── ctc-engine.js           featurizer + CSR trie (+ from-map builder) + FUTO Viterbi beam
 │   ├── models/                 experimental CTC ONNX, en_qwerty.json, ctc_vocab.bin, PROVENANCE.md
-│   └── vendor/ort/             onnxruntime-web 1.18.0 (MIT)
+│   └── vendor/ort/             onnxruntime-web 1.30.0 (MIT)
 ├── ctc_swipe_encoder.onnx      shipped app CTC encoder (== APK asset, sha256 84718e6e…)
 ├── tools/build_ctc_vocab.py    wordlist -> ctc_vocab.bin (with --verify)
 ├── tests/                      reference + browser harnesses, app-engine parity/smoke, results
