@@ -28,6 +28,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -132,15 +134,17 @@ fun CommandPaletteDialog(
     // Command names/descriptions are string resources: search matches them in the UI
     // language and, secondarily, in English (users who learned the English names).
     val paletteContext = LocalContext.current
-    val commandText = remember(paletteContext) { ResourcesResultText(paletteContext.resources) }
-    val englishCommandText = remember(paletteContext) {
-        val config = android.content.res.Configuration(paletteContext.resources.configuration)
+    val paletteConfiguration = LocalConfiguration.current
+    val paletteResources = LocalResources.current
+    val commandText = remember(paletteResources, paletteConfiguration) { ResourcesResultText(paletteResources) }
+    val englishCommandText = remember(paletteContext, paletteConfiguration) {
+        val config = android.content.res.Configuration(paletteConfiguration)
         config.setLocale(java.util.Locale.ENGLISH)
         ResourcesResultText(paletteContext.createConfigurationContext(config).resources)
     }
 
     // Get filtered commands
-    val filteredCommands = remember(searchQuery, commandText) {
+    val filteredCommands = remember(searchQuery, commandText, englishCommandText) {
         if (searchQuery.isBlank()) {
             CommandRegistry.getByCategory()
         } else {
@@ -239,7 +243,7 @@ fun CommandPaletteDialog(
         // Pre-compute a live preview for timestamp patterns
         val timestampPreview = pendingTimestampPattern?.let { p ->
             runCatching {
-                java.text.SimpleDateFormat(p, java.util.Locale.getDefault())
+                java.text.SimpleDateFormat(p, paletteConfiguration.locales[0])
                     .format(java.util.Date())
             }.getOrNull()
         }

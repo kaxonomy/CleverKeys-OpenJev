@@ -7,6 +7,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -182,7 +183,7 @@ internal fun SettingsActivity.GestureTuningSection() {
                         selectionDeleteVerticalSpeed = it
                         saveSetting("selection_delete_vertical_speed", selectionDeleteVerticalSpeed)
                     },
-                    displayValue = String.format(java.util.Locale.getDefault(), "%.1fx", selectionDeleteVerticalSpeed)
+                    displayValue = String.format(LocalConfiguration.current.locales[0], "%.1fx", selectionDeleteVerticalSpeed)
                 )
 
                 // Tap and Typing subsection

@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -687,9 +688,9 @@ private fun LanguageSection(
     onToggleAll: (lang: String, allOn: Boolean) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    // `metadata` is a plain (String) -> String lambda handed to LangSubgroup, so it cannot
-    // call stringResource; it formats through the Context instead.
-    val ctx = LocalContext.current
+    // `metadata` is a plain (String) -> String lambda handed to LangSubgroup, so capture
+    // configuration-aware resources here before formatting inside the callback.
+    val resources = LocalResources.current
     val totalCount = changes.newCustomWords.size + changes.newDisabledWords.size
     val excludedCount = changes.newCustomWords.keys.count { LangWord(lang, it) in excludedCustom } +
         changes.newDisabledWords.count { LangWord(lang, it) in excludedDisabled }
@@ -745,7 +746,7 @@ private fun LanguageSection(
                 onToggle = { word -> onToggleWord(LangWord(lang, word), true) },
                 metadata = { word ->
                     changes.newCustomWords[word]
-                        ?.let { freq -> ctx.getString(R.string.import_preview_word_freq, freq) }
+                        ?.let { freq -> resources.getString(R.string.import_preview_word_freq, freq) }
                         ?: ""
                 },
             )

@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -113,7 +114,7 @@ fun LayoutManagerScreen(onBack: () -> Unit) {
     // GH #186/#61: languages with a dictionary on this device (bundled + installed packs), for
     // the per-layout language picker and its "not installed" warning.
     val availableLanguages = remember { LanguageAvailability.availableLanguages(context) }
-    val uiLocale = context.resources.configuration.locales[0]
+    val uiLocale = LocalConfiguration.current.locales[0]
     fun languageName(code: String): String = LanguageDisplayNames.displayName(code, uiLocale)
 
     // Dialog states

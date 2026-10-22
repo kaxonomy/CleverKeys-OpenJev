@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -177,7 +178,7 @@ internal fun SettingsActivity.CollectedDataViewerDialog(
                         dataList.forEach { data ->
                             val dateFormat = java.text.SimpleDateFormat(
                                 "MM/dd HH:mm",
-                                java.util.Locale.getDefault()
+                                LocalConfiguration.current.locales[0]
                             )
                             val dateStr = dateFormat.format(java.util.Date(data.timestampUtc))
                             val keys = data.getRegisteredKeys().joinToString("")

@@ -796,6 +796,10 @@ class ClipboardHistoryService private constructor(ctx: Context) {
                 if (usageStatsManager != null) {
                     val endTime = System.currentTimeMillis()
                     val startTime = endTime - 5000 // Last 5 seconds
+                    // Usage access is AppOps-gated: MODE_ALLOWED authorizes this query even
+                    // when checkSelfPermission(PACKAGE_USAGE_STATS) is denied. The framework
+                    // enforces that access; the existing null/SecurityException paths handle denial.
+                    @SuppressLint("MissingPermission")
                     val usageStats = usageStatsManager.queryUsageStats(
                         UsageStatsManager.INTERVAL_DAILY, startTime, endTime
                     )
