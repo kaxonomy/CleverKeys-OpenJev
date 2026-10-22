@@ -252,7 +252,7 @@ class ClipboardDatabaseV5MigrationTest {
         db.writableDatabase.execSQL(
             "INSERT INTO pinned_entries (content, content_hash, created_timestamp, pinned_timestamp, " +
                 "position, mime_type, media_path, is_private) VALUES (?, ?, ?, ?, ?, ?, ?, 1)",
-            arrayOf("shared-b.png", "shared-b", 1L, 1L, 1.0, "image/png", sharedPath)
+            arrayOf<Any>("shared-b.png", "shared-b", 1L, 1L, 1.0, "image/png", sharedPath)
         )
 
         val plaintextPack = db.getReferencedMediaPaths(includePrivate = false)

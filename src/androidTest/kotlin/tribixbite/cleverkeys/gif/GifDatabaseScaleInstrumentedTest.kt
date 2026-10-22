@@ -89,13 +89,13 @@ class GifDatabaseScaleInstrumentedTest {
                     // E-3 compound-fallback pagination test below.
                     pack.execSQL(
                         "INSERT INTO gifs VALUES (?, 200, 200, 1000, 4096, ?, 0)",
-                        arrayOf(id, "zebrapack token$i quagga eyera rolla")
+                        arrayOf<Any>(id, "zebrapack token$i quagga eyera rolla")
                     )
                     // Every gif belongs to a real category so pre-fix hydration
                     // would produce non-empty categories
                     pack.execSQL(
                         "INSERT INTO gif_category_map VALUES (?, ?)",
-                        arrayOf(GifCategory.AMUSEMENT.id, id)
+                        arrayOf<Any>(GifCategory.AMUSEMENT.id, id)
                     )
                 }
                 pack.setTransactionSuccessful()
@@ -258,7 +258,7 @@ class GifDatabaseScaleInstrumentedTest {
             pack.execSQL("CREATE TABLE gif_category_map (category_id INTEGER, gif_id INTEGER)")
             pack.execSQL(
                 "INSERT INTO gifs VALUES (?, 200, 200, 1000, 4096, ?, 0)",
-                arrayOf(baseId, "zebrapack token0 quagga gid:TeStId01")
+                arrayOf<Any>(baseId, "zebrapack token0 quagga gid:TeStId01")
             )
         }
         try {
