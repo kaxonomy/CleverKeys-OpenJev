@@ -86,6 +86,7 @@ async function main() {
     });
     const elements = new Map();
     const documentStub = {
+        baseURI: 'http://localhost/demo/',
         getElementById: (id) => {
             if (!elements.has(id)) elements.set(id, mkEl());
             return elements.get(id);

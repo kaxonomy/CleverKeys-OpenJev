@@ -90,7 +90,7 @@ class Keyboard2ViewCustomSwipeDispatchTest {
 
         view = spyk(objenesis.newInstance(Keyboard2View::class.java))
         every { view.context } returns mockk<Context>(relaxed = true)
-        every { view.performHapticFeedback(any()) } returns true
+        every { view.performHapticFeedback(any<Int>()) } returns true
         view.setField("_keyboard2", service)
         view.setField("_customSwipeExecutor", executor)
     }

@@ -80,9 +80,9 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
 
-    # runMockTests resolves android.jar from platforms/android-34 for the stubs.
+    # runMockTests resolves android.jar from platforms/android-37.2 for the stubs.
     - name: Install pinned SDK components
-      run: sdkmanager "platforms;android-34"
+      run: sdkmanager "platforms;android-37.2" "build-tools;37.0.0"
 
     - name: Make gradlew executable
       run: chmod +x gradlew
@@ -196,17 +196,15 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
 
-    # REPRODUCIBILITY: Install FRESH SDK components to match F-Droid exactly
-    # GitHub may have outdated cached versions - remove and reinstall to get latest revision
-    # F-Droid downloads platform-34-ext7_r03.zip - we need the same
+    # Compile SDK follows build.gradle; signing tools retain their compatibility pin.
     - name: Install pinned SDK components
       run: |
-        # Remove pre-installed platform to ensure we get latest revision
-        rm -rf $ANDROID_HOME/platforms/android-34
-        sdkmanager "platforms;android-34" "build-tools;34.0.0"
+        # AGP compiles with 37.0.0; retain 34.0.0 for the signing-only
+        # apksigcopier compatibility contract below.
+        sdkmanager "platforms;android-37.2" "build-tools;37.0.0" "build-tools;34.0.0"
         echo "BUILD_TOOLS_VERSION=34.0.0" >> $GITHUB_ENV
         # Show what revision was installed
-        ls -la $ANDROID_HOME/platforms/android-34/
+        ls -la "$ANDROID_HOME/platforms/android-37.2/"
 
     - name: Add Android SDK tools to PATH
       run: |

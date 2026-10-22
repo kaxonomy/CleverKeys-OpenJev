@@ -704,7 +704,7 @@
                 // Extra WASM threads require cross-origin isolation; static hosts use one.
                 if (typeof ort !== 'undefined') {
                     // JavaScript, SIMD module and WASM binary are vendored together.
-                    ort.env.wasm.wasmPaths = 'vendor/ort/';
+                    ort.env.wasm.wasmPaths = new URL('vendor/ort/', document.baseURI).href;
                     ort.env.wasm.simd = DEMO_CONFIG.wasmSimd !== false;
                     ort.env.wasm.numThreads = 1;
                     console.log('ONNX Runtime initialized, version:', ort.env.versions?.onnxruntime,
