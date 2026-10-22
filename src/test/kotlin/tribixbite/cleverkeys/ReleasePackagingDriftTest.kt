@@ -197,13 +197,42 @@ class ReleasePackagingDriftTest {
     // v1.0.0 — "Complete privacy (no network access)"
     // =========================================================================
 
-    /** Declared `<uses-permission>` names, with XML comments stripped first. */
+    /** Requested permissions, excluding manifest-merger removal directives and comments. */
     private fun declaredPermissions(xml: String): Set<String> {
         val withoutComments = xml.replace(Regex("""<!--[\s\S]*?-->"""), "")
-        return Regex("""<uses-permission[^>]*android:name="([^"]+)"""")
+        return Regex("""<uses-permission\b[^>]*android:name="([^"]+)"[^>]*>""")
             .findAll(withoutComments)
+            .filterNot { Regex("""tools:node\s*=\s*["']remove["']""").containsMatchIn(it.value) }
             .map { it.groupValues[1] }
             .toSet()
+    }
+
+    @Test
+    fun permissionRemovalDirectivesDoNotRequestPermissions() {
+        assertThat(declaredPermissions("""
+            <uses-permission android:name="android.permission.INTERNET" tools:node="remove"/>
+            <uses-permission android:name="android.permission.VIBRATE"/>
+        """)).containsExactly("android.permission.VIBRATE")
+    }
+
+    @Test
+    fun mergedAppManifestsContainNoNetworkPermissionOrTelemetryInitializer() {
+        val merged = File("build/intermediates").walkTopDown().filter {
+            it.isFile && it.name == "AndroidManifest.xml" &&
+                ("/merged_manifest/" in it.path || "/merged_manifests/" in it.path) &&
+                ("/debug/" in it.path || "/release/" in it.path)
+        }.toList()
+        assertWithMessage("app manifests must be merged before packaging privacy checks")
+            .that(merged).isNotEmpty()
+        for (file in merged) {
+            val xml = file.readText()
+            for (forbidden in FORBIDDEN_PERMISSIONS) {
+                assertWithMessage("${file.path} must not request $forbidden")
+                    .that(declaredPermissions(xml)).doesNotContain(forbidden)
+            }
+            assertWithMessage("${file.path} must not auto-initialize ORT telemetry")
+                .that(xml).doesNotContain("ai.onnxruntime.TelemetryInitializer")
+        }
     }
 
     @Test

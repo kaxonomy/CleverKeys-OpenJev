@@ -370,6 +370,7 @@ android {
   }
 
   buildFeatures {
+    resValues true  // AGP9 disables generated resValue resources by default.
     compose true
     buildConfig true  // Enable BuildConfig generation for ENABLE_VERBOSE_LOGGING
   }

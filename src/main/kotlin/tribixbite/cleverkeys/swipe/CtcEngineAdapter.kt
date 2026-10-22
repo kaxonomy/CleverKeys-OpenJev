@@ -225,7 +225,7 @@ class CtcEngineAdapter(
 
     private val tasks = PredictionTaskRunner()
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val ortEnvironment = OrtEnvironment.getEnvironment()
+    private val ortEnvironment = OrtEnvironment.getEnvironment().apply { setTelemetry(false) }
 
     /**
      * Monotonic decode counter — see the class KDoc. Incremented on the main thread by

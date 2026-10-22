@@ -45,7 +45,7 @@ class OpenJevRuntime private constructor(context: Context) : OpenJevScorer, Auto
                         options.setIntraOpNumThreads(2)
                         options.setInterOpNumThreads(1)
                         options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)
-                        session = OrtEnvironment.getEnvironment().createSession(java.io.File(directory, "model.onnx").absolutePath, options)
+                        session = OrtEnvironment.getEnvironment().apply { setTelemetry(false) }.createSession(java.io.File(directory, "model.onnx").absolutePath, options)
                     } finally { options.close() }
                     val active = session!!
                     try {
