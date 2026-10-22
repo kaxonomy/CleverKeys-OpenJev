@@ -159,15 +159,23 @@ jobs:
           echo "---"
           echo "📦 Total size: $(du -sh site/dist | cut -f1)"
 
+      # cleverkeys.app belongs to upstream. Forks still run every build/parity check above.
+      - name: Report fork validation
+        if: github.repository != 'tribixbite/CleverKeys'
+        run: echo "Site validation passed; Pages publication is reserved for tribixbite/CleverKeys (cleverkeys.app)." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Configure Pages
+        if: github.repository == 'tribixbite/CleverKeys'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
       - name: Upload Pages artifact
+        if: github.repository == 'tribixbite/CleverKeys'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./site/dist
 
   deploy:
+    if: github.repository == 'tribixbite/CleverKeys'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
