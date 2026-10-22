@@ -72,7 +72,10 @@ Fields used by view construction/reset must precede the Kotlin `init` block.
 - ORT1.31 telemetry startup and network permissions are removed in manifest merging. Disable
   native telemetry before sessions; host processes set `ORT_DISABLE_TELEMETRY=1` before loading ORT.
 - CI uses isolated runners: the required guard sweeps matching JVMs globally and cannot share
-  a host with another active Gradle/Kotlin build. Dev runs are build/test/security only.
+  a host with another active Gradle/Kotlin build. GitHub Actions runs tests, source compilation,
+  strict dependency-lock validation, lint and security only; no APK/AAB assembly, signing,
+  upload, release publication or emulator/device execution. `verifyDependencyLocks` resolves
+  all six delivery classpaths without packaging, and the task graph rejects hosted APK tasks.
 - Site/demo tooling uses Node24.22.1 and Bun1.4.4.
 
 ### Gradle Configuration (`build.gradle`)
@@ -84,13 +87,15 @@ Fields used by view construction/reset must precede the Kotlin `init` block.
     -   **Release:** Requires environment variables (`RELEASE_KEYSTORE`, `RELEASE_KEY_PASSWORD`, etc.) or falls back to debug signing for local testing.
 
 ### GitHub Actions CI/CD (`.github/workflows/`)
--   **Release Workflow (`release.yml`):**
-    -   Triggered by tags matching `v*`.
-    -   Verifies that the git tag matches the version in `build.gradle`.
-    -   Builds signed release APKs.
-    -   Renames APKs to `CleverKeys-vX.Y.Z-<abi>.apk`.
-    -   Generates a changelog from commit messages.
-    -   Creates a GitHub Release and uploads assets.
+-   **CI (`ci.yml`):** JVM/MockK tests, Android source compilation, debug/release lint,
+    host privacy, strict locks, dependency analysis and security scans. Reports may be uploaded;
+    APKs and app bundles are never built or uploaded.
+-   **Tag Validation (`release.yml`):** Tags matching `v*` verify main ancestry, version,
+    source hygiene, tests, lint, locks, web-demo parity and security. It creates no release.
+-   **Site (`deploy-web-demo.yml`):** All site/model/browser checks run on forks. Only
+    `tribixbite/CleverKeys` may publish `cleverkeys.app`.
+-   APK build, nightly publication and hosted emulator workflows were removed by explicit
+    maintainer instruction on 2026-10-22. Local Android build instructions still apply.
 
 ## 3. Key Architectural Patterns
 

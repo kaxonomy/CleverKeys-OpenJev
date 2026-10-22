@@ -7,7 +7,7 @@ on:
   issues:
     types: [opened, labeled, closed]
   pull_request:
-    types: [opened, closed, merged]
+    types: [opened, closed]
   push:
     branches: [main]
     tags-ignore:
@@ -198,21 +198,19 @@ jobs:
 
             message += "\n### 🧠 Swipe Keyboard Testing\n";
             message += "For swipe/UI changes, please run:\n";
-            message += "```bash\n./gradlew runPureTests runMockTests\n```\n\n";
+            message += "```bash\nbash scripts/gradle-guard.sh runPureTests runMockTests\n```\n\n";
             message += "Our automated CI will also validate:\n";
-            message += "- 🧪 Performance benchmarks (<200ms swipe-decode latency)\n";
-            message += "- 📸 Visual regression testing\n";
-            message += "- ♿ Accessibility compliance\n";
-            message += "- 🔧 Memory usage validation\n";
+            message += "- JVM and MockK regression tests\n";
+            message += "- Debug and release lint\n";
+            message += "- Dependency locks and security checks\n";
           } else {
             message += "### ✅ All checks passed!\n\n";
             message += "Thank you for following our contribution guidelines. ";
             message += "Our automated tests will validate your changes shortly.\n\n";
             message += "### 🚀 What happens next:\n";
-            message += "1. Automated tests run on multiple Android versions\n";
-            message += "2. Performance benchmarks validate swipe prediction speed\n";
-            message += "3. Visual regression tests ensure UI consistency\n";
-            message += "4. Code review by maintainers\n";
+            message += "1. JVM and MockK regression tests run\n";
+            message += "2. Source, lint, dependency and security checks run\n";
+            message += "3. Code review by maintainers\n";
           }
 
           await github.rest.issues.createComment({

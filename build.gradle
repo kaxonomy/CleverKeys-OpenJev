@@ -29,18 +29,43 @@ plugins {
 // TOOLING coordinates into gradle.lockfile — and Trivy reads a Gradle lockfile as one flat
 // production tree, so the gate went red on ~48 CVEs in code that never ships. Trivy's view
 // of the lockfile IS the gate's scope; keep the lockfile to shipped-or-installed bytes.
+def lockedDeliveryConfigurations = [
+  'debugCompileClasspath', 'debugRuntimeClasspath',
+  'releaseCompileClasspath', 'releaseRuntimeClasspath',
+  'debugAndroidTestCompileClasspath', 'debugAndroidTestRuntimeClasspath',
+]
 configurations.matching {
-  it.name in [
-    'debugCompileClasspath', 'debugRuntimeClasspath',
-    'releaseCompileClasspath', 'releaseRuntimeClasspath',
-    'debugAndroidTestCompileClasspath', 'debugAndroidTestRuntimeClasspath',
-  ]
+  it.name in lockedDeliveryConfigurations
 }.configureEach {
   resolutionStrategy.activateDependencyLocking()
 }
 
 dependencyLocking {
   lockMode = org.gradle.api.artifacts.dsl.LockMode.STRICT
+}
+
+// Resolve all delivery classpaths under strict locks without producing APKs.
+tasks.register('verifyDependencyLocks') {
+  group = 'verification'
+  doLast {
+    lockedDeliveryConfigurations.each { name ->
+      configurations.getByName(name).resolve()
+      logger.lifecycle("${name}: committed dependency locks verified")
+    }
+  }
+}
+
+// Resource/class preprocessing is allowed; hosted APK production and devices are not.
+def hostedValidationOnly = System.getenv('GITHUB_ACTIONS') == 'true'
+if (hostedValidationOnly) {
+  gradle.taskGraph.whenReady { graph ->
+    def apkTasks = graph.allTasks.findAll {
+      it.name ==~ /(?i)(assemble.*|bundle(Debug|Release)(AndroidTest)?|package(Debug|Release)(AndroidTest)?|validateSigning.*|sign.*|install.*|connected.*)/
+    }
+    if (!apkTasks.empty) {
+      throw new GradleException("GitHub Actions is validation-only; forbidden tasks: ${apkTasks*.path}")
+    }
+  }
 }
 
 dependencies {
@@ -1617,7 +1642,8 @@ version=${project.ext.versionNameStr}
 }
 
 tasks.named("preBuild") {
-  dependsOn "initDebugKeystore", "copyLayoutDefinitions", "generateBinaryDictionaries", "generateBinaryContractions", "generateComposeData", "generateVersionInfo", "generateSettingsSearchIndex"
+  dependsOn "copyLayoutDefinitions", "generateBinaryDictionaries", "generateBinaryContractions", "generateComposeData", "generateVersionInfo", "generateSettingsSearchIndex"
+  if (!hostedValidationOnly) dependsOn "initDebugKeystore"
 }
 
 // Auto-derive the settings search index from the SettingsActivity controls so it never
@@ -1649,7 +1675,7 @@ tasks.register('generateComposeData') {
 }
 
 tasks.register('initDebugKeystore') {
-  if (!file("debug.keystore").exists()) {
+  if (!hostedValidationOnly && !file("debug.keystore").exists()) {
     runCommand { commandLine "keytool", "-genkeypair", "-dname", "cn=d, ou=e, o=b, c=ug", "-alias", "debug", "-keypass", "debug0", "-keystore", "debug.keystore", "-keyalg", "rsa", "-storepass", "debug0", "-validity", "10000" }
   }
 }

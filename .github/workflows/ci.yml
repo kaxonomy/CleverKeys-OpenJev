@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, develop, dev, 'dependency-validation/cleverkeys-*' ]
     tags-ignore:
-      - '**'  # Don't run on tag pushes - release.yml handles those
+      - '**'  # Tag validation is handled by release.yml
   pull_request:
     branches: [ main, develop ]
 
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and Test
+    name: Tests and Validation
     runs-on: ubuntu-latest
     env:
       GRADLE_GUARD_XMX: 1536m
@@ -41,8 +41,8 @@ jobs:
     - name: Install compile SDK
       run: sdkmanager "platforms;android-37.2" "build-tools;37.0.0"
 
-    - name: Build app and instrumentation APKs with committed locks
-      run: bash scripts/gradle-guard.sh verifyHostInferencePrivacy assembleDebug assembleDebugAndroidTest assembleRelease --stacktrace
+    - name: Validate host privacy, locks and Android sources
+      run: bash scripts/gradle-guard.sh verifyHostInferencePrivacy verifyDependencyLocks compileDebugAndroidTestKotlin compileReleaseKotlin --stacktrace
 
     - name: Run pure JVM tests
       run: bash scripts/gradle-guard.sh runPureTests --stacktrace
@@ -80,22 +80,13 @@ jobs:
       # now NOTHING linted it — this job's `lint` is debug, and release.yml runs `lintDebug`.
       # Release-only issues (R8/shrinker-visible, `release` sourceSet, minify-dependent
       # manifest merges) were therefore invisible to every gate.
-      #
-      # lintVitalRelease is AGP's minimal release gate — fatal-severity issues only — which is
-      # what keeps this cheap alongside the full debug lint above. It exists only because
-      # build.gradle now sets checkReleaseBuilds=true; at false AGP does not register the task
-      # at all ("Task 'lintVitalRelease' not found"), which is why nothing could lint release.
-      # That same flag makes `assembleRelease` self-gate, so this step is what covers PRs,
-      # which build debug only.
+      # lintVitalRelease covers fatal release issues without packaging an APK.
       run: bash scripts/gradle-guard.sh lintVitalRelease --stacktrace
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-      if: success()
-      with:
-        name: apk-debug
-        path: build/outputs/apk/debug/*.apk
-        retention-days: 7
+    - name: Verify validation produced no APKs or app bundles
+      run: |
+        test -z "$(find build -type f \( -name '*.apk' -o -name '*.aab' \) -print -quit)"
+        git diff --exit-code -- gradle.lockfile debug.keystore debug.keystore.asc
 
     - name: Upload lint results
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -126,7 +117,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # Lint runs (as a hard gate) in the "Build and Test" job; not duplicated here.
+    # Lint runs (as a hard gate) in the "Tests and Validation" job; not duplicated here.
     - name: Set up Android SDK
       uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
       with:
@@ -197,65 +188,3 @@ jobs:
         ignore-unfixed: true
         # Without this the action always exits 0 and the step would be decorative.
         exit-code: '1'
-
-  # Per-ABI APK size report (folded in from the former build.yml, which duplicated
-  # assembleDebug). Consumes the debug APKs uploaded by the "Build and Test" job.
-  size-analysis:
-    name: APK Size Analysis
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-    - name: Download debug APKs
-      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-      with:
-        name: apk-debug
-        path: ./
-
-    - name: Analyze APK sizes
-      run: |
-        echo "## Build Analysis - Per-ABI APK Sizes" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "| ABI | Size | Status |" >> $GITHUB_STEP_SUMMARY
-        echo "|-----|------|--------|" >> $GITHUB_STEP_SUMMARY
-
-        ls -la *.apk || { echo "No APK files found"; ls -la; exit 1; }
-
-        FAIL=0
-        for APK_FILE in *.apk; do
-          APK_SIZE=$(stat -c%s "$APK_FILE" 2>/dev/null || stat -f%z "$APK_FILE")
-          APK_SIZE_MB=$((APK_SIZE / 1024 / 1024))
-
-          # Determine ABI from filename
-          if [[ "$APK_FILE" == *"universal"* ]]; then
-            ABI="universal"
-            MAX_SIZE=60
-          elif [[ "$APK_FILE" == *"arm64"* ]]; then
-            ABI="arm64-v8a"
-            MAX_SIZE=40
-          elif [[ "$APK_FILE" == *"armeabi"* ]] || [[ "$APK_FILE" == *"armv7"* ]]; then
-            ABI="armeabi-v7a"
-            MAX_SIZE=35
-          elif [[ "$APK_FILE" == *"x86_64"* ]]; then
-            ABI="x86_64"
-            MAX_SIZE=40
-          else
-            ABI="unknown"
-            MAX_SIZE=60
-          fi
-
-          if [ $APK_SIZE_MB -gt $MAX_SIZE ]; then
-            echo "| $ABI | ${APK_SIZE_MB}MB | ⚠️ Exceeds ${MAX_SIZE}MB |" >> $GITHUB_STEP_SUMMARY
-            FAIL=1
-          else
-            echo "| $ABI | ${APK_SIZE_MB}MB | ✅ OK |" >> $GITHUB_STEP_SUMMARY
-          fi
-        done
-
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "- **Swipe Model**: Included (ONNX Runtime + CTC encoder)" >> $GITHUB_STEP_SUMMARY
-        echo "- **Package**: tribixbite.cleverkeys" >> $GITHUB_STEP_SUMMARY
-
-        if [ $FAIL -eq 1 ]; then
-          echo "::warning::Some APKs exceed size thresholds"
-        fi
