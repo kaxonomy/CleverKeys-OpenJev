@@ -559,15 +559,31 @@ tasks.configureEach { task ->
     }
 }
 
-def isArm64 = System.getProperty("os.arch") in ["aarch64", "arm64"]
-if (isArm64) {
-  tasks.withType(JavaExec).configureEach {
+tasks.withType(JavaExec).configureEach {
+  environment "ORT_DISABLE_TELEMETRY", "1"
+}
+tasks.withType(Test).configureEach {
   environment "ORT_DISABLE_TELEMETRY", "1"
 }
 
-tasks.withType(Test).configureEach {
-  environment "ORT_DISABLE_TELEMETRY", "1"
+def isArm64 = System.getProperty("os.arch") in ["aarch64", "arm64"]
+if (isArm64) {
+  tasks.withType(Test).configureEach {
     enabled = false
+  }
+}
+
+tasks.register('verifyHostInferencePrivacy') {
+  group = 'verification'
+  doLast {
+    [JavaExec, Test].each { type ->
+      tasks.withType(type).each { task ->
+        if (task.environment['ORT_DISABLE_TELEMETRY'] != '1') {
+          throw new GradleException("${task.path} must disable native telemetry before JVM startup")
+        }
+        logger.lifecycle("${task.path}: ORT_DISABLE_TELEMETRY=1 (${System.getProperty('os.arch')}, enabled=${task.enabled})")
+      }
+    }
   }
 }
 

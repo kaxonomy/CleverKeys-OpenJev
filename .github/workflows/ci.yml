@@ -43,10 +43,10 @@ jobs:
 
     - name: Generate dependency locks on validation branches
       if: startsWith(github.ref, 'refs/heads/dependency-validation/cleverkeys-')
-      run: bash scripts/gradle-guard.sh assembleDebug assembleDebugAndroidTest assembleRelease compileDebugUnitTestKotlin --write-locks --continue --stacktrace
+      run: bash scripts/gradle-guard.sh verifyHostInferencePrivacy assembleDebug assembleDebugAndroidTest assembleRelease compileDebugUnitTestKotlin --write-locks --continue --stacktrace
 
     - name: Build app and instrumentation APKs with committed locks
-      run: bash scripts/gradle-guard.sh assembleDebug assembleDebugAndroidTest assembleRelease --stacktrace
+      run: bash scripts/gradle-guard.sh verifyHostInferencePrivacy assembleDebug assembleDebugAndroidTest assembleRelease --stacktrace
 
     - name: Run pure JVM tests
       run: bash scripts/gradle-guard.sh runPureTests --stacktrace
