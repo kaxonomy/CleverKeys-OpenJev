@@ -1,7 +1,7 @@
 plugins {
-  id 'com.android.application' version '8.8.2'
-  id 'org.jetbrains.kotlin.android' version '2.0.0'
-  id 'org.jetbrains.kotlin.plugin.compose' version '2.0.0'
+  id 'com.android.application' version '9.4.1'
+  id 'org.jetbrains.kotlin.android' version '2.4.21'
+  id 'org.jetbrains.kotlin.plugin.compose' version '2.4.21'
 }
 
 // Gradle dependency locking (CK-150-023).
@@ -16,7 +16,7 @@ plugins {
 //
 // Regenerate after ANY dependency change (else resolution fails with "Did not resolve … which
 // is part of the lock state"):
-//   ./gradlew assembleDebug assembleDebugAndroidTest compileReleaseKotlin --write-locks
+//   bash scripts/gradle-guard.sh assembleDebug assembleDebugAndroidTest compileReleaseKotlin --write-locks
 //   (real tasks, not `dependencies` — it resolves configurations differently; add
 //    -Pandroid.aapt2FromMavenOverride=… on Termux. Afterwards re-check that
 //    kotlin-stdlib-common still carries debugAndroidTestRuntimeClasspath — that line only
@@ -39,38 +39,42 @@ configurations.matching {
   resolutionStrategy.activateDependencyLocking()
 }
 
+dependencyLocking {
+  lockMode = org.gradle.api.artifacts.dsl.LockMode.STRICT
+}
+
 dependencies {
-  implementation "androidx.window:window-java:1.3.0"
-  implementation "androidx.core:core:1.13.1"
-  implementation "androidx.appcompat:appcompat:1.6.1"
+  implementation "androidx.window:window-java:1.5.1"
+  implementation "androidx.core:core:1.19.1"
+  implementation "androidx.appcompat:appcompat:1.8.0"
   // #181: the emoji picker asks EmojiCompat whether it can draw a sequence before hiding it.
   // Already on the runtime classpath through appcompat (same version); now compiled against.
-  implementation "androidx.emoji2:emoji2:1.3.0"
+  implementation "androidx.emoji2:emoji2:1.7.0"
   implementation "androidx.multidex:multidex:2.0.1"
-  implementation "com.google.android.material:material:1.11.0"
-  implementation "androidx.viewpager2:viewpager2:1.0.0"
-  implementation "androidx.recyclerview:recyclerview:1.3.2"
+  implementation "com.google.android.material:material:1.14.0"
+  implementation "androidx.viewpager2:viewpager2:1.1.0"
+  implementation "androidx.recyclerview:recyclerview:1.4.0"
   implementation "androidx.preference:preference-ktx:1.2.1"
-  implementation "androidx.autofill:autofill:1.1.0"
+  implementation "androidx.autofill:autofill:1.3.0"
   // ExploreByTouchHelper (TalkBack virtual-view tree for the custom keyboard).
   // Transitively present via other AndroidX libs, but pin it explicitly so the
   // a11y helper never silently loses its dependency.
-  implementation "androidx.customview:customview:1.1.0"
+  implementation "androidx.customview:customview:1.2.0"
 
-  implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.0"
-  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:2.4.21"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0"
 
   // REPRODUCIBILITY: Use Compose BOM for deterministic version resolution
-  implementation platform("androidx.compose:compose-bom:2024.06.00")
-  implementation "androidx.activity:activity-compose:1.9.0"
+  implementation platform("androidx.compose:compose-bom:2026.09.00")
+  implementation "androidx.activity:activity-compose:1.13.0"
   implementation "androidx.compose.ui:ui"
   debugImplementation "androidx.compose.ui:ui-tooling-preview"
   debugImplementation "androidx.compose.ui:ui-tooling"
   implementation "androidx.compose.material3:material3"
   implementation "androidx.compose.foundation:foundation"
 
-  implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"
-  implementation "androidx.savedstate:savedstate-ktx:1.2.1"
+  implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.11.0"
+  implementation "androidx.savedstate:savedstate-ktx:1.5.0"
 
   implementation "org.burnoutcrew.composereorderable:reorderable:0.9.6"
   // ARC-113 RESOLVED (2026-09-03): maintainer approved minSdk 21 → 24, which
@@ -82,11 +86,10 @@ dependencies {
   // (1.20.0 ❌ jni lib 0x1000, 1.21.0 ❌, 1.21.1 ✅, 1.22.0 ✅, 1.23.0 ✅; the
   // fix came from the release build toolchain — no source commit in the
   // v1.21.0...v1.21.1 range mentions it, github.com/microsoft/onnxruntime
-  // issues #24902/#25859 track the saga). We take the minimal analyzed bump
-  // (1.21.1), not the latest, to keep the CTC numerics delta as small as
-  // possible — the golden/parity fixtures pin bit-stability across this
-  // upgrade; a fixture delta means the runtime changed numerics and must be
-  // investigated, never regenerated.
+  // issues #24902/#25859 track the saga). The current 1.31.0 upgrade must
+  // preserve all three supported ABIs and ELF alignment. Frozen golden/parity
+  // fixtures guard runtime numerics; investigate fixture deltas, never
+  // regenerate them to accept an upgrade.
   //
   // Why minSdk 24 was required: every release ≥ 1.21.0 declares AAR
   // minSdkVersion 24 ("align with React Native 0.76", v1.21.0 release notes)
@@ -95,44 +98,57 @@ dependencies {
   // (OrtEnvironment.getEnvironment() is a constructor-time initializer in
   // CtcEngineAdapter; the load latch catches Exception, not Error). Full
   // history: docs/audit/2026-08-28-archive-verification.md ARC-113.
-  implementation "com.microsoft.onnxruntime:onnxruntime-android:1.21.1"
-  implementation "com.google.code.gson:gson:2.10.1"
+  implementation "com.microsoft.onnxruntime:onnxruntime-android:1.31.0"
+  implementation "com.google.code.gson:gson:2.14.0"
 
   // Coil: Kotlin-native image loader with animated WebP support
-  implementation "io.coil-kt:coil:2.6.0"
+  implementation "io.coil-kt.coil3:coil:3.6.3"
 
 
   testImplementation "junit:junit:4.13.2"
-  testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
-  testImplementation "org.robolectric:robolectric:4.11.1"
-  testImplementation "androidx.test:core:1.5.0"
-  testImplementation "io.mockk:mockk:1.13.8"
-  testImplementation "com.google.truth:truth:1.1.5"
+  testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0"
+  testImplementation "org.robolectric:robolectric:4.17"
+  testImplementation "androidx.test:core:1.7.0"
+  testImplementation "io.mockk:mockk:1.14.11"
+  testImplementation "com.google.truth:truth:1.4.5"
   // Real pull parsing for layout/geometry regressions; Android Xml is a host stub.
   testImplementation "net.sf.kxml:kxml2:2.3.0"
   // Real org.json JSONObject for mock tests — android.jar provides only stubs
   // that throw RuntimeException("Stub!") on construction. Tests that build a
   // real JSON payload (BackupRestoreFullBackupTest) need this to shadow the
   // stub on the unit-test classpath.
-  testImplementation "org.json:json:20231013"
+  testImplementation "org.json:json:20260814"
   // ONNX Runtime for JVM unit tests (Android runtime doesn't work on host JVM)
   // Keep in lockstep with onnxruntime-android above (ARC-113): the pure-JVM
   // runner loads the AAR's bionic natives under this jar's Java layer, and a
   // JNI/Java version mismatch is undefined.
-  testImplementation "com.microsoft.onnxruntime:onnxruntime:1.21.1"
+  testImplementation "com.microsoft.onnxruntime:onnxruntime:1.31.0"
 
-  androidTestImplementation "androidx.test:core:1.5.0"
-  androidTestImplementation "androidx.test.ext:junit:1.1.5"
-  androidTestImplementation "androidx.test:runner:1.5.2"
-  androidTestImplementation "androidx.test:rules:1.5.0"
-  androidTestImplementation "androidx.test.uiautomator:uiautomator:2.2.0"
-  androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
-  androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
-  androidTestImplementation "org.mockito:mockito-android:5.5.0"
-  androidTestImplementation "org.mockito:mockito-core:5.5.0"
-  androidTestImplementation platform("androidx.compose:compose-bom:2024.06.00")
+  androidTestImplementation "androidx.test:core:1.7.0"
+  androidTestImplementation "androidx.test.ext:junit:1.3.0"
+  androidTestImplementation "androidx.test:runner:1.7.0"
+  androidTestImplementation "androidx.test:rules:1.7.0"
+  androidTestImplementation "androidx.test.uiautomator:uiautomator:2.4.0"
+  androidTestImplementation "androidx.test.espresso:espresso-core:3.7.0"
+  androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0"
+  androidTestImplementation "org.mockito:mockito-android:5.24.0"
+  androidTestImplementation "org.mockito:mockito-core:5.24.0"
+  androidTestImplementation platform("androidx.compose:compose-bom:2026.09.00")
   androidTestImplementation "androidx.compose.ui:ui-test-junit4"
   debugImplementation "androidx.compose.ui:ui-test-manifest"
+}
+
+abstract class BuildCommands {
+  @javax.inject.Inject
+  abstract org.gradle.process.ExecOperations getExecOperations()
+}
+def buildCommands = objects.newInstance(BuildCommands)
+def runCommand = { Closure command -> buildCommands.execOperations.exec(command) }
+
+kotlin {
+  compilerOptions {
+    jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+  }
 }
 
 // =============================================================================
@@ -210,9 +226,9 @@ configurations.all {
 
 android {
   namespace 'tribixbite.cleverkeys'
-  compileSdk 34
+  compileSdkVersion "android-37.2"
   // REPRODUCIBILITY: Let AGP use its default build-tools (pinned per AGP version)
-  // Removed explicit buildToolsVersion - both GitHub and F-Droid use AGP 8.8.2 default
+  // The wrapper and AGP plugin pins select the same build tools on CI and F-Droid.
 
   defaultConfig {
     applicationId "tribixbite.cleverkeys"
@@ -242,10 +258,6 @@ android {
     resConfigs rootProject.ext.shippedLocales
   }
 
-  kotlinOptions {
-    // REPRODUCIBILITY: Use Java 11 target for deterministic bytecode
-    jvmTarget = "11"
-  }
 
   aaptOptions {
     // REPRODUCIBILITY: Disable PNG crunching for deterministic output
@@ -253,8 +265,8 @@ android {
     // REPRODUCIBILITY: Force consistent platformBuildVersionCode/Name across environments
     // This ensures GitHub Actions and F-Droid produce identical AndroidManifest.xml
     additionalParameters "--no-auto-version",
-      "--compile-sdk-version-code", "34",
-      "--compile-sdk-version-name", "14"
+      "--compile-sdk-version-code", "37",
+      "--compile-sdk-version-name", "17"
   }
 
   packaging {
@@ -1449,7 +1461,7 @@ tasks.register('runMockTests', JavaExec) {
   // android.jar MUST come AFTER MockK on classpath so MockK intercepts first
   // Resolve SDK location: ANDROID_HOME (CI), ANDROID_SDK_ROOT, or ~/android-sdk (Termux)
   def sdkDir = System.getenv('ANDROID_HOME') ?: System.getenv('ANDROID_SDK_ROOT') ?: "${System.getProperty('user.home')}/android-sdk"
-  def androidJar = file("${sdkDir}/platforms/android-34/android.jar")
+  def androidJar = file("${sdkDir}/platforms/android-37.2/android.jar")
   def androidDependencyClasses = configurations.debugRuntimeClasspath.incoming.artifactView {
     attributes.attribute(
       org.gradle.api.attributes.Attribute.of('artifactType', String),
@@ -1501,7 +1513,7 @@ tasks.register('buildKeyboardFont', Exec) {
 tasks.register('genEmojis') {
   def outFile = file("res/raw/emojis.txt")
   if (outFile.exists() && outFile.length() > 1000) return
-  exec { workingDir = projectDir; commandLine "python3", "gen_emoji.py"; ignoreExitValue = true }
+  runCommand { workingDir = projectDir; commandLine "python3", "gen_emoji.py"; ignoreExitValue = true }
 }
 
 tasks.withType(Test).configureEach {
@@ -1511,12 +1523,12 @@ tasks.withType(Test).configureEach {
 tasks.register('genLayoutsList') {
   def outFile = file("res/values/layouts.xml")
   if (outFile.exists() && outFile.length() > 100) return
-  exec { workingDir = projectDir; commandLine "python3", "gen_layouts.py"; ignoreExitValue = true }
+  runCommand { workingDir = projectDir; commandLine "python3", "gen_layouts.py"; ignoreExitValue = true }
 }
 
 tasks.register('checkKeyboardLayouts') {
   if (!file("res/values/layouts.xml").exists()) return
-  exec { workingDir = projectDir; commandLine "python3", "tools/check_layout.py"; ignoreExitValue = true }
+  runCommand { workingDir = projectDir; commandLine "python3", "tools/check_layout.py"; ignoreExitValue = true }
 }
 
 tasks.register('generateBinaryDictionaries') {
@@ -1539,7 +1551,7 @@ tasks.register('generateBinaryDictionaries') {
             return  // continue to next json
           }
         }
-        exec { workingDir = projectDir; commandLine "python3", "scripts/generate_binary_dict.py", jsonFile.absolutePath, binFile.absolutePath }
+        runCommand { workingDir = projectDir; commandLine "python3", "scripts/generate_binary_dict.py", jsonFile.absolutePath, binFile.absolutePath }
       }
     }
   }
@@ -1550,7 +1562,7 @@ tasks.register('generateBinaryContractions') {
     def dictDir = file("src/main/assets/dictionaries")
     def binFile = new File(dictDir, "contractions.bin")
     if (!binFile.exists()) {
-      exec {
+      runCommand {
         workingDir = projectDir
         commandLine "python3", "scripts/generate_binary_contractions.py",
                     new File(dictDir, "contractions_non_paired.json").absolutePath,
@@ -1596,7 +1608,7 @@ tasks.register('generateSettingsSearchIndex') {
   inputs.files(sectionsDir)
   outputs.file(outKt)
   doLast {
-    exec { workingDir = projectDir; commandLine "python3", script.absolutePath, outKt.absolutePath }
+    runCommand { workingDir = projectDir; commandLine "python3", script.absolutePath, outKt.absolutePath }
   }
 }
 
@@ -1607,13 +1619,13 @@ tasks.register('generateComposeData') {
     def outputKt = file("src/main/kotlin/tribixbite/cleverkeys/ComposeKeyData.kt")
     if (outputBin.exists() && outputKt.exists()) return
     def jsonFiles = fileTree("srcs/compose").matching { include "*.json" }.files.collect { it.absolutePath }
-    exec { workingDir = projectDir; commandLine(["python3", "scripts/generate_compose_bin.py"] + jsonFiles + [file("srcs/compose/compose").absolutePath]) }
+    runCommand { workingDir = projectDir; commandLine(["python3", "scripts/generate_compose_bin.py"] + jsonFiles + [file("srcs/compose/compose").absolutePath]) }
   }
 }
 
 tasks.register('initDebugKeystore') {
   if (!file("debug.keystore").exists()) {
-    exec { commandLine "keytool", "-genkeypair", "-dname", "cn=d, ou=e, o=b, c=ug", "-alias", "debug", "-keypass", "debug0", "-keystore", "debug.keystore", "-keyalg", "rsa", "-storepass", "debug0", "-validity", "10000" }
+    runCommand { commandLine "keytool", "-genkeypair", "-dname", "cn=d, ou=e, o=b, c=ug", "-alias", "debug", "-keypass", "debug0", "-keystore", "debug.keystore", "-keyalg", "rsa", "-storepass", "debug0", "-validity", "10000" }
   }
 }
 
@@ -1665,7 +1677,7 @@ tasks.register("normalizeApkPaths") {
             def normalizedApk = new File(apkFile.parentFile, apkFile.name.replace(".apk", "_normalized.apk"))
 
             try {
-                exec {
+                runCommand {
                     commandLine "python3", scriptPath.absolutePath,
                         apkFile.absolutePath,
                         normalizedApk.absolutePath,

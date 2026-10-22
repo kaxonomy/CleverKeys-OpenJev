@@ -61,7 +61,7 @@ def download_tgif(
         print(f"Error loading dataset: {e}")
         print("Make sure you have huggingface_hub installed and are logged in:")
         print("  pip install huggingface_hub")
-        print("  huggingface-cli login")
+        print("  hf auth login")
         return {"error": str(e)}
 
     stats = {

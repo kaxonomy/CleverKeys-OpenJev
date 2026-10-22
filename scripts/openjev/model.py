@@ -2,7 +2,7 @@
 """Pinned host-only OpenJev acquisition, optional INT8 experiment, parity and local bundle creation.
 
 python3 -m venv ~/.cache/cleverkeys-openjev/venv
-~/.cache/cleverkeys-openjev/venv/bin/pip install onnxruntime==1.21.1 onnx==1.17.0 tokenizers==0.21.4 numpy==2.4.6
+~/.cache/cleverkeys-openjev/venv/bin/pip install -r scripts/openjev/requirements.txt
 ~/.cache/cleverkeys-openjev/venv/bin/python scripts/openjev/model.py --variant fp16
 No Android network permission or runtime download is needed.
 """

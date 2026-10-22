@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, dev, 'dependency-validation/cleverkeys-*' ]
     tags-ignore:
       - '**'  # Don't run on tag pushes - release.yml handles those
   pull_request:
@@ -17,6 +17,9 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+    env:
+      GRADLE_GUARD_XMX: 1536m
+      GRADLE_GUARD_METASPACE: 512m
 
     steps:
     - name: Checkout code
@@ -29,16 +32,29 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Install compile SDK
+      run: sdkmanager "platforms;android-37.2" "build-tools;37.0.0"
 
-    - name: Build with Gradle
-      run: ./gradlew assembleDebug --stacktrace
+    - name: Generate dependency locks on validation branches
+      if: startsWith(github.ref, 'refs/heads/dependency-validation/cleverkeys-')
+      run: bash scripts/gradle-guard.sh assembleDebug assembleDebugAndroidTest compileReleaseKotlin --write-locks --stacktrace
+
+    - name: Build app and instrumentation APKs with committed locks
+      run: bash scripts/gradle-guard.sh assembleDebug assembleDebugAndroidTest compileReleaseKotlin --stacktrace
 
     - name: Run pure JVM tests
-      run: ./gradlew runPureTests --stacktrace
-      # MockK tests (runMockTests) require android.jar stubs + specific classpath
-      # ordering that can hang on CI runners. Run via ew-cli instrumented tests instead.
+      run: bash scripts/gradle-guard.sh runPureTests --stacktrace
+
+    - name: Run MockK tests
+      run: bash scripts/gradle-guard.sh runMockTests --stacktrace
+
+    - name: Upload resolved dependency locks
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      if: always()
+      with:
+        name: gradle-dependency-locks
+        path: gradle.lockfile
+        retention-days: 7
 
     - name: Upload test results
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -55,7 +71,7 @@ jobs:
       # pre-existing issues, so this fails only on NEW lint regressions.
       # NOTE: bare `lint` resolves to the DEFAULT variant, i.e. DEBUG. Release is linted
       # by the next step — do not assume this one covers it.
-      run: ./gradlew lint --stacktrace
+      run: bash scripts/gradle-guard.sh lintDebug --stacktrace
 
     - name: Run release lint checks
       # ARC-096: release is the ONLY minified variant and the one users install, and until
@@ -69,7 +85,7 @@ jobs:
       # at all ("Task 'lintVitalRelease' not found"), which is why nothing could lint release.
       # That same flag makes `assembleRelease` self-gate, so this step is what covers PRs,
       # which build debug only.
-      run: ./gradlew lintVitalRelease --stacktrace
+      run: bash scripts/gradle-guard.sh lintVitalRelease --stacktrace
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -90,6 +106,9 @@ jobs:
   code-quality:
     name: Code Quality Checks
     runs-on: ubuntu-latest
+    env:
+      GRADLE_GUARD_XMX: 1536m
+      GRADLE_GUARD_METASPACE: 512m
 
     steps:
     - name: Checkout code
@@ -106,8 +125,11 @@ jobs:
       run: chmod +x gradlew
 
     # Lint runs (as a hard gate) in the "Build and Test" job; not duplicated here.
+    - name: Install compile SDK
+      run: sdkmanager "platforms;android-37.2" "build-tools;37.0.0"
+
     - name: Dependency analysis
-      run: ./gradlew dependencies --stacktrace
+      run: bash scripts/gradle-guard.sh dependencies --stacktrace
 
   security:
     name: Security Scan

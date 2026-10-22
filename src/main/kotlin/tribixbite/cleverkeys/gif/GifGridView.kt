@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.ImageLoader
-import coil.memory.MemoryCache
-import coil.request.ImageRequest
-import coil.size.Scale
+import coil3.ImageLoader
+import coil3.memory.MemoryCache
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.request.target
+import coil3.size.Scale
 import kotlinx.coroutines.*
 import java.io.File
 
@@ -61,12 +63,12 @@ class GifGridManager(
      * from bloating to 500MB+. */
     private val imageLoader: ImageLoader = ImageLoader.Builder(context)
         .memoryCache {
-            MemoryCache.Builder(context)
+            MemoryCache.Builder()
                 .maxSizeBytes(32 * 1024 * 1024) // 32 MB cap (vs ~250MB default)
                 .build()
         }
-        .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
-        .diskCachePolicy(coil.request.CachePolicy.DISABLED) // Files already on disk
+        .memoryCachePolicy(coil3.request.CachePolicy.ENABLED)
+        .diskCachePolicy(coil3.request.CachePolicy.DISABLED) // Files already on disk
         .crossfade(false) // Minimize animation overhead in IME
         .build()
 

@@ -10,7 +10,11 @@
     "f-regression": "node f_regression.mjs"
   },
   "devDependencies": {
-    "onnxruntime-web": "1.18.0",
-    "puppeteer-core": "^25.5.0"
-  }
+    "onnxruntime-web": "1.30.0",
+    "puppeteer-core": "25.16.0"
+  },
+  "engines": {
+    "node": ">=24.22.1"
+  },
+  "packageManager": "bun@1.4.4"
 }

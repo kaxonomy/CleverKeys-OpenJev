@@ -7,7 +7,7 @@ Tools for building offline GIF packs for CleverKeys keyboard.
 The easiest way to create a personal GIF pack for CleverKeys. Downloads GIFs
 from a free API, converts to optimized thumbnails, and produces an importable ZIP.
 
-**Requirements:** Python 3.10+, Pillow, requests, tqdm, ffmpeg (optional)
+**Requirements:** Python 3.11+, Pillow, requests, tqdm, ffmpeg (optional)
 
 ```bash
 pip install requests Pillow tqdm
@@ -280,7 +280,7 @@ brew install ffmpeg
 ```bash
 # Login to Hugging Face
 pip install huggingface_hub
-huggingface-cli login
+hf auth login
 ```
 
 ### "Out of memory"
